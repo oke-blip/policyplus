@@ -73,5 +73,23 @@
         "points": ["Project management", "Stakeholder coordination", "Policy delivery", "Strategic communication"]
       }
     ]
+  },
+  "approach": {
+    "header": "WHAT MAKES OUR APPROACH DIFFERENT",
+    "description": "Our work connects research, stakeholders, and communication to move policy ideas from discussion to implementation.",
+    "items": [
+      {
+        "title": "Translating Complexity",
+        "desc": "We make complex policy issues easier to understand, bridging research and public conversation."
+      },
+      {
+        "title": "From Insight to Implementation",
+        "desc": "We help move policy insights toward implementation by connecting ideas with the stakeholders who can drive change."
+      },
+      {
+        "title": "Tailored to Every Context",
+        "desc": "Every policy challenge is different. We tailor our research, engagement, and communication approach to the needs of each partner."
+      }
+    ]
   }
 }

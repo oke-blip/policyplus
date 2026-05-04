@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { AboutSection } from "@/components/public/about";
+import { ApproachSection } from "@/components/public/Approach";
 import { ExpertiseSection } from "@/components/public/Expertise";
 import { MethodologySection } from "@/components/public/Methodology";
 import { PublicHeroSection } from "@/components/public/hero-section";
@@ -83,6 +84,8 @@ export default function PublicHomePage() {
         </motion.section>
 
         <ExpertiseSection />
+
+        <ApproachSection />
 
         <MethodologySection />
 

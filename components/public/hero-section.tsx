@@ -34,6 +34,18 @@ export function PublicHeroSection() {
   const [imageIndex, setImageIndex] = React.useState(0);
   const { t } = useLanguage();
 
+  /** Plain strings for motion children (avoids Framer Motion vs. generic `t()` type clash). */
+  const hero = {
+    headlineLine1Prefix: String(t("hero.headlineLine1Prefix")),
+    headlineLine1Accent: String(t("hero.headlineLine1Accent")),
+    headlineLine2: String(t("hero.headlineLine2")),
+    headlineLine3Prefix: String(t("hero.headlineLine3Prefix")),
+    headlineLine3Accent: String(t("hero.headlineLine3Accent")),
+    subheadline: String(t("hero.subheadline")),
+    primaryButton: String(t("hero.primaryButton")),
+    secondaryButton: String(t("hero.secondaryButton")),
+  };
+
   React.useEffect(() => {
     if (reduceMotion) return;
     const id = window.setInterval(() => {
@@ -137,8 +149,8 @@ export function PublicHeroSection() {
                 variants={lineVariants}
                 className="block text-white"
               >
-                {t("hero.headlineLine1Prefix")}{" "}
-                <span className="text-yellow-500">{t("hero.headlineLine1Accent")}</span>
+                {hero.headlineLine1Prefix}{" "}
+                <span className="text-yellow-500">{hero.headlineLine1Accent}</span>
               </motion.span>
               <motion.span
                 variants={lineVariants}
@@ -149,15 +161,15 @@ export function PublicHeroSection() {
                   color: "transparent",
                 }}
               >
-                {t("hero.headlineLine2")}
+                {hero.headlineLine2}
               </motion.span>
               <motion.span
                 variants={lineVariants}
                 className="mt-1 block sm:mt-1.5"
               >
-                <span className="text-white">{t("hero.headlineLine3Prefix")} </span>
+                <span className="text-white">{hero.headlineLine3Prefix} </span>
                 <span className="text-yellow-500" style={headlineFont}>
-                  {t("hero.headlineLine3Accent")}
+                  {hero.headlineLine3Accent}
                 </span>
               </motion.span>
             </motion.h1>
@@ -168,7 +180,7 @@ export function PublicHeroSection() {
               animate="visible"
               className="mx-auto mt-10 max-w-2xl text-pretty font-sans text-base leading-relaxed text-gray-300 sm:mt-12 sm:text-lg sm:leading-[1.65] md:text-xl md:leading-[1.7]"
             >
-              {t("hero.subheadline")}
+              {hero.subheadline}
             </motion.p>
 
             <motion.div
@@ -181,13 +193,13 @@ export function PublicHeroSection() {
                 href="#expertise"
                 className="inline-flex min-h-[3rem] items-center justify-center rounded-full bg-yellow-500 px-10 py-3.5 text-center text-sm font-semibold tracking-wide text-white transition-colors duration-200 hover:bg-yellow-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-300"
               >
-                {t("hero.primaryButton")}
+                {hero.primaryButton}
               </Link>
               <Link
                 href="/blog"
                 className="inline-flex min-h-[3rem] items-center justify-center rounded-full border border-yellow-500 bg-transparent px-10 py-3.5 text-center text-sm font-semibold tracking-wide text-white transition-colors duration-200 hover:border-yellow-400 hover:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-400"
               >
-                {t("hero.secondaryButton")}
+                {hero.secondaryButton}
               </Link>
             </motion.div>
           </div>
