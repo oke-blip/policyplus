@@ -14,5 +14,64 @@
     "title": "Fostering Evidence-Based Policy in Indonesia",
     "description": "Policy Plus is an independent knowledge hub dedicated to transforming complex data into actionable insights. We bridge the gap between rigorous research and practical governance to drive sustainable development.",
     "link": "Read our story"
+  },
+  "expertise": {
+    "header": "OUR EXPERTISE",
+    "description": "We combine forward-looking insight, global perspective, and collaborative dialogue to turn complex policy challenges into meaningful solutions.",
+    "items": [
+      {
+        "tag": "Research & Analysis",
+        "title": "Turning evidence into actionable policy insight.",
+        "desc": "Evidence-based studies and diagnostics that inform strategic decision-making and policy development."
+      },
+      {
+        "tag": "Stakeholder Engagement & Advocacy",
+        "title": "Connecting voices to shape better policy outcomes.",
+        "desc": "Bridging public, private, and civil sectors through inclusive dialogue and consensus building."
+      },
+      {
+        "tag": "Project Management Officer (PMO)",
+        "title": "Ensuring policy initiatives translate into real impact.",
+        "desc": "We support effective project implementation to drive meaningful social impact."
+      },
+      {
+        "tag": "Communication Strategy & Training",
+        "title": "Empowering stakeholders through clear and effective policy communication.",
+        "desc": "Capacity building and policy communication that empowers stakeholders for lasting change."
+      }
+    ],
+    "readMore": "Read more"
+  },
+  "methodology": {
+    "tag": "Method",
+    "header": "From Ideation to Implementation",
+    "description": "Policy+ is committed to driving systematic change from ideas to impact through research, collaboration, and implementation.",
+    "steps": [
+      {
+        "id": "01",
+        "title": "IDEATION",
+        "points": ["Scanning issue", "Framing policy challenges", "Early insight"]
+      },
+      {
+        "id": "02",
+        "title": "RESEARCH",
+        "points": ["Policy research", "Benchmarking", "Data & evidence"]
+      },
+      {
+        "id": "03",
+        "title": "DIALOGUE",
+        "points": ["Stakeholder engagement", "Convenings", "Policy discussions"]
+      },
+      {
+        "id": "04",
+        "title": "FORMULATION",
+        "points": ["Policy design", "Recommendations", "Strategy"]
+      },
+      {
+        "id": "05",
+        "title": "IMPLEMENTATION",
+        "points": ["Project management", "Stakeholder coordination", "Policy delivery", "Strategic communication"]
+      }
+    ]
   }
 }

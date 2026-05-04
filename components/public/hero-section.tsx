@@ -79,7 +79,7 @@ export function PublicHeroSection() {
 
   return (
     <section
-      className="relative isolate min-h-[calc(100svh-5rem)] w-full overflow-hidden bg-[#111111] text-white"
+      className="relative isolate flex min-h-[100svh] w-full flex-col overflow-hidden bg-[#111111] text-white"
       aria-label="Policy Plus introduction"
     >
       {/* Background carousel */}
@@ -91,7 +91,7 @@ export function PublicHeroSection() {
             key={img.src}
             src={img.src}
             alt={img.alt}
-            className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ease-in-out ${
+            className={`absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-1000 ease-in-out ${
               i === imageIndex ? "opacity-100" : "opacity-0"
             }`}
             fetchPriority={i === 0 ? "high" : "low"}
@@ -123,8 +123,8 @@ export function PublicHeroSection() {
         }}
       />
 
-      <div className="relative z-10 mx-auto flex min-h-[calc(100svh-5rem)] w-full max-w-7xl flex-col px-6 pb-20 pt-16 sm:px-8 sm:pb-24 sm:pt-20 md:px-12 md:pb-28 md:pt-24 lg:px-14">
-        <div className="flex flex-1 flex-col items-center justify-center px-1 text-center sm:px-4">
+      <div className="relative z-10 mx-auto flex min-h-[100svh] w-full max-w-7xl flex-1 flex-col justify-center px-6 pb-20 pt-16 sm:px-8 sm:pb-24 sm:pt-20 md:px-12 md:pb-28 md:pt-24 lg:px-14">
+        <div className="flex w-full flex-col items-center justify-center px-1 text-center sm:px-4">
           <div className="w-full max-w-6xl">
             <motion.h1
               className="font-sans text-[clamp(1.75rem,5.5vw,4.75rem)] font-black uppercase leading-[1.02] tracking-[-0.04em] text-balance"

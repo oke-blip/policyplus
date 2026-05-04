@@ -2,64 +2,16 @@
 
 import { motion } from "framer-motion";
 import { AboutSection } from "@/components/public/about";
+import { ExpertiseSection } from "@/components/public/Expertise";
+import { MethodologySection } from "@/components/public/Methodology";
 import { PublicHeroSection } from "@/components/public/hero-section";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-
-const expertiseItems = [
-  {
-    title: "Turning evidence into actionable policy insight",
-    subtitle: "Research & Analysis",
-    description:
-      "We synthesize data and strategic intelligence into clear recommendations that support better decisions.",
-  },
-  {
-    title: "Connecting voices to shape better policy outcomes",
-    subtitle: "Stakeholder Engagement",
-    description:
-      "We convene institutions, communities, and practitioners to build alignment around practical policy pathways.",
-  },
-  {
-    title: "Ensuring policy initiatives translate into real impact",
-    subtitle: "Project Management",
-    description:
-      "From planning to delivery, we keep initiatives accountable, measurable, and grounded in implementation realities.",
-  },
-  {
-    title: "Empowering stakeholders through clear communication",
-    subtitle: "Strategy & Training",
-    description:
-      "We design communication and capability-building programs that make complex policy issues understandable and actionable.",
-  },
-];
 
 const knowledgeItems = [
   { category: "Sustainability", title: "Advisory Initiative on Sustainable Logistics" },
   { category: "Good Governance", title: "Institutional Delivery Acceleration Program" },
   { category: "Public Policy", title: "Integrated Economic Transition Roadmap" },
-];
-
-const timeline = [
-  {
-    name: "Ideation",
-    body: "We clarify policy priorities, map constraints, and define realistic impact objectives.",
-  },
-  {
-    name: "Research",
-    body: "We combine evidence, benchmarking, and scenario modeling to strengthen strategic options.",
-  },
-  {
-    name: "Dialogue",
-    body: "We convene institutions and stakeholders to align direction and build policy legitimacy.",
-  },
-  {
-    name: "Formulation",
-    body: "We translate insight into executable frameworks, governance models, and measurable outputs.",
-  },
-  {
-    name: "Implementation",
-    body: "We support disciplined execution, monitor outcomes, and iterate for sustained social impact.",
-  },
 ];
 
 const events = Array.from({ length: 3 }, () => ({
@@ -130,103 +82,9 @@ export default function PublicHomePage() {
           </motion.div>
         </motion.section>
 
-        <motion.section
-          {...reveal}
-          id="expertise"
-          className="mx-auto w-full max-w-7xl scroll-mt-24 px-6 py-24"
-        >
-          <Badge>Expertise</Badge>
-          <h2 className="mt-5 font-serif text-4xl font-bold tracking-tight md:text-5xl">
-            Our core expertise
-          </h2>
-          <div className="mt-12 grid auto-rows-[minmax(180px,auto)] gap-6 md:grid-cols-6">
-            {expertiseItems.map((item, index) => (
-              <motion.article
-                key={item.title}
-                whileHover={{ y: -6, scale: 1.01 }}
-                transition={{ duration: 0.24 }}
-                className={`group relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-7 shadow-[0_14px_34px_rgba(15,23,42,0.06)] ${
-                  index === 0 || index === 1 ? "md:col-span-3 md:row-span-2" : "md:col-span-3"
-                }`}
-              >
-                <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                  <div className="absolute inset-0 rounded-3xl border border-yellow-200 bg-gradient-to-br from-yellow-50/80 via-transparent to-white" />
-                </div>
-                <div className="relative z-10">
-                  <div className="mb-4 flex items-center justify-between">
-                    <Badge className="border-slate-200 bg-slate-100 text-slate-700">
-                      {item.subtitle}
-                    </Badge>
-                    <motion.span
-                      animate={{ rotate: [0, 10, 0] }}
-                      transition={{ repeat: Infinity, duration: 3.4 }}
-                      className="text-yellow-500"
-                    >
-                      ✦
-                    </motion.span>
-                  </div>
-                  <h3 className="text-xl font-semibold leading-tight text-slate-900">
-                    {item.title}
-                  </h3>
-                  <p className="mt-4 text-sm leading-7 text-slate-600">
-                    {item.description}
-                  </p>
-                  <a
-                    href="#"
-                    className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-slate-800 transition-colors hover:text-yellow-600"
-                  >
-                    Read More
-                    <span aria-hidden="true" className="text-yellow-500">
-                      →
-                    </span>
-                  </a>
-                </div>
-              </motion.article>
-            ))}
-          </div>
-        </motion.section>
+        <ExpertiseSection />
 
-        <motion.section {...reveal} className="mx-auto w-full max-w-7xl px-6 py-24">
-          <Badge>Method</Badge>
-          <h2 className="mt-5 font-serif text-4xl font-bold tracking-tight md:text-5xl">
-            From Ideation to Implementation
-          </h2>
-          <div className="mt-12 grid gap-10 md:grid-cols-[0.9fr_1.1fr]">
-            <div className="md:sticky md:top-28 md:h-fit">
-              <p className="max-w-sm text-base leading-8 text-slate-600">
-                Our process integrates strategy, evidence, and execution.
-                Each stage deepens alignment so policy intent turns into meaningful outcomes.
-              </p>
-            </div>
-            <div className="relative space-y-8">
-              <div className="absolute bottom-0 left-4 top-0 w-px bg-slate-200" />
-              {timeline.map((step, index) => (
-                <motion.article
-                  key={step.name}
-                  initial={{ opacity: 0.2 }}
-                  whileInView={{ opacity: 1 }}
-                  viewport={{ once: true, amount: 0.5 }}
-                  className="group relative rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_12px_24px_rgba(15,23,42,0.04)]"
-                >
-                  <motion.div
-                    initial={{ scaleY: 0 }}
-                    whileInView={{ scaleY: 1 }}
-                    viewport={{ once: true, amount: 0.6 }}
-                    transition={{ duration: 0.6, ease: "easeOut" }}
-                    className="absolute -left-[17px] top-4 h-[calc(100%-1rem)] w-[3px] origin-top rounded-full bg-yellow-500"
-                  />
-                  <div className="mb-4 flex items-center gap-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-yellow-500 text-sm font-bold text-slate-900">
-                      {index + 1}
-                    </div>
-                    <h3 className="text-lg font-semibold text-slate-900">{step.name}</h3>
-                  </div>
-                  <p className="text-sm leading-7 text-slate-600">{step.body}</p>
-                </motion.article>
-              ))}
-            </div>
-          </div>
-        </motion.section>
+        <MethodologySection />
 
         <motion.section {...reveal} className="mx-auto w-full max-w-7xl px-6 py-24">
           <Badge>Knowledge Center</Badge>

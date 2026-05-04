@@ -14,5 +14,64 @@
     "title": "Mendorong Kebijakan Berbasis Bukti di Indonesia",
     "description": "Policy Plus adalah pusat pengetahuan independen yang berdedikasi untuk mengubah data kompleks menjadi wawasan yang dapat ditindaklanjuti. Kami menjembatani kesenjangan antara riset yang ketat dan tata kelola praktis untuk mendorong pembangunan berkelanjutan.",
     "link": "Baca cerita kami"
+  },
+  "expertise": {
+    "header": "KEAHLIAN KAMI",
+    "description": "Kami memadukan wawasan yang berorientasi ke depan, perspektif global, dan dialog kolaboratif untuk mengubah tantangan kebijakan yang kompleks menjadi solusi yang bermakna.",
+    "items": [
+      {
+        "tag": "Riset & Analisis",
+        "title": "Mengubah bukti menjadi wawasan kebijakan yang dapat ditindaklanjuti.",
+        "desc": "Studi dan diagnostik berbasis bukti yang menginformasikan pengambilan keputusan strategis dan pengembangan kebijakan."
+      },
+      {
+        "tag": "Pelibatan Pemangku Kepentingan & Advokasi",
+        "title": "Menghubungkan berbagai suara untuk membentuk hasil kebijakan yang lebih baik.",
+        "desc": "Menjembatani sektor publik, swasta, dan sipil melalui dialog inklusif dan pembangunan konsensus."
+      },
+      {
+        "tag": "Manajemen Proyek (PMO)",
+        "title": "Memastikan inisiatif kebijakan berdampak nyata.",
+        "desc": "Kami mendukung implementasi proyek yang efektif untuk mendorong dampak sosial yang bermakna."
+      },
+      {
+        "tag": "Strategi Komunikasi & Pelatihan",
+        "title": "Memberdayakan pemangku kepentingan melalui komunikasi kebijakan yang jelas dan efektif.",
+        "desc": "Peningkatan kapasitas dan komunikasi kebijakan yang memberdayakan pemangku kepentingan untuk perubahan jangka panjang."
+      }
+    ],
+    "readMore": "Baca selengkapnya"
+  },
+  "methodology": {
+    "tag": "Metode",
+    "header": "Dari Gagasan ke Implementasi",
+    "description": "Policy+ berkomitmen untuk mendorong perubahan sistematis dari ide hingga dampak melalui riset, kolaborasi, dan implementasi.",
+    "steps": [
+      {
+        "id": "01",
+        "title": "GAGASAN (IDEATION)",
+        "points": ["Pemindaian isu", "Membingkai tantangan kebijakan", "Wawasan awal"]
+      },
+      {
+        "id": "02",
+        "title": "RISET (RESEARCH)",
+        "points": ["Riset kebijakan", "Tolak ukur (Benchmarking)", "Data & bukti"]
+      },
+      {
+        "id": "03",
+        "title": "DIALOG (DIALOGUE)",
+        "points": ["Pelibatan pemangku kepentingan", "Pertemuan/Sidang", "Diskusi kebijakan"]
+      },
+      {
+        "id": "04",
+        "title": "FORMULASI (FORMULATION)",
+        "points": ["Desain kebijakan", "Rekomendasi", "Strategi"]
+      },
+      {
+        "id": "05",
+        "title": "IMPLEMENTASI (IMPLEMENTATION)",
+        "points": ["Manajemen proyek", "Koordinasi pemangku kepentingan", "Penyampaian kebijakan", "Komunikasi strategis"]
+      }
+    ]
   }
 }

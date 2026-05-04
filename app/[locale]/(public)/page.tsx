@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { AboutSection } from "@/components/public/about";
+import { MethodologySection } from "@/components/public/Methodology";
 import { PublicHeroSection } from "@/components/public/hero-section";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -37,29 +38,6 @@ const knowledgeItems = [
   { category: "Sustainability", title: "Advisory Initiative on Sustainable Logistics" },
   { category: "Good Governance", title: "Institutional Delivery Acceleration Program" },
   { category: "Public Policy", title: "Integrated Economic Transition Roadmap" },
-];
-
-const timeline = [
-  {
-    name: "Ideation",
-    body: "We clarify policy priorities, map constraints, and define realistic impact objectives.",
-  },
-  {
-    name: "Research",
-    body: "We combine evidence, benchmarking, and scenario modeling to strengthen strategic options.",
-  },
-  {
-    name: "Dialogue",
-    body: "We convene institutions and stakeholders to align direction and build policy legitimacy.",
-  },
-  {
-    name: "Formulation",
-    body: "We translate insight into executable frameworks, governance models, and measurable outputs.",
-  },
-  {
-    name: "Implementation",
-    body: "We support disciplined execution, monitor outcomes, and iterate for sustained social impact.",
-  },
 ];
 
 const events = Array.from({ length: 3 }, () => ({
@@ -186,47 +164,7 @@ export default function PublicHomePage() {
           </div>
         </motion.section>
 
-        <motion.section {...reveal} className="mx-auto w-full max-w-7xl px-6 py-24">
-          <Badge>Method</Badge>
-          <h2 className="mt-5 font-serif text-4xl font-bold tracking-tight md:text-5xl">
-            From Ideation to Implementation
-          </h2>
-          <div className="mt-12 grid gap-10 md:grid-cols-[0.9fr_1.1fr]">
-            <div className="md:sticky md:top-28 md:h-fit">
-              <p className="max-w-sm text-base leading-8 text-slate-600">
-                Our process integrates strategy, evidence, and execution.
-                Each stage deepens alignment so policy intent turns into meaningful outcomes.
-              </p>
-            </div>
-            <div className="relative space-y-8">
-              <div className="absolute bottom-0 left-4 top-0 w-px bg-slate-200" />
-              {timeline.map((step, index) => (
-                <motion.article
-                  key={step.name}
-                  initial={{ opacity: 0.2 }}
-                  whileInView={{ opacity: 1 }}
-                  viewport={{ once: true, amount: 0.5 }}
-                  className="group relative rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_12px_24px_rgba(15,23,42,0.04)]"
-                >
-                  <motion.div
-                    initial={{ scaleY: 0 }}
-                    whileInView={{ scaleY: 1 }}
-                    viewport={{ once: true, amount: 0.6 }}
-                    transition={{ duration: 0.6, ease: "easeOut" }}
-                    className="absolute -left-[17px] top-4 h-[calc(100%-1rem)] w-[3px] origin-top rounded-full bg-yellow-500"
-                  />
-                  <div className="mb-4 flex items-center gap-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-yellow-500 text-sm font-bold text-slate-900">
-                      {index + 1}
-                    </div>
-                    <h3 className="text-lg font-semibold text-slate-900">{step.name}</h3>
-                  </div>
-                  <p className="text-sm leading-7 text-slate-600">{step.body}</p>
-                </motion.article>
-              ))}
-            </div>
-          </div>
-        </motion.section>
+        <MethodologySection />
 
         <motion.section {...reveal} className="mx-auto w-full max-w-7xl px-6 py-24">
           <Badge>Knowledge Center</Badge>

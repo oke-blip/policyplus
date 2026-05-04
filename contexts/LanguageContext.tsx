@@ -12,7 +12,7 @@ type LanguageContextValue = {
   language: Language;
   setLanguage: React.Dispatch<React.SetStateAction<Language>>;
   toggleLanguage: () => void;
-  t: (key: string) => string;
+  t: <T = string>(key: string) => T;
 };
 
 const dictionaries: Record<Language, Dictionary> = {
@@ -30,7 +30,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const t = React.useCallback(
-    (key: string) => {
+    <T,>(key: string): T => {
       const dictionary = dictionaries[language];
       const value = key
         .split(".")
@@ -42,7 +42,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
           return undefined;
         }, dictionary);
 
-      return typeof value === "string" ? value : key;
+      return (value === undefined ? key : value) as T;
     },
     [language]
   );
