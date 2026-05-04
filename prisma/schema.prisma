@@ -1,0 +1,71 @@
+// https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum JobType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERNSHIP
+}
+
+enum JobStatus {
+  OPEN
+  CLOSED
+}
+
+enum ApplicationStatus {
+  PENDING
+  REVIEWING
+  ACCEPTED
+  REJECTED
+}
+
+model Post {
+  id         String      @id @default(cuid())
+  title      String
+  slug       String      @unique
+  content    String      @db.Text
+  image_url  String?
+  status     PostStatus  @default(DRAFT)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+}
+
+model Job {
+  id           String        @id @default(cuid())
+  title        String
+  description  String        @db.Text
+  type         JobType
+  status       JobStatus     @default(OPEN)
+  applications Application[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model Application {
+  id             String              @id @default(cuid())
+  jobId          String
+  job            Job                 @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  candidate_name String
+  email          String
+  phone          String?
+  cv_url         String?
+  status         ApplicationStatus   @default(PENDING)
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  @@index([jobId])
+}

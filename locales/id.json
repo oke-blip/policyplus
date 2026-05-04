@@ -1,0 +1,18 @@
+{
+  "hero": {
+    "headlineLine1Prefix": "MENDORONG DAMPAK",
+    "headlineLine1Accent": "BERMAKNA",
+    "headlineLine2": "MELALUI SOLUSI KEBIJAKAN",
+    "headlineLine3Prefix": "YANG KETAT DAN",
+    "headlineLine3Accent": "TERUKUR",
+    "subheadline": "Pusat Pengetahuan Indonesia untuk riset pembangunan yang aplikatif, pelatihan strategis, dan advokasi inklusif.",
+    "primaryButton": "Keahlian Kami",
+    "secondaryButton": "Insight Terbaru"
+  },
+  "about": {
+    "eyebrow": "SIAPA KAMI",
+    "title": "Mendorong Kebijakan Berbasis Bukti di Indonesia",
+    "description": "Policy Plus adalah pusat pengetahuan independen yang berdedikasi untuk mengubah data kompleks menjadi wawasan yang dapat ditindaklanjuti. Kami menjembatani kesenjangan antara riset yang ketat dan tata kelola praktis untuk mendorong pembangunan berkelanjutan.",
+    "link": "Baca cerita kami"
+  }
+}

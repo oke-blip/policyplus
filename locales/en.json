@@ -1,0 +1,18 @@
+{
+  "hero": {
+    "headlineLine1Prefix": "DRIVING MEANINGFUL",
+    "headlineLine1Accent": "IMPACT",
+    "headlineLine2": "THROUGH RIGOROUS",
+    "headlineLine3Prefix": "POLICY",
+    "headlineLine3Accent": "SOLUTIONS",
+    "subheadline": "Indonesia's Knowledge Hub for actionable development research, strategic training, and inclusive advocacy.",
+    "primaryButton": "Our Expertise",
+    "secondaryButton": "Latest Insights"
+  },
+  "about": {
+    "eyebrow": "WHO WE ARE",
+    "title": "Fostering Evidence-Based Policy in Indonesia",
+    "description": "Policy Plus is an independent knowledge hub dedicated to transforming complex data into actionable insights. We bridge the gap between rigorous research and practical governance to drive sustainable development.",
+    "link": "Read our story"
+  }
+}
