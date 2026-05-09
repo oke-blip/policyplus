@@ -42,7 +42,7 @@ export function LatestInsights() {
       />
 
       <header className={`${SECTION_HEADER} text-center lg:text-center text-white`}>
-        <h2 className="text-4xl font-bold text-white">{t("insights.header")}</h2>
+        <h2 className="text-3xl font-bold text-white lg:text-5xl">{t("insights.header")}</h2>
       </header>
 
       <div
@@ -51,13 +51,13 @@ export function LatestInsights() {
       >
         <div className="mx-auto flex w-full max-w-7xl flex-col px-4">
           <div
-            className="mx-auto mt-6 flex w-full max-w-7xl snap-x snap-mandatory gap-6 overflow-x-auto pb-4 [-webkit-overflow-scrolling:touch] hide-scrollbar lg:mt-8 lg:grid lg:grid-cols-3 lg:overflow-visible lg:pb-6"
+            className="mx-auto mt-6 flex w-full max-w-7xl flex-row gap-4 overflow-x-auto overscroll-x-contain pb-4 [-webkit-overflow-scrolling:touch] hide-scrollbar snap-x snap-mandatory touch-pan-x lg:mt-8 lg:grid lg:grid-cols-3 lg:gap-6 lg:overflow-visible lg:pb-6"
             style={HIDDEN_SCROLLBAR_STYLE}
           >
             {items.map((post, index) => (
               <article
                 key={`insight-${index}`}
-                className="group flex min-w-[85vw] shrink-0 snap-center cursor-pointer flex-col overflow-hidden rounded-3xl border border-gray-800 bg-[#111] transition-all duration-300 hover:-translate-y-2 md:min-w-[45vw] lg:min-w-0"
+                className="group flex min-w-[85vw] shrink-0 snap-center cursor-pointer flex-col overflow-hidden rounded-3xl border border-gray-800 bg-[#111] transition-all duration-300 md:min-w-[45vw] lg:min-w-0 lg:hover:-translate-y-2"
               >
                 <div className="relative aspect-video w-full overflow-hidden">
                   <Image
@@ -65,7 +65,7 @@ export function LatestInsights() {
                     alt=""
                     fill
                     sizes="(max-width: 768px) 85vw, (max-width: 1024px) 45vw, 33vw"
-                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    className="object-cover transition-transform duration-700 lg:group-hover:scale-105"
                   />
                 </div>
 
@@ -82,7 +82,7 @@ export function LatestInsights() {
                   <h3 className="mb-2 line-clamp-2 text-lg leading-snug font-bold text-white lg:text-xl">{post.title}</h3>
                   <p className="mb-6 line-clamp-3 text-sm text-gray-400">{post.excerpt}</p>
 
-                  <span className="mt-auto flex w-max items-center gap-2 border-b border-transparent pb-0.5 text-sm font-semibold text-white transition-colors group-hover:border-yellow-500 group-hover:text-yellow-500">
+                  <span className="mt-auto flex w-max items-center gap-2 border-b border-transparent pb-0.5 text-sm font-semibold text-white transition-colors lg:group-hover:border-yellow-500 lg:group-hover:text-yellow-500">
                     {t("insights.readMore")}
                     <ArrowRight className="h-4 w-4 shrink-0" aria-hidden />
                   </span>

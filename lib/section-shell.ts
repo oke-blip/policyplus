@@ -6,11 +6,11 @@ export const SNAP_SECTION =
 
 /** Title / intro — clears fixed navbar */
 export const SECTION_HEADER =
-  "flex-none pt-24 lg:pt-32 px-4 max-w-7xl mx-auto w-full text-center lg:text-left z-10 relative";
+  "flex-none pt-20 lg:pt-32 px-4 max-w-7xl mx-auto w-full text-center lg:text-left z-10 relative";
 
 /** Inner vertical scroll chain before outer snap advances */
 export const SECTION_SCROLL_BODY =
-  "flex-1 min-h-0 w-full overflow-y-auto overflow-x-hidden hide-scrollbar z-10 flex flex-col justify-start lg:justify-center pb-20 lg:pb-32";
+  "flex-1 min-h-0 w-full overflow-y-auto overflow-x-hidden hide-scrollbar z-10 flex flex-col justify-start lg:justify-center pb-24 lg:pb-32";
 
 export const SECTION_SCROLL_STYLE = {
   scrollbarWidth: "none",

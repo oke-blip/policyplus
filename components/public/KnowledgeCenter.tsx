@@ -117,7 +117,7 @@ export function KnowledgeCenterSection() {
           </div>
 
           <div
-            className="mx-auto mt-8 flex min-h-0 w-full max-w-7xl snap-x snap-mandatory flex-row gap-4 overflow-x-auto px-0 pb-4 [-webkit-overflow-scrolling:touch] touch-pan-x hide-scrollbar lg:grid lg:grid-cols-3 lg:snap-none lg:gap-6 lg:overflow-x-hidden lg:overflow-y-visible lg:pb-8"
+            className="mx-auto mt-8 flex min-h-0 w-full max-w-7xl flex-row gap-4 overflow-x-auto overscroll-x-contain px-0 pb-4 [-webkit-overflow-scrolling:touch] touch-pan-x hide-scrollbar snap-x snap-mandatory lg:grid lg:grid-cols-3 lg:snap-none lg:gap-6 lg:overflow-x-hidden lg:overflow-y-visible lg:pb-8"
             style={HIDDEN_SCROLLBAR_STYLE}
           >
             <AnimatePresence mode="popLayout" initial={false}>
@@ -129,7 +129,7 @@ export function KnowledgeCenterSection() {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.98 }}
                   transition={{ duration: 0.25 }}
-                  className="group relative h-[45vh] min-w-[85vw] shrink-0 snap-center overflow-hidden rounded-[2rem] border border-gray-800 lg:h-[50vh] lg:min-w-0"
+                  className="group relative aspect-[4/5] min-h-[260px] min-w-[85vw] shrink-0 snap-center overflow-hidden rounded-[2rem] border border-gray-800 lg:aspect-auto lg:h-[50vh] lg:min-h-0 lg:min-w-0"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
@@ -142,7 +142,7 @@ export function KnowledgeCenterSection() {
                     className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent"
                   />
 
-                  <div className="absolute bottom-0 left-0 right-0 flex flex-col justify-end p-6 transition-transform duration-500 ease-out translate-y-0 lg:translate-y-[4.5rem] lg:group-hover:translate-y-0">
+                  <div className="absolute bottom-0 left-0 right-0 flex translate-y-0 flex-col justify-end p-6 transition-[transform,opacity] duration-500 ease-out lg:translate-y-8 lg:group-hover:translate-y-0">
                     <span className="inline-flex w-fit rounded-full bg-yellow-500 px-3 py-1 text-[10px] font-semibold tracking-wider text-black uppercase">
                       {item.category}
                     </span>

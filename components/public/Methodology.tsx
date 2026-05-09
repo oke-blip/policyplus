@@ -101,7 +101,7 @@ export function MethodologySection() {
         <span className="inline-block rounded-full border border-gray-700 bg-[#111] px-3 py-1 text-[10px] font-semibold tracking-wide text-yellow-500 uppercase sm:px-4 sm:py-1.5 sm:text-xs">
           {t("methodology.tag")}
         </span>
-        <h2 className="mt-3 break-words font-serif text-3xl font-bold leading-tight tracking-tight text-white hyphens-auto lg:text-4xl xl:text-5xl">
+        <h2 className="mt-3 break-words font-serif text-3xl font-bold leading-tight tracking-tight text-white hyphens-auto lg:text-5xl">
           {t("methodology.header")}
         </h2>
         <p className="mt-2 text-sm leading-snug text-gray-400 sm:text-base">
@@ -111,57 +111,38 @@ export function MethodologySection() {
 
       <div className={SECTION_SCROLL_BODY} style={SECTION_SCROLL_STYLE}>
         <div className="mx-auto w-full min-w-0 max-w-7xl px-4 sm:px-6">
-            {/* ——— Mobile: vertical timeline ——— */}
+            {/* ——— Mobile: horizontal swipe deck (no staircase — saves vertical space) ——— */}
             <div className="relative mt-2 block min-h-0 lg:hidden">
-              <div className="relative pr-1 [-webkit-overflow-scrolling:touch]">
-                <motion.div
-                  className="absolute bottom-0 left-6 top-0 w-0.5 origin-top bg-gradient-to-b from-yellow-500 to-gray-600"
-                  initial={{ scaleY: 0 }}
-                  whileInView={{ scaleY: 1 }}
-                  viewport={{ once: true, margin: "-40px" }}
-                  transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
-                  style={{ transformOrigin: "top" }}
-                />
-
+              <motion.div
+                className="flex w-full flex-row gap-4 overflow-x-auto overscroll-x-contain pb-2 [-webkit-overflow-scrolling:touch] hide-scrollbar snap-x snap-mandatory touch-pan-x"
+                style={SECTION_SCROLL_STYLE}
+                variants={containerVars}
+                initial="hidden"
+                whileInView="show"
+                viewport={{ once: true, margin: "-40px" }}
+              >
                 {steps.map((step, index) => {
                   const Icon = STEP_ICONS[index] ?? Settings;
                   return (
-                    <div
-                      key={`m-${step.id}`}
-                      className={cn("relative flex gap-4", index < steps.length - 1 ? "mb-6" : "")}
+                    <motion.div
+                      key={`m-deck-${step.id}`}
+                      variants={desktopStepVars}
+                      className="min-w-[85vw] shrink-0 snap-center"
                     >
-                      <div className="pointer-events-none relative z-10 w-12 shrink-0">
-                        <motion.div
-                          className="absolute left-6 top-0 flex h-11 w-11 -translate-x-1/2 items-center justify-center rounded-full border-4 border-yellow-500 bg-[#111] text-xs font-bold text-yellow-400 shadow-[0_0_15px_rgba(234,179,8,0.35)]"
-                          animate={{
-                            scale: [1, 1.06, 1],
-                            boxShadow: [
-                              "0 0 15px rgba(234,179,8,0.35)",
-                              "0 0 22px rgba(234,179,8,0.55)",
-                              "0 0 15px rgba(234,179,8,0.35)",
-                            ],
-                          }}
-                          transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-                        >
+                      <div className="relative flex translate-y-0 flex-col items-center">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 border-yellow-500 bg-[#111] text-xs font-bold text-yellow-400 shadow-[0_0_12px_rgba(234,179,8,0.35)]">
                           {step.id}
-                        </motion.div>
-                      </div>
-
-                      <motion.div
-                        className="min-w-0 flex-1 overflow-hidden rounded-2xl border border-gray-800 bg-[#111] p-4 shadow-lg sm:p-5"
-                        initial={{ opacity: 0, x: 50 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true, margin: "-32px" }}
-                        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: index * 0.05 }}
-                      >
-                        <div className="flex flex-col items-center">
-                          <StepCardContent step={step} Icon={Icon} />
                         </div>
-                      </motion.div>
-                    </div>
+                        <div className={cn(CARD_BOX, "mt-3 h-auto min-h-[200px] max-h-[42vh] w-full translate-y-0")}>
+                          <div className="flex min-h-0 flex-1 flex-col items-center overflow-y-auto">
+                            <StepCardContent step={step} Icon={Icon} />
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
                   );
                 })}
-              </div>
+              </motion.div>
             </div>
 
             {/* ——— Desktop: horizontal staircase (ascends left → right) ——— */}
@@ -210,7 +191,7 @@ export function MethodologySection() {
                           aria-hidden="true"
                         />
 
-                        <div className="relative z-20 -mt-px flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-yellow-500 bg-[#111] text-[10px] font-bold text-yellow-400 shadow-sm transition-colors duration-300 group-hover:bg-yellow-500 group-hover:text-black lg:h-9 lg:w-9 lg:text-xs">
+                        <div className="relative z-20 -mt-px flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-yellow-500 bg-[#111] text-[10px] font-bold text-yellow-400 shadow-sm transition-colors duration-300 lg:group-hover:bg-yellow-500 lg:group-hover:text-black lg:h-9 lg:w-9 lg:text-xs">
                           {step.id}
                         </div>
                       </div>

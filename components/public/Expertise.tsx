@@ -24,8 +24,9 @@ const CARD_IMAGES = [
   "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1200",
 ] as const;
 
-/** Fluid card shell — avoids fixed px heights conflicting with 100svh snap */
-const cardShell = "h-[55vh] min-h-[380px] max-h-[550px]";
+/** Mobile: auto height + deck swipe; desktop: fixed fluid band */
+const cardShell =
+  "h-auto min-h-[300px] max-h-[min(72vh,620px)] lg:h-[55vh] lg:min-h-[380px] lg:max-h-[550px]";
 
 const containerVariants = {
   hidden: {},
@@ -78,7 +79,7 @@ export function ExpertiseSection() {
 
       <div className={SECTION_SCROLL_BODY} style={SECTION_SCROLL_STYLE}>
         <motion.div
-          className="mx-auto flex min-h-0 w-full max-w-7xl snap-x snap-mandatory gap-3 overflow-x-auto px-4 [-webkit-overflow-scrolling:touch] sm:gap-4 lg:grid lg:grid-cols-3 lg:gap-6 lg:overflow-visible hide-scrollbar touch-pan-x"
+          className="mx-auto flex min-h-0 w-full max-w-7xl flex-row snap-x snap-mandatory gap-4 overflow-x-auto px-4 [-webkit-overflow-scrolling:touch] hide-scrollbar touch-pan-x lg:grid lg:grid-cols-3 lg:gap-6 lg:overflow-visible"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           variants={containerVariants}
           initial="hidden"
@@ -94,9 +95,9 @@ export function ExpertiseSection() {
                 <motion.article
                   key={`expertise-card-${index}`}
                   variants={cardVariants}
-                  className={`group relative flex ${cardShell} min-w-[85vw] shrink-0 cursor-pointer snap-center flex-col overflow-hidden rounded-[2rem] bg-yellow-500 p-4 pb-16 text-black transition-all duration-500 sm:min-w-[80vw] sm:rounded-[2.5rem] sm:p-6 sm:pb-20 lg:min-w-0 lg:hover:-translate-y-2`}
+                  className={`group relative flex ${cardShell} min-w-[85vw] shrink-0 cursor-pointer snap-center flex-col overflow-hidden rounded-[2rem] bg-yellow-500 p-4 pb-16 text-black transition-all duration-500 sm:rounded-[2.5rem] sm:p-6 sm:pb-20 lg:min-w-0 lg:hover:-translate-y-2`}
                 >
-                  <div className="relative h-[40%] min-h-[140px] w-full shrink-0 overflow-hidden rounded-2xl">
+                  <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden rounded-2xl lg:aspect-auto lg:h-[40%] lg:min-h-[140px]">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={imageSrc}
@@ -127,7 +128,7 @@ export function ExpertiseSection() {
               <motion.article
                 key={`expertise-card-${index}`}
                 variants={cardVariants}
-                className={`group relative flex ${cardShell} min-w-[85vw] shrink-0 cursor-pointer snap-center flex-col overflow-hidden rounded-[2rem] border border-gray-800 bg-[#111] p-4 transition-all duration-500 sm:min-w-[80vw] sm:rounded-[2.5rem] sm:p-6 lg:min-w-0 lg:hover:-translate-y-2`}
+                className={`group relative flex ${cardShell} min-w-[85vw] shrink-0 cursor-pointer snap-center flex-col overflow-hidden rounded-[2rem] border border-gray-800 bg-[#111] p-4 transition-all duration-500 sm:rounded-[2.5rem] sm:p-6 lg:min-w-0 lg:hover:-translate-y-2`}
               >
                 <div className="flex shrink-0 items-start justify-between gap-2">
                   <span
@@ -144,7 +145,7 @@ export function ExpertiseSection() {
                   {item.title}
                 </h3>
 
-                <div className="relative mt-auto h-[40%] min-h-[140px] w-full shrink-0 overflow-hidden rounded-2xl">
+                <div className="relative mt-auto aspect-[4/3] w-full shrink-0 overflow-hidden rounded-2xl lg:aspect-auto lg:h-[40%] lg:min-h-[140px]">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={imageSrc}

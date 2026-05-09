@@ -18,11 +18,11 @@ type PartnerItem = {
 
 function PartnerCard({ partner }: { partner: PartnerItem }) {
   return (
-    <div className="group relative flex h-32 w-48 shrink-0 cursor-pointer items-center justify-center lg:h-40 lg:w-64">
+    <div className="group relative flex h-20 w-32 shrink-0 cursor-pointer items-center justify-center lg:h-40 lg:w-64">
       <div
         className={cn(
           "relative flex h-full w-full items-center justify-center overflow-hidden rounded-xl border border-gray-800 bg-[#0a0a0a] transition-all duration-300 ease-out",
-          "group-hover:z-50 group-hover:scale-125 group-hover:border-yellow-500 group-hover:shadow-[0_0_50px_rgba(234,179,8,0.4)]"
+          "lg:group-hover:z-50 lg:group-hover:scale-125 lg:group-hover:border-yellow-500 lg:group-hover:shadow-[0_0_50px_rgba(234,179,8,0.4)] active:scale-105"
         )}
       >
         <div className="relative h-full w-full overflow-hidden rounded-xl">
@@ -30,12 +30,15 @@ function PartnerCard({ partner }: { partner: PartnerItem }) {
             src={partner.image}
             alt=""
             fill
-            sizes="(max-width: 1024px) 192px, 256px"
-            className="object-cover opacity-90 transition-opacity duration-300 group-hover:opacity-40"
+            sizes="(max-width: 1024px) 128px, 256px"
+            className="object-cover opacity-90 transition-opacity duration-300 lg:group-hover:opacity-40"
           />
         </div>
-        <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-black/90 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-          <span className="px-3 text-center text-base font-bold text-yellow-400 lg:text-lg">{partner.name}</span>
+        {/* Touch: name always partially visible; hover polish on lg+ */}
+        <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-black/55 px-1.5 opacity-100 transition-opacity duration-300 lg:bg-black/90 lg:opacity-0 lg:group-hover:opacity-100">
+          <span className="line-clamp-2 text-center text-[10px] font-bold leading-tight text-yellow-400 lg:line-clamp-none lg:px-3 lg:text-base lg:text-lg">
+            {partner.name}
+          </span>
         </div>
       </div>
     </div>

@@ -40,11 +40,11 @@ export function Testimonials() {
       </header>
 
       <div className={SECTION_SCROLL_BODY} style={SECTION_SCROLL_STYLE}>
-        <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-8 px-4 lg:grid-cols-3">
+        <div className="mx-auto flex w-full max-w-7xl flex-row gap-4 overflow-x-auto overscroll-x-contain px-4 pb-2 [-webkit-overflow-scrolling:touch] hide-scrollbar snap-x snap-mandatory touch-pan-x lg:grid lg:grid-cols-3 lg:gap-8 lg:overflow-visible lg:pb-0">
           {items.map((item, index) => (
             <article
               key={`testimonial-${index}`}
-              className="flex min-h-[300px] flex-col justify-between rounded-3xl border border-gray-800 bg-[#111] p-8 lg:p-10"
+              className="flex min-h-[280px] min-w-[85vw] shrink-0 snap-center flex-col justify-between rounded-3xl border border-gray-800 bg-[#111] p-6 sm:p-8 lg:min-h-[300px] lg:min-w-0 lg:p-10"
             >
               <blockquote className="text-lg leading-relaxed font-light tracking-wide text-gray-100 lg:text-xl lg:leading-relaxed">
                 <span className="text-yellow-500/90">&ldquo;</span>
