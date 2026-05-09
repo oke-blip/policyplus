@@ -1,7 +1,15 @@
 "use client";
 
+import { ArrowUpRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { asArray } from "@/lib/utils";
+import {
+  SECTION_HEADER,
+  SECTION_SCROLL_BODY,
+  SECTION_SCROLL_STYLE,
+  SNAP_SECTION,
+} from "@/lib/section-shell";
 
 type ExpertiseItem = {
   tag: string;
@@ -9,89 +17,145 @@ type ExpertiseItem = {
   desc: string;
 };
 
-const EXPERTISE_IMAGES = [
-  "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=1500",
-  "https://images.unsplash.com/photo-1573164713988-8665fc963095?q=80&w=1500",
-  "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=1500",
-  "https://images.unsplash.com/photo-1557804506-669a67965ba0?q=80&w=1500",
+/** Premium placeholders: corporate workspace, meetings, data analysis */
+const CARD_IMAGES = [
+  "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1200",
+  "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=1200",
+  "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1200",
 ] as const;
 
-const revealInView = {
-  initial: { opacity: 0, y: 50 },
-  whileInView: { opacity: 1, y: 0 },
-  transition: { duration: 0.8, ease: "easeOut" as const },
-  viewport: { once: true, margin: "-100px" },
+/** Fluid card shell — avoids fixed px heights conflicting with 100svh snap */
+const cardShell = "h-[55vh] min-h-[380px] max-h-[550px]";
+
+const containerVariants = {
+  hidden: {},
+  visible: {
+    transition: { staggerChildren: 0.12 },
+  },
 };
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 28 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] as const },
+  },
+};
+
+const badgeClass =
+  "inline-flex rounded-full border px-2.5 py-0.5 text-[8px] tracking-widest uppercase leading-none sm:px-3 sm:py-1 sm:text-[9px] 2xl:text-[10px]";
 
 export function ExpertiseSection() {
   const { t } = useLanguage();
-  const items = t<ExpertiseItem[]>("expertise.items");
+  const allItems = asArray<ExpertiseItem>(t("expertise.items"));
+  const items = allItems.slice(0, 3);
 
   return (
-    <section id="expertise" className="py-24">
-      <div className="mx-auto w-full max-w-7xl px-6">
-        <motion.div {...revealInView}>
-          <p className="text-center text-sm font-semibold tracking-widest text-yellow-600 uppercase dark:text-yellow-500">
-            {t("expertise.header")}
-          </p>
-          <p className="mx-auto mt-4 max-w-4xl text-center text-2xl text-gray-900 md:text-4xl dark:text-white">
-            {t("expertise.description")}
-          </p>
-        </motion.div>
+    <section id="expertise" className={`${SNAP_SECTION} isolate text-white`}>
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 -z-[25] bg-black"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute top-0 right-[-5%] -z-10 h-[50vh] w-[40vw] rounded-full bg-yellow-500/5 blur-[120px]"
+      />
+      <motion.header
+        className={`${SECTION_HEADER} text-center lg:text-center`}
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-80px" }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+      >
+        <p className="text-[10px] font-semibold tracking-[0.25em] text-gray-500 uppercase sm:text-xs">
+          {t("expertise.header")}
+        </p>
+        <p className="mx-auto mt-2 max-w-3xl text-balance text-sm leading-relaxed text-gray-300 sm:mt-3 sm:text-base md:text-lg">
+          {t("expertise.description")}
+        </p>
+      </motion.header>
 
-        <div className="mt-16 space-y-16 lg:space-y-24">
+      <div className={SECTION_SCROLL_BODY} style={SECTION_SCROLL_STYLE}>
+        <motion.div
+          className="mx-auto flex min-h-0 w-full max-w-7xl snap-x snap-mandatory gap-3 overflow-x-auto px-4 [-webkit-overflow-scrolling:touch] sm:gap-4 lg:grid lg:grid-cols-3 lg:gap-6 lg:overflow-visible hide-scrollbar touch-pan-x"
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-60px" }}
+        >
           {items.map((item, index) => {
-            const isOdd = index % 2 === 1;
-            const image = EXPERTISE_IMAGES[index % EXPERTISE_IMAGES.length];
+            const imageSrc = CARD_IMAGES[index] ?? CARD_IMAGES[0];
+            const isAccent = index === 1;
+
+            if (isAccent) {
+              return (
+                <motion.article
+                  key={`expertise-card-${index}`}
+                  variants={cardVariants}
+                  className={`group relative flex ${cardShell} min-w-[85vw] shrink-0 cursor-pointer snap-center flex-col overflow-hidden rounded-[2rem] bg-yellow-500 p-4 pb-16 text-black transition-all duration-500 sm:min-w-[80vw] sm:rounded-[2.5rem] sm:p-6 sm:pb-20 lg:min-w-0 lg:hover:-translate-y-2`}
+                >
+                  <div className="relative h-[40%] min-h-[140px] w-full shrink-0 overflow-hidden rounded-2xl">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={imageSrc}
+                      alt=""
+                      className="h-full w-full object-cover transition-transform duration-700 lg:group-hover:scale-105"
+                    />
+                  </div>
+
+                  <div className="relative flex min-h-0 flex-1 flex-col justify-end pr-11 pt-3 sm:pr-14 sm:pt-4">
+                    <span
+                      className={`${badgeClass} w-fit border-black/20 text-black/70`}
+                    >
+                      {item.tag}
+                    </span>
+                    <h3 className="mt-3 text-xl font-bold leading-tight text-black line-clamp-3 lg:text-2xl 2xl:mt-6 2xl:text-3xl">
+                      {item.title}
+                    </h3>
+                  </div>
+
+                  <span className="absolute right-4 bottom-4 flex h-10 w-10 items-center justify-center rounded-full bg-black text-white transition-colors duration-300 sm:right-6 sm:bottom-6 sm:h-11 sm:w-11 lg:group-hover:bg-white lg:group-hover:text-black">
+                    <ArrowUpRight className="h-4 w-4 sm:h-5 sm:w-5" aria-hidden />
+                  </span>
+                </motion.article>
+              );
+            }
 
             return (
               <motion.article
-                key={`${item.title}-${index}`}
-                {...revealInView}
-                className="grid grid-cols-1 items-center gap-16 lg:grid-cols-2 lg:gap-24"
+                key={`expertise-card-${index}`}
+                variants={cardVariants}
+                className={`group relative flex ${cardShell} min-w-[85vw] shrink-0 cursor-pointer snap-center flex-col overflow-hidden rounded-[2rem] border border-gray-800 bg-[#111] p-4 transition-all duration-500 sm:min-w-[80vw] sm:rounded-[2.5rem] sm:p-6 lg:min-w-0 lg:hover:-translate-y-2`}
               >
-                <div className={isOdd ? "lg:order-last" : ""}>
-                  <span className="mb-6 inline-block rounded-full bg-gray-100 px-4 py-1.5 text-sm font-medium text-gray-800 dark:bg-gray-800 dark:text-gray-200">
+                <div className="flex shrink-0 items-start justify-between gap-2">
+                  <span
+                    className={`${badgeClass} border-gray-700 text-gray-400`}
+                  >
                     {item.tag}
                   </span>
-                  <h3 className="mb-4 text-3xl leading-tight font-bold text-gray-900 lg:text-4xl dark:text-white">
-                    {item.title}
-                  </h3>
-                  <p className="mb-8 text-lg leading-relaxed text-gray-600 dark:text-gray-400">
-                    {item.desc}
-                  </p>
-
-                  <button
-                    type="button"
-                    className="group inline-flex items-center gap-3 text-sm font-semibold text-gray-900 transition-colors hover:text-yellow-600 dark:text-gray-100 dark:hover:text-yellow-400"
-                  >
-                    <span>{t("expertise.readMore")}</span>
-                    <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-yellow-500 text-white">
-                      <span
-                        aria-hidden="true"
-                        className="inline-block transform transition duration-300 group-hover:translate-x-2"
-                      >
-                        →
-                      </span>
-                    </span>
-                  </button>
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/5 text-white transition-colors duration-300 sm:h-11 sm:w-11 lg:group-hover:bg-yellow-500 lg:group-hover:text-black">
+                    <ArrowUpRight className="h-4 w-4 sm:h-5 sm:w-5" aria-hidden />
+                  </span>
                 </div>
 
-                <div className={isOdd ? "lg:order-first" : ""}>
-                  <div className="overflow-hidden rounded-3xl shadow-2xl">
-                    {/* Intentional plain img to avoid remote image config overhead */}
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={image}
-                      alt={item.title}
-                      className="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
-                    />
-                  </div>
+                <h3 className="mt-3 text-xl font-bold leading-tight text-white line-clamp-3 lg:mt-4 lg:text-2xl 2xl:mt-6 2xl:text-3xl">
+                  {item.title}
+                </h3>
+
+                <div className="relative mt-auto h-[40%] min-h-[140px] w-full shrink-0 overflow-hidden rounded-2xl">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={imageSrc}
+                    alt=""
+                    className="h-full w-full object-cover transition-transform duration-700 lg:group-hover:scale-105"
+                  />
                 </div>
               </motion.article>
             );
           })}
-        </div>
+        </motion.div>
       </div>
     </section>
   );

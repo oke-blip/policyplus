@@ -9,6 +9,20 @@
     "primaryButton": "Keahlian Kami",
     "secondaryButton": "Insight Terbaru"
   },
+  "navbar": {
+    "left": [
+      { "label": "Tentang Kami", "href": "#" },
+      { "label": "Keahlian Kami", "href": "#expertise" },
+      { "label": "Karya Kami", "href": "#" },
+      { "label": "Pusat Pengetahuan", "href": "#knowledge" }
+    ],
+    "right": [
+      { "label": "Publikasi", "href": "#" },
+      { "label": "Wawasan", "href": "/blog" },
+      { "label": "Acara", "href": "#" },
+      { "label": "Karir", "href": "#" }
+    ]
+  },
   "about": {
     "eyebrow": "SIAPA KAMI",
     "title": "Mendorong Kebijakan Berbasis Bukti di Indonesia",
@@ -71,6 +85,164 @@
         "id": "05",
         "title": "IMPLEMENTASI (IMPLEMENTATION)",
         "points": ["Manajemen proyek", "Koordinasi pemangku kepentingan", "Penyampaian kebijakan", "Komunikasi strategis"]
+      }
+    ]
+  },
+  "approach": {
+    "header": "APA YANG MEMBUAT PENDEKATAN KAMI BERBEDA",
+    "description": "Pekerjaan kami menghubungkan riset, pemangku kepentingan, dan komunikasi untuk mendorong ide kebijakan dari tahap diskusi menuju implementasi.",
+    "items": [
+      {
+        "title": "Menerjemahkan Kompleksitas",
+        "desc": "Kami membuat isu kebijakan yang kompleks menjadi lebih mudah dipahami, menjembatani antara riset dan percakapan publik."
+      },
+      {
+        "title": "Dari Wawasan ke Implementasi",
+        "desc": "Kami membantu mendorong wawasan kebijakan menuju implementasi dengan menghubungkan ide dan pemangku kepentingan yang dapat membawa perubahan."
+      },
+      {
+        "title": "Disesuaikan dengan Setiap Konteks",
+        "desc": "Setiap tantangan kebijakan itu berbeda. Kami menyesuaikan pendekatan riset, pelibatan, dan komunikasi kami dengan kebutuhan masing-masing mitra."
+      }
+    ]
+  },
+  "knowledge": {
+    "header": "PUSAT PENGETAHUAN",
+    "description": "Jelajahi inisiatif kami yang memajukan pengetahuan, dialog, dan kebijakan berbasis bukti.",
+    "filters": ["Semua", "Tata Kelola Baik", "Keberlanjutan", "Hak Asasi Manusia"],
+    "items": [
+      {
+        "id": 1,
+        "category": "Tata Kelola Baik",
+        "title": "Inisiatif Penasihat untuk Dekarbonisasi Logistik dan Rantai Pasokan Berkelanjutan",
+        "preview": "Pemangku kepentingan regional menyelaraskan target emisi angkutan dengan komitmen iklim nasional melalui dialog terstruktur. Program ini menghasilkan peta jalan operasional untuk pembaruan armada, efisiensi rute, dan investasi infrastruktur multimodal.",
+        "image": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=800"
+      },
+      {
+        "id": 2,
+        "category": "Keberlanjutan",
+        "title": "Kerangka Transisi Energi Hijau untuk Negara Berkembang",
+        "preview": "Sintesis ini merangkum pengalaman global tentang stabilitas jaringan, integrasi penyimpanan energi, dan desain tarif yang adil bagi ekonomi emerging. Tekadnya pada penetrasi terbarukan bertahap tanpa mengorbankan keandalan dan akses energi universal.",
+        "image": "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?q=80&w=800"
+      },
+      {
+        "id": 3,
+        "category": "Hak Asasi Manusia",
+        "title": "Ekonomi Digital Inklusif: Melindungi Pekerja Rentan",
+        "preview": "Pekerja berbasis platform mengubah pasar tenaga kerja lebih cepat daripada banyak perlindungan dapat mengimbangi lintas yurisdiksi. Makalah ini merumuskan prioritas pemantauan, jalur pengaduan, dan model kemitraan untuk pekerja informal dan gig.",
+        "image": "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=800"
+      },
+      {
+        "id": 4,
+        "category": "Tata Kelola Baik",
+        "title": "Transparansi dalam Pengadaan Publik: Pendekatan Modern",
+        "preview": "Prinsip pengadaan terbuka dipadukan dengan standar data yang siap diaudit dan pengawasan partisipatif masyarakat. Percobaan lapangan menunjukkan penurunan risiko diskresi yang terukur sekaligus mempercepat onboarding vendor yang sah.",
+        "image": "https://images.unsplash.com/photo-1557426272-fc759fdf7a8d?q=80&w=800"
+      },
+      {
+        "id": 5,
+        "category": "Keberlanjutan",
+        "title": "Blueprint Kebijakan Ekonomi Sirkular",
+        "preview": "Aliran material dipetakan dari desain hingga daur ulang untuk mengidentifikasi tuas regulasi dan insentif paling berpengaruh. Mitra pemerintah kota dan industri merancang pilot bersama yang mengurangi tekanan landfill tanpa menekan daya saing UMKM.",
+        "image": "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?q=80&w=800"
+      }
+    ],
+    "cta": "Jelajahi karya kami"
+  },
+  "testimonials": {
+    "header": "Dipercaya oleh Penggerak Perubahan",
+    "items": [
+      {
+        "quote": "Policy+ membantu kami menyatukan ide yang terpecah menjadi arah kebijakan bersama dengan kejelasan implementasi—tanpa kehilangan konteks lokal.",
+        "author": "Penasihat Senior",
+        "role": "Institusi Publik",
+        "image": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=400&h=400&fit=crop"
+      },
+      {
+        "quote": "Tim ini menjembatani bukti yang ketat dengan percakapan tata kelola praktis yang benar-benar dipakai mitra kami di ruang pengambilan keputusan.",
+        "author": "Direktur Program",
+        "role": "Pembangunan Internasional",
+        "image": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=400&h=400&fit=crop"
+      },
+      {
+        "quote": "Yang menonjol adalah lensa PMO yang disiplin—peta jalan, akuntabilitas, dan komunikasi yang menjaga reformasi kompleks tetap berjalan.",
+        "author": "Kepala Strategi",
+        "role": "Koalisi Regional",
+        "image": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=400&h=400&fit=crop"
+      }
+    ]
+  },
+  "partners": {
+    "header": "Mitra Kami dalam Dampak",
+    "items": [
+      { "name": "IESR", "image": "https://placehold.co/320x200/0a0a0a/fbbf24/png?text=IESR" },
+      { "name": "UNDP", "image": "https://placehold.co/320x200/0a0a0a/fbbf24/png?text=UNDP" },
+      { "name": "GIZ", "image": "https://placehold.co/320x200/0a0a0a/fbbf24/png?text=GIZ" },
+      { "name": "World Bank", "image": "https://placehold.co/320x200/0a0a0a/fbbf24/png?text=World+Bank" },
+      { "name": "C40 Cities", "image": "https://placehold.co/320x200/0a0a0a/fbbf24/png?text=C40" },
+      { "name": "WRI", "image": "https://placehold.co/320x200/0a0a0a/fbbf24/png?text=WRI" },
+      { "name": "UNICEF", "image": "https://placehold.co/320x200/0a0a0a/fbbf24/png?text=UNICEF" },
+      { "name": "Urban Shift", "image": "https://placehold.co/320x200/0a0a0a/fbbf24/png?text=Urban+Shift" },
+      { "name": "Coaction", "image": "https://placehold.co/320x200/0a0a0a/fbbf24/png?text=Coaction" },
+      { "name": "BMGF", "image": "https://placehold.co/320x200/0a0a0a/fbbf24/png?text=BMGF" }
+    ]
+  },
+  "events": {
+    "header": "Acara Mendatang",
+    "detailButton": "Selengkapnya",
+    "viewAll": "Lihat Semua Acara",
+    "items": [
+      {
+        "title": "Dialog Kebijakan: Iklim & Kota",
+        "date": "18 Juni 2026 · 09.00 WIB",
+        "location": "Jakarta · Hibrida",
+        "image": "https://placehold.co/800x1000/111827/fbbf24/png?text=Iklim+%26+Kota"
+      },
+      {
+        "title": "Workshop Bukti ke Aksi",
+        "date": "2 Juli 2026 · 13.30 WIB",
+        "location": "Bandung · Tatap muka",
+        "image": "https://placehold.co/800x1000/111827/fbbf24/png?text=Bukti+ke+Aksi"
+      },
+      {
+        "title": "Meja Bundar Pemangku Kepentingan: Perlindungan Sosial",
+        "date": "14 Agustus 2026 · 10.00 WIB",
+        "location": "Surabaya · Tatap muka",
+        "image": "https://placehold.co/800x1000/111827/fbbf24/png?text=Perlindungan+Sosial"
+      },
+      {
+        "title": "Knowledge Summit Tahunan",
+        "date": "24–25 September 2026",
+        "location": "Jakarta Convention Centre",
+        "image": "https://placehold.co/800x1000/111827/fbbf24/png?text=Knowledge+Summit"
+      }
+    ]
+  },
+  "insights": {
+    "header": "Wawasan Terbaru",
+    "readMore": "Baca Selengkapnya",
+    "readAll": "Baca Semua Wawasan",
+    "items": [
+      {
+        "title": "Harga Karbon di Kota Indonesia: Pilihan Desain yang Bertahan",
+        "excerpt": "Kami membahas kapasitas administratif, daur ulang penerimaan, dan sinyal politik ekonomi dari percontohan awal—agar pemimpin daerah bisa menyusun reformasi tanpa kehilangan kepercayaan publik.",
+        "author": "Dr. Anisa Wijaya",
+        "date": "2 Mei 2026",
+        "image": "https://images.unsplash.com/photo-1611273426858-450d8e3c9fce?q=80&w=1200&auto=format&fit=crop"
+      },
+      {
+        "title": "Dari Dasbor ke Keputusan: Membuat Data Tata Kelola Digital Dipakai",
+        "excerpt": "Portal data terbuka baru bermakna jika indikator mengikuti alur kerja operasional. Begini cara tim beralih dari metrik kosmetik ke paket briefing yang siap dipakai kepala dinas.",
+        "author": "Tim Policy+",
+        "date": "18 April 2026",
+        "image": "https://images.unsplash.com/photo-1551434678-e076c223a692?q=80&w=1200&auto=format&fit=crop"
+      },
+      {
+        "title": "Penyasaran Tanpa Menyingkirkan: Pelajaran dari Pilots Basis Data Sosial",
+        "excerpt": "Pemeriksaan inklusi dinamis dan jalur pengaduan menurunkan kebocoran dan keluhan di tiga kabupaten. Kami merangkum pertimbangan antara presisi dan cakupan dalam kendala fiskal.",
+        "author": "Rizky Pratama",
+        "date": "27 Maret 2026",
+        "image": "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=1200&auto=format&fit=crop"
       }
     ]
   }

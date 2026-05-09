@@ -5,6 +5,13 @@ import * as React from "react";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { cn } from "@/lib/utils";
+import {
+  SECTION_HEADER,
+  SECTION_SCROLL_BODY,
+  SECTION_SCROLL_STYLE,
+  SNAP_SECTION,
+} from "@/lib/section-shell";
 
 const headlineFont: CSSProperties = {
   fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
@@ -91,9 +98,18 @@ export function PublicHeroSection() {
 
   return (
     <section
-      className="relative isolate flex min-h-[100svh] w-full flex-col overflow-hidden bg-[#111111] text-white"
+      className={cn(SNAP_SECTION, "isolate text-white")}
       aria-label="Policy Plus introduction"
     >
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 -z-[25] bg-black"
+      />
+      {/* Ambient center-top glow — sits above photos, below vignette */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute top-[-10%] left-1/2 z-[1] h-[60vh] w-[60vw] -translate-x-1/2 rounded-full bg-yellow-500/10 blur-[120px]"
+      />
       {/* Background carousel */}
       <div className="pointer-events-none absolute inset-0 z-0">
         {HERO_IMAGES.map((img, i) => (
@@ -111,18 +127,13 @@ export function PublicHeroSection() {
         ))}
       </div>
 
-      {/* Legibility: dark wash + gold from bottom-right */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-t from-black/85 via-black/55 to-black/35"
+        className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-b from-black/90 via-black/60 to-black"
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 z-[1] bg-[radial-gradient(ellipse_95%_75%_at_100%_100%,rgba(217,119,6,0.22),rgba(120,53,15,0.12)_38%,transparent_62%)]"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 z-[1] bg-[radial-gradient(ellipse_55%_42%_at_92%_90%,rgba(251,191,36,0.12),transparent_52%)]"
+        className="pointer-events-none absolute inset-0 z-[1] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-transparent via-black/80 to-black"
       />
 
       <div
@@ -134,12 +145,15 @@ export function PublicHeroSection() {
           backgroundSize: "256px 256px",
         }}
       />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-[3] h-36 bg-gradient-to-b from-transparent to-black"
+      />
 
-      <div className="relative z-10 mx-auto flex min-h-[100svh] w-full max-w-7xl flex-1 flex-col justify-center px-6 pb-20 pt-16 sm:px-8 sm:pb-24 sm:pt-20 md:px-12 md:pb-28 md:pt-24 lg:px-14">
-        <div className="flex w-full flex-col items-center justify-center px-1 text-center sm:px-4">
-          <div className="w-full max-w-6xl">
+      <div className={cn(SECTION_HEADER, "text-center lg:text-center")}>
+        <div className="mx-auto w-full max-w-6xl px-1 sm:px-4">
             <motion.h1
-              className="font-sans text-[clamp(1.75rem,5.5vw,4.75rem)] font-black uppercase leading-[1.02] tracking-[-0.04em] text-balance"
+              className="font-sans text-[clamp(1.5rem,4.5vw,4.25rem)] font-black uppercase leading-[1.02] tracking-[-0.04em] text-balance sm:text-[clamp(1.75rem,5.5vw,4.75rem)]"
               style={headlineFont}
               variants={containerVariants}
               initial="hidden"
@@ -178,31 +192,34 @@ export function PublicHeroSection() {
               variants={fadeUpDelayed(0.28)}
               initial="hidden"
               animate="visible"
-              className="mx-auto mt-10 max-w-2xl text-pretty font-sans text-base leading-relaxed text-gray-300 sm:mt-12 sm:text-lg sm:leading-[1.65] md:text-xl md:leading-[1.7]"
+              className="mx-auto mt-6 max-w-2xl text-pretty font-sans text-sm leading-relaxed text-gray-300 sm:mt-8 sm:text-base sm:leading-[1.65] md:text-lg md:leading-[1.7]"
             >
               {hero.subheadline}
             </motion.p>
-
-            <motion.div
-              variants={fadeUpDelayed(0.4)}
-              initial="hidden"
-              animate="visible"
-              className="mx-auto mt-12 flex w-full max-w-lg flex-col items-stretch justify-center gap-4 sm:mt-14 sm:max-w-none sm:flex-row sm:gap-5"
-            >
-              <Link
-                href="#expertise"
-                className="inline-flex min-h-[3rem] items-center justify-center rounded-full bg-yellow-500 px-10 py-3.5 text-center text-sm font-semibold tracking-wide text-white transition-colors duration-200 hover:bg-yellow-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-300"
-              >
-                {hero.primaryButton}
-              </Link>
-              <Link
-                href="/blog"
-                className="inline-flex min-h-[3rem] items-center justify-center rounded-full border border-yellow-500 bg-transparent px-10 py-3.5 text-center text-sm font-semibold tracking-wide text-white transition-colors duration-200 hover:border-yellow-400 hover:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-400"
-              >
-                {hero.secondaryButton}
-              </Link>
-            </motion.div>
           </div>
+      </div>
+
+      <div className={SECTION_SCROLL_BODY} style={SECTION_SCROLL_STYLE}>
+        <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col items-center px-5 pb-6 sm:px-8 md:px-12 lg:px-14">
+          <motion.div
+            variants={fadeUpDelayed(0.4)}
+            initial="hidden"
+            animate="visible"
+            className="mx-auto mt-6 flex w-full max-w-lg flex-col items-stretch justify-center gap-3 sm:mt-8 sm:max-w-none sm:flex-row sm:gap-4"
+          >
+            <Link
+              href="#expertise"
+              className="inline-flex min-h-[3rem] items-center justify-center rounded-full bg-yellow-500 px-10 py-3.5 text-center text-sm font-semibold tracking-wide text-white transition-colors duration-200 hover:bg-yellow-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-300"
+            >
+              {hero.primaryButton}
+            </Link>
+            <Link
+              href="/blog"
+              className="inline-flex min-h-[3rem] items-center justify-center rounded-full border border-yellow-500 bg-transparent px-10 py-3.5 text-center text-sm font-semibold tracking-wide text-white transition-colors duration-200 hover:border-yellow-400 hover:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-400"
+            >
+              {hero.secondaryButton}
+            </Link>
+          </motion.div>
         </div>
       </div>
     </section>

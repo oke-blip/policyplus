@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Poppins } from "next/font/google";
 import Preloader from "@/components/Preloader";
+import FloatingButton from "@/components/FloatingButton";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
@@ -42,6 +43,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             {children}
+            <FloatingButton />
           </ThemeProvider>
         </LanguageProvider>
       </body>

@@ -2,45 +2,35 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Menu, Plus, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 
 import { LanguageToggle } from "@/components/language-toggle";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { cn } from "@/lib/utils";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { asArray, cn } from "@/lib/utils";
 
-const navLinks = [
-  { label: "About Us", href: "#" },
-  { label: "Our Expertise", href: "#expertise" },
-  { label: "Our Work", href: "#" },
-  { label: "Publications", href: "#" },
-  { label: "Insights", href: "/blog" },
-  { label: "Events", href: "#" },
-] as const;
+type NavLinkItem = {
+  label: string;
+  href: string;
+};
 
 export function Navbar() {
-  const [scrolled, setScrolled] = React.useState(false);
-  const [isWidgetOpen, setIsWidgetOpen] = React.useState(false);
+  const { t } = useLanguage();
+  const leftLinks = asArray<NavLinkItem>(t("navbar.left"));
+  const rightLinks = asArray<NavLinkItem>(t("navbar.right"));
+  const mobileLinks = [...leftLinks, ...rightLinks];
+
   const [isNavDrawerOpen, setIsNavDrawerOpen] = React.useState(false);
 
   React.useEffect(() => {
-    const onScroll = () => {
-      setScrolled(window.scrollY > 0);
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  React.useEffect(() => {
-    if (!isNavDrawerOpen && !isWidgetOpen) return;
+    if (!isNavDrawerOpen) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Escape") return;
-      if (isNavDrawerOpen) setIsNavDrawerOpen(false);
-      else setIsWidgetOpen(false);
+      setIsNavDrawerOpen(false);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [isNavDrawerOpen, isWidgetOpen]);
+  }, [isNavDrawerOpen]);
 
   React.useEffect(() => {
     if (isNavDrawerOpen) {
@@ -53,31 +43,16 @@ export function Navbar() {
     };
   }, [isNavDrawerOpen]);
 
-  const atTop = !scrolled;
-
-  const headerSurface = atTop
-    ? "border-b border-transparent bg-transparent"
-    : "border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950";
+  const headerSurface = "border-b border-white/5 bg-black/60 backdrop-blur-xl";
 
   const logoClass = cn(
-    "text-xl tracking-tight transition-colors duration-300 md:text-2xl",
-    atTop ? "text-white" : "text-gray-900 dark:text-gray-100"
+    "text-xl tracking-tight text-white transition-colors duration-300 lg:text-2xl"
   );
 
   const linkClass = cn(
     "text-[11px] font-medium tracking-[0.14em] transition-colors duration-300",
-    atTop
-      ? "text-white hover:text-white"
-      : "text-gray-900 hover:text-gray-950 dark:text-gray-100 dark:hover:text-white"
+    "text-gray-200 hover:text-white"
   );
-
-  const openNavDrawer = () => {
-    setIsNavDrawerOpen(true);
-    setIsWidgetOpen(false);
-  };
-
-  const fabSecondaryClass =
-    "inline-flex size-12 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-900 shadow-md transition-all duration-300 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700";
 
   return (
     <>
@@ -87,100 +62,51 @@ export function Navbar() {
           headerSurface
         )}
       >
-        <div className="relative mx-auto flex h-16 w-full max-w-7xl items-center px-4 sm:px-6 md:grid md:h-20 md:grid-cols-[1fr_auto_1fr] md:items-center md:gap-3">
-          <Link href="/" className={cn("font-semibold md:justify-self-start", logoClass)}>
-            <span className="font-semibold">policy</span>
-            <span
-              className={cn(
-                "font-bold transition-colors duration-300",
-                atTop ? "text-white" : "text-yellow-500"
-              )}
-            >
-              +
-            </span>
-          </Link>
-
-          <nav
-            className="hidden justify-self-center md:flex md:items-center md:gap-7"
-            aria-label="Primary"
-          >
-            {navLinks.map((item) => (
-              <Link key={item.label} href={item.href} className={linkClass}>
+        <div className="relative mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-4">
+          <div className="hidden flex-1 items-center justify-start gap-6 xl:gap-8 lg:flex">
+            {leftLinks.map((item, index) => (
+              <Link key={`nav-left-${index}`} href={item.href} className={linkClass}>
                 {item.label}
               </Link>
             ))}
-          </nav>
+          </div>
 
-          <div className="hidden items-center justify-end gap-2 justify-self-end md:flex md:gap-3">
-            <LanguageToggle overDark={atTop} />
-            <ThemeToggle variant={atTop ? "overDark" : "default"} />
+          <div className="absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2">
+            <Link href="/" className={cn("font-semibold", logoClass)}>
+              <span className="font-semibold">policy</span>
+              <span className="font-bold text-yellow-500 transition-colors duration-300">
+                +
+              </span>
+            </Link>
+          </div>
+
+          <div className="hidden flex-1 items-center justify-end gap-6 xl:gap-8 lg:flex">
+            {rightLinks.map((item, index) => (
+              <Link key={`nav-right-${index}`} href={item.href} className={linkClass}>
+                {item.label}
+              </Link>
+            ))}
+            <LanguageToggle overDark />
+            <ThemeToggle variant="overDark" />
+          </div>
+
+          <div className="z-20 flex flex-1 items-center justify-end lg:hidden">
+            <button
+              type="button"
+              aria-label="Open navigation menu"
+              className="inline-flex size-11 items-center justify-center rounded-full border border-gray-700 bg-black text-white transition-colors hover:bg-gray-900"
+              onClick={() => setIsNavDrawerOpen(true)}
+            >
+              <Menu className="size-5" />
+            </button>
           </div>
         </div>
       </header>
 
-      {/* FAB widget backdrop (mobile only) */}
-      {isWidgetOpen && !isNavDrawerOpen ? (
-        <button
-          type="button"
-          aria-label="Close quick actions"
-          className="fixed inset-0 z-[54] bg-black/30 backdrop-blur-[2px] transition-opacity duration-300 md:hidden"
-          onClick={() => setIsWidgetOpen(false)}
-        />
-      ) : null}
-
-      {/* iOS-style FAB — mobile only */}
-      <div
-        className={cn(
-          "fixed right-6 z-[55] flex flex-col items-end gap-3 md:hidden",
-          "bottom-[max(1.5rem,env(safe-area-inset-bottom))]"
-        )}
-      >
-        <div
-          className={cn(
-            "flex flex-col items-end gap-3 transition-all duration-300 ease-out",
-            isWidgetOpen
-              ? "pointer-events-auto translate-y-0 opacity-100"
-              : "pointer-events-none translate-y-6 opacity-0"
-          )}
-          aria-hidden={!isWidgetOpen}
-        >
-          {/* Top: theme */}
-          <ThemeToggle
-            variant="default"
-            className={cn(fabSecondaryClass, "!size-12 border-gray-200 shadow-md")}
-          />
-          {/* Middle: language */}
-          <LanguageToggle variant="fab" />
-          {/* Bottom: hamburger → opens full-screen nav */}
-          <button
-            type="button"
-            aria-label="Open navigation menu"
-            className={fabSecondaryClass}
-            onClick={openNavDrawer}
-          >
-            <Menu className="size-5" />
-          </button>
-        </div>
-
-        <button
-          type="button"
-          aria-expanded={isWidgetOpen}
-          aria-label={isWidgetOpen ? "Close quick actions" : "Open quick actions"}
-          onClick={() => setIsWidgetOpen((o) => !o)}
-          className={cn(
-            "flex size-14 items-center justify-center rounded-full shadow-xl transition-transform duration-300 ease-out",
-            "bg-gray-900 text-white hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100",
-            isWidgetOpen && "rotate-45"
-          )}
-        >
-          <Plus className="size-7" strokeWidth={2.2} />
-        </button>
-      </div>
-
       {/* Full-screen navigation drawer — mobile only */}
       <div
         className={cn(
-          "fixed inset-0 z-[70] md:hidden",
+          "fixed inset-0 z-[70] lg:hidden",
           isNavDrawerOpen ? "pointer-events-auto" : "pointer-events-none"
         )}
         aria-hidden={!isNavDrawerOpen}
@@ -188,13 +114,13 @@ export function Navbar() {
       >
         <div
           className={cn(
-            "absolute inset-0 bg-white transition-opacity duration-300 ease-out dark:bg-gray-950",
+            "absolute inset-0 bg-black transition-opacity duration-300 ease-out",
             isNavDrawerOpen ? "opacity-100" : "opacity-0"
           )}
         >
           <button
             type="button"
-            className="absolute right-4 top-4 inline-flex size-11 items-center justify-center rounded-full text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800"
+            className="absolute right-4 top-4 inline-flex size-11 items-center justify-center rounded-full text-white transition-colors hover:bg-white/10"
             style={{ top: "max(1rem, env(safe-area-inset-top))" }}
             aria-label="Close navigation"
             onClick={() => setIsNavDrawerOpen(false)}
@@ -206,11 +132,11 @@ export function Navbar() {
             className="flex h-full flex-col items-center justify-center gap-8 px-8 pt-16"
             aria-label="Mobile primary"
           >
-            {navLinks.map((item) => (
+            {mobileLinks.map((item, index) => (
               <Link
-                key={item.label}
+                key={`nav-mobile-${index}`}
                 href={item.href}
-                className="text-center text-xl font-semibold tracking-wide text-gray-900 transition-colors hover:text-yellow-600 dark:text-gray-100 dark:hover:text-yellow-400"
+                className="text-center text-xl font-semibold tracking-wide text-gray-100 transition-colors hover:text-yellow-400"
                 onClick={() => setIsNavDrawerOpen(false)}
               >
                 {item.label}

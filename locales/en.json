@@ -9,6 +9,20 @@
     "primaryButton": "Our Expertise",
     "secondaryButton": "Latest Insights"
   },
+  "navbar": {
+    "left": [
+      { "label": "About Us", "href": "#" },
+      { "label": "Our Expertise", "href": "#expertise" },
+      { "label": "Our Work", "href": "#" },
+      { "label": "Knowledge Center", "href": "#knowledge" }
+    ],
+    "right": [
+      { "label": "Publications", "href": "#" },
+      { "label": "Insights", "href": "/blog" },
+      { "label": "Events", "href": "#" },
+      { "label": "Career", "href": "#" }
+    ]
+  },
   "about": {
     "eyebrow": "WHO WE ARE",
     "title": "Fostering Evidence-Based Policy in Indonesia",
@@ -89,6 +103,146 @@
       {
         "title": "Tailored to Every Context",
         "desc": "Every policy challenge is different. We tailor our research, engagement, and communication approach to the needs of each partner."
+      }
+    ]
+  },
+  "knowledge": {
+    "header": "KNOWLEDGE CENTER",
+    "description": "Explore our initiatives advancing knowledge, dialogue, and evidence-based policymaking.",
+    "filters": ["All", "Good Governance", "Sustainability", "Human Rights"],
+    "items": [
+      {
+        "id": 1,
+        "category": "Good Governance",
+        "title": "Advisory Initiative on Sustainable Logistics and Supply Chain Decarbonization",
+        "preview": "Regional stakeholders aligned freight emissions targets with national climate commitments through structured dialogue. The program yields practical roadmaps for fleet renewal, routing efficiency, and multimodal infrastructure investment.",
+        "image": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=800"
+      },
+      {
+        "id": 2,
+        "category": "Sustainability",
+        "title": "Green Energy Transition Frameworks for Developing Nations",
+        "preview": "This synthesis distills global experience on grid stability, storage integration, and equitable tariff design for emerging economies. It emphasizes phased renewable deployment while safeguarding reliability and universal energy access.",
+        "image": "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?q=80&w=800"
+      },
+      {
+        "id": 3,
+        "category": "Human Rights",
+        "title": "Inclusive Digital Economy: Protecting Vulnerable Workers",
+        "preview": "Platform-based work is reshaping labor markets faster than many safeguards can adapt across jurisdictions. The brief outlines monitoring priorities, grievance pathways, and partnership models that protect informal and gig workers.",
+        "image": "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=800"
+      },
+      {
+        "id": 4,
+        "category": "Good Governance",
+        "title": "Transparency in Public Procurement: A Modern Approach",
+        "preview": "Open contracting principles are paired with audit-ready data standards and civic monitoring hooks. Pilots show measurable reductions in discretion risk while shortening vendor onboarding cycles for legitimate suppliers.",
+        "image": "https://images.unsplash.com/photo-1557426272-fc759fdf7a8d?q=80&w=800"
+      },
+      {
+        "id": 5,
+        "category": "Sustainability",
+        "title": "Circular Economy Policy Blueprints",
+        "preview": "Material flows are mapped from design through reuse to identify high-leverage regulatory and incentive levers. Municipal and industry partners co-develop pilots that cut landfill pressure without dampening SME competitiveness.",
+        "image": "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?q=80&w=800"
+      }
+    ],
+    "cta": "Explore our work"
+  },
+  "testimonials": {
+    "header": "Trusted by Changemakers",
+    "items": [
+      {
+        "quote": "Policy+ helped us move from fragmented ideas into a shared policy direction with real implementation clarity—without losing sight of local context.",
+        "author": "Senior Advisor",
+        "role": "Public Institution",
+        "image": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=400&h=400&fit=crop"
+      },
+      {
+        "quote": "The team bridges rigorous evidence with practical governance conversations our partners actually use in the room where decisions are made.",
+        "author": "Program Director",
+        "role": "International Development",
+        "image": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=400&h=400&fit=crop"
+      },
+      {
+        "quote": "What stood out was the disciplined PMO lens—milestones, accountability, and communication that kept complex reforms moving forward.",
+        "author": "Head of Strategy",
+        "role": "Regional Coalition",
+        "image": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=400&h=400&fit=crop"
+      }
+    ]
+  },
+  "partners": {
+    "header": "Our Partners in Impact",
+    "items": [
+      { "name": "IESR", "image": "https://placehold.co/320x200/0a0a0a/fbbf24/png?text=IESR" },
+      { "name": "UNDP", "image": "https://placehold.co/320x200/0a0a0a/fbbf24/png?text=UNDP" },
+      { "name": "GIZ", "image": "https://placehold.co/320x200/0a0a0a/fbbf24/png?text=GIZ" },
+      { "name": "World Bank", "image": "https://placehold.co/320x200/0a0a0a/fbbf24/png?text=World+Bank" },
+      { "name": "C40 Cities", "image": "https://placehold.co/320x200/0a0a0a/fbbf24/png?text=C40" },
+      { "name": "WRI", "image": "https://placehold.co/320x200/0a0a0a/fbbf24/png?text=WRI" },
+      { "name": "UNICEF", "image": "https://placehold.co/320x200/0a0a0a/fbbf24/png?text=UNICEF" },
+      { "name": "Urban Shift", "image": "https://placehold.co/320x200/0a0a0a/fbbf24/png?text=Urban+Shift" },
+      { "name": "Coaction", "image": "https://placehold.co/320x200/0a0a0a/fbbf24/png?text=Coaction" },
+      { "name": "BMGF", "image": "https://placehold.co/320x200/0a0a0a/fbbf24/png?text=BMGF" }
+    ]
+  },
+  "events": {
+    "header": "Upcoming Events",
+    "detailButton": "Learn more",
+    "viewAll": "View All Events",
+    "items": [
+      {
+        "title": "Policy Dialogue: Climate & Cities",
+        "date": "June 18, 2026 · 09:00 WIB",
+        "location": "Jakarta · Hybrid",
+        "image": "https://placehold.co/800x1000/111827/fbbf24/png?text=Climate+%26+Cities"
+      },
+      {
+        "title": "Evidence to Action Workshop",
+        "date": "July 2, 2026 · 13:30 WIB",
+        "location": "Bandung · In person",
+        "image": "https://placehold.co/800x1000/111827/fbbf24/png?text=Evidence+Workshop"
+      },
+      {
+        "title": "Stakeholder Roundtable: Social Protection",
+        "date": "August 14, 2026 · 10:00 WIB",
+        "location": "Surabaya · In person",
+        "image": "https://placehold.co/800x1000/111827/fbbf24/png?text=Social+Protection"
+      },
+      {
+        "title": "Annual Knowledge Summit",
+        "date": "September 24–25, 2026",
+        "location": "Jakarta Convention Centre",
+        "image": "https://placehold.co/800x1000/111827/fbbf24/png?text=Knowledge+Summit"
+      }
+    ]
+  },
+  "insights": {
+    "header": "Latest Insights",
+    "readMore": "Read More",
+    "readAll": "Read All Insights",
+    "items": [
+      {
+        "title": "Carbon Pricing in Indonesian Cities: Design Choices That Actually Stick",
+        "excerpt": "We unpack administrative capacity, revenue recycling, and political economy signals from early pilots—so municipal leaders can sequence reforms without losing public trust.",
+        "author": "Dr. Anisa Wijaya",
+        "date": "May 2, 2026",
+        "image": "https://images.unsplash.com/photo-1611273426858-450d8e3c9fce?q=80&w=1200&auto=format&fit=crop"
+      },
+      {
+        "title": "From Dashboards to Decisions: Making Digital Governance Data Usable",
+        "excerpt": "Open data portals only matter when indicators map to operational workflows. Here is how teams moved from vanity metrics to adoption-ready briefing packs for agency heads.",
+        "author": "Policy+ Team",
+        "date": "April 18, 2026",
+        "image": "https://images.unsplash.com/photo-1551434678-e076c223a692?q=80&w=1200&auto=format&fit=crop"
+      },
+      {
+        "title": "Targeting Without Exclusion: Lessons from Social Registry Pilots",
+        "excerpt": "Dynamic inclusion checks and grievance pathways reduced leakage and complaints in three districts. We summarize trade-offs between precision and coverage under fiscal constraints.",
+        "author": "Rizky Pratama",
+        "date": "March 27, 2026",
+        "image": "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=1200&auto=format&fit=crop"
       }
     ]
   }

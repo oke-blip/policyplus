@@ -4,7 +4,7 @@ import * as React from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
 import { useLanguage } from "@/contexts/LanguageContext";
-import { cn } from "@/lib/utils";
+import { asArray, cn } from "@/lib/utils";
 
 type ApproachItem = {
   title: string;
@@ -41,29 +41,29 @@ function selectCard(
 
 export function ApproachSection() {
   const { t } = useLanguage();
-  const items = t<ApproachItem[]>("approach.items");
+  const items = asArray<ApproachItem>(t("approach.items"));
   const [hoveredIndex, setHoveredIndex] = React.useState(0);
 
   return (
-    <section className="overflow-hidden bg-gray-950 py-32 text-white">
-      <div className="mx-auto max-w-7xl px-4">
-        <header className="mx-auto max-w-3xl text-center">
-          <h2 className="bg-gradient-to-r from-yellow-200 via-yellow-400 to-amber-400 bg-clip-text text-3xl font-black uppercase tracking-tighter text-transparent drop-shadow-[0_0_28px_rgba(234,179,8,0.5)] md:text-5xl md:leading-[1.05]">
+    <section className="flex h-[100svh] w-full snap-start snap-always flex-col justify-center overflow-hidden bg-gray-950 py-16 text-white lg:py-0">
+      <div className="mx-auto flex min-h-0 w-full max-w-7xl flex-1 flex-col justify-center px-4">
+        <header className="mx-auto max-w-3xl shrink-0 text-center">
+          <h2 className="bg-gradient-to-r from-yellow-200 via-yellow-400 to-amber-400 bg-clip-text text-2xl font-black uppercase tracking-tighter text-transparent drop-shadow-[0_0_28px_rgba(234,179,8,0.5)] sm:text-3xl md:text-5xl md:leading-[1.05]">
             {t("approach.header")}
           </h2>
-          <p className="mt-6 text-base leading-relaxed text-gray-400 md:text-lg">
+          <p className="mt-4 text-sm leading-relaxed text-gray-400 sm:mt-5 sm:text-base md:text-lg">
             {t("approach.description")}
           </p>
         </header>
 
-        <div className="mx-auto mt-16 flex h-[70vh] w-full max-w-7xl flex-col gap-4 px-0 lg:flex-row">
+        <div className="mx-auto mt-6 flex max-h-[min(46vh,26rem)] min-h-[14rem] w-full max-w-7xl flex-col gap-3 px-0 sm:mt-8 sm:gap-4 lg:mt-8 lg:max-h-[min(58vh,34rem)] lg:min-h-[18rem] lg:flex-row lg:gap-4">
           {items.map((item, index) => {
             const isActive = hoveredIndex === index;
             const phaseLabel = `PHASE_0${index + 1}`;
 
             return (
               <motion.div
-                key={`approach-card-${item.title}`}
+                key={`approach-card-${index}`}
                 layout
                 transition={LAYOUT_SPRING}
                 className={cn(
