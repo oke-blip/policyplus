@@ -2,25 +2,24 @@
   "hero": {
     "headlineLine1Prefix": "DRIVING MEANINGFUL",
     "headlineLine1Accent": "IMPACT",
-    "headlineLine2": "THROUGH RIGOROUS",
-    "headlineLine3Prefix": "POLICY",
-    "headlineLine3Accent": "SOLUTIONS",
-    "subheadline": "Indonesia's Knowledge Hub for actionable development research, strategic training, and inclusive advocacy.",
+    "headlineLine2Prefix": "THROUGH RIGOROUS",
+    "headlineLine2Accent": "POLICY SOLUTIONS",
+    "subheadline": "A trusted advisory firm providing solutions for dynamic governance.",
     "primaryButton": "Our Expertise",
     "secondaryButton": "Latest Insights"
   },
   "navbar": {
     "left": [
-      { "label": "About Us", "href": "#" },
-      { "label": "Our Expertise", "href": "#expertise" },
-      { "label": "Our Work", "href": "#" },
-      { "label": "Knowledge Center", "href": "#knowledge" }
+      { "label": "About Us", "href": "/about" },
+      { "label": "Our Expertise", "href": "/expertise" },
+      { "label": "Our Work", "href": "/work" },
+      { "label": "Knowledge Center", "href": "/knowledge-center" }
     ],
     "right": [
-      { "label": "Publications", "href": "#" },
-      { "label": "Insights", "href": "/blog" },
-      { "label": "Events", "href": "#" },
-      { "label": "Career", "href": "#" }
+      { "label": "Publications", "href": "/publications" },
+      { "label": "Insights", "href": "/insights" },
+      { "label": "Events", "href": "/events" },
+      { "label": "Career", "href": "/career" }
     ]
   },
   "about": {
@@ -28,6 +27,57 @@
     "title": "Fostering Evidence-Based Policy in Indonesia",
     "description": "Policy Plus is an independent knowledge hub dedicated to transforming complex data into actionable insights. We bridge the gap between rigorous research and practical governance to drive sustainable development.",
     "link": "Read our story"
+  },
+  "aboutPage": {
+    "originCta": "Read more about our origin ->",
+    "missionEyebrow": "OUR MISSION",
+    "heroLine1": "Fostering",
+    "heroLine2": "Evidence-Based",
+    "heroLine3": "Policy in",
+    "heroLine4": "Indonesia",
+    "valuesHeading": "What We Value",
+    "value1": "Aiming for excellent",
+    "value2": "Collaborate for growth",
+    "value3": "Truth and trust are central to success",
+    "value4": "Open for innovation and unlimited creativity",
+    "value5": "Nurtured by empathy and always ready to lend a helping hand",
+    "value6": "International minded while localizing the needs of society",
+    "teamEyebrow": "OUR TEAM",
+    "teamHeading": "Meet The Team",
+    "teamSub": "Strategists, researchers, and operators translating evidence into accountable change — one engagement at a time.",
+    "teamJoinCta": "Build with us",
+    "teamKeyboardHint": "Tip: use arrow keys to explore the roster.",
+    "teamTouchHint": "Tap a teammate to focus, or use the arrows on the portrait.",
+    "footerEyebrow": "Final Call To Action",
+    "footerTitle": "Ready to drive meaningful social impact?",
+    "footerCta": "Get In Touch",
+    "teamMembers": [
+      {
+        "name": "Dr. Sari Wijaya",
+        "role": "Managing Director",
+        "focus": "Institutional strategy, delivery governance, and coalitions that hold under pressure."
+      },
+      {
+        "name": "James Okonkwo",
+        "role": "Director of Research",
+        "focus": "Mixed-methods research design and evidence assurance across complex policy portfolios."
+      },
+      {
+        "name": "Mei Lin",
+        "role": "Head of Partnerships",
+        "focus": "Long-horizon partnerships spanning public, private, and civic ecosystems."
+      },
+      {
+        "name": "André Dubois",
+        "role": "Lead Policy Advisor",
+        "focus": "Briefing architecture and decision-ready narratives for leaders in high-stakes rooms."
+      },
+      {
+        "name": "Nadia Rahman",
+        "role": "Programs & Impact",
+        "focus": "Implementation science, monitoring, and outcomes accountability from pilot to scale."
+      }
+    ]
   },
   "expertise": {
     "header": "OUR EXPERTISE",
@@ -90,6 +140,8 @@
   },
   "approach": {
     "header": "WHAT MAKES OUR APPROACH DIFFERENT",
+    "headerLine1": "WHAT MAKES",
+    "headerLine2": "OUR APPROACH DIFFERENT?",
     "description": "Our work connects research, stakeholders, and communication to move policy ideas from discussion to implementation.",
     "items": [
       {
@@ -103,6 +155,10 @@
       {
         "title": "Tailored to Every Context",
         "desc": "Every policy challenge is different. We tailor our research, engagement, and communication approach to the needs of each partner."
+      },
+      {
+        "title": "Evidence at the Center",
+        "desc": "We keep evidence and learning at the center of decisions, iterating with partners as context and priorities evolve."
       }
     ]
   },

@@ -2,12 +2,12 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import { X } from "lucide-react";
 
 import { LanguageToggle } from "@/components/language-toggle";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { asArray, cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 type NavLinkItem = {
   label: string;
@@ -16,8 +16,8 @@ type NavLinkItem = {
 
 export function Navbar() {
   const { t } = useLanguage();
-  const leftLinks = asArray<NavLinkItem>(t("navbar.left"));
-  const rightLinks = asArray<NavLinkItem>(t("navbar.right"));
+  const leftLinks = t<NavLinkItem[]>("navbar.left");
+  const rightLinks = t<NavLinkItem[]>("navbar.right");
   const mobileLinks = [...leftLinks, ...rightLinks];
 
   const [isNavDrawerOpen, setIsNavDrawerOpen] = React.useState(false);
@@ -43,6 +43,14 @@ export function Navbar() {
     };
   }, [isNavDrawerOpen]);
 
+  React.useEffect(() => {
+    const onToggleNavDrawer = () => {
+      setIsNavDrawerOpen((prev) => !prev);
+    };
+    window.addEventListener("policy:toggle-nav-drawer", onToggleNavDrawer);
+    return () => window.removeEventListener("policy:toggle-nav-drawer", onToggleNavDrawer);
+  }, []);
+
   const headerSurface = "border-b border-white/5 bg-black/60 backdrop-blur-xl";
 
   const logoClass = cn(
@@ -64,8 +72,8 @@ export function Navbar() {
       >
         <div className="relative mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-4">
           <div className="hidden flex-1 items-center justify-start gap-6 xl:gap-8 lg:flex">
-            {leftLinks.map((item, index) => (
-              <Link key={`nav-left-${index}`} href={item.href} className={linkClass}>
+            {leftLinks.map((item) => (
+              <Link key={`${item.href}-${item.label}`} href={item.href} className={linkClass}>
                 {item.label}
               </Link>
             ))}
@@ -81,8 +89,8 @@ export function Navbar() {
           </div>
 
           <div className="hidden flex-1 items-center justify-end gap-6 xl:gap-8 lg:flex">
-            {rightLinks.map((item, index) => (
-              <Link key={`nav-right-${index}`} href={item.href} className={linkClass}>
+            {rightLinks.map((item) => (
+              <Link key={`${item.href}-${item.label}`} href={item.href} className={linkClass}>
                 {item.label}
               </Link>
             ))}
@@ -90,16 +98,7 @@ export function Navbar() {
             <ThemeToggle variant="overDark" />
           </div>
 
-          <div className="z-20 flex flex-1 items-center justify-end lg:hidden">
-            <button
-              type="button"
-              aria-label="Open navigation menu"
-              className="inline-flex size-11 items-center justify-center rounded-full border border-gray-700 bg-black text-white transition-colors hover:bg-gray-900"
-              onClick={() => setIsNavDrawerOpen(true)}
-            >
-              <Menu className="size-5" />
-            </button>
-          </div>
+          <div className="z-20 flex flex-1 lg:hidden" aria-hidden="true" />
         </div>
       </header>
 
@@ -132,9 +131,9 @@ export function Navbar() {
             className="flex h-full flex-col items-center justify-center gap-8 px-8 pt-16"
             aria-label="Mobile primary"
           >
-            {mobileLinks.map((item, index) => (
+            {mobileLinks.map((item) => (
               <Link
-                key={`nav-mobile-${index}`}
+                key={`${item.href}-${item.label}`}
                 href={item.href}
                 className="text-center text-xl font-semibold tracking-wide text-gray-100 transition-colors hover:text-yellow-400"
                 onClick={() => setIsNavDrawerOpen(false)}

@@ -93,7 +93,7 @@ export function Preloader() {
         ) : (
           <motion.p
             key="quote"
-            className="max-w-2xl text-center font-serif text-2xl font-medium leading-snug text-white sm:text-3xl md:text-4xl"
+            className="max-w-2xl text-center font-sans text-2xl font-medium leading-snug text-white sm:text-3xl md:text-4xl"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 12 }}

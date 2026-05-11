@@ -12,13 +12,6 @@ import { Testimonials } from "@/components/public/Testimonials";
 import { UpcomingEvents } from "@/components/public/UpcomingEvents";
 import { PublicHeroSection } from "@/components/public/hero-section";
 import { Button } from "@/components/ui/button";
-import {
-  SECTION_HEADER,
-  SECTION_SCROLL_BODY,
-  SECTION_SCROLL_STYLE,
-  SNAP_SECTION,
-} from "@/lib/section-shell";
-import { cn } from "@/lib/utils";
 
 const reveal = {
   initial: { opacity: 0, y: 30 },
@@ -29,7 +22,7 @@ const reveal = {
 
 export default function PublicHomePage() {
   return (
-    <div className="relative h-[100svh] w-full bg-white text-slate-900">
+    <div className="relative h-svh w-full overflow-hidden bg-white text-slate-900">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 -z-20 bg-gradient-to-br from-zinc-50 via-white to-zinc-100"
@@ -40,7 +33,7 @@ export default function PublicHomePage() {
       />
 
       <main
-        className="h-[100svh] w-full overflow-x-hidden overflow-y-auto scroll-smooth hide-scrollbar snap-y snap-mandatory"
+        className="h-full w-full overflow-x-hidden overflow-y-auto overscroll-y-contain scroll-smooth hide-scrollbar snap-y snap-proximity"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         <PublicHeroSection />
@@ -62,16 +55,14 @@ export default function PublicHomePage() {
 
         <LatestInsights />
 
-        <section className={`${SNAP_SECTION} isolate`}>
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 -z-[25] bg-black"
-          />
-
-          <header className={cn(SECTION_HEADER, "text-white")}>
-            <motion.div {...reveal} className="w-full">
-              <div className="flex flex-col items-start gap-6 md:flex-row md:items-center md:justify-between">
-                <div className="text-center lg:text-left">
+        <section className="w-full snap-start bg-black">
+          <div className="flex min-h-svh w-full flex-col">
+            <motion.div
+              {...reveal}
+              className="flex flex-1 flex-col items-center justify-start px-6 pt-24 pb-8 md:justify-center md:pt-0"
+            >
+              <div className="mx-auto flex w-full max-w-7xl flex-col items-center gap-6 text-center md:flex-row md:items-center md:justify-between md:text-left">
+                <div className="max-w-3xl">
                   <p className="text-xs font-semibold tracking-[0.18em] text-yellow-400 uppercase">
                     Final Call To Action
                   </p>
@@ -79,18 +70,13 @@ export default function PublicHomePage() {
                     Ready to drive meaningful social impact?
                   </h2>
                 </div>
-                <Button className="h-11 w-full shrink-0 rounded-full bg-yellow-500 px-6 font-semibold text-black hover:bg-yellow-400 md:w-auto">
+                <Button className="h-auto w-full max-w-xs rounded-full bg-yellow-500 px-8 py-4 text-base font-bold text-black shadow-[0_10px_30px_rgba(234,179,8,0.3)] transition-all duration-300 hover:bg-yellow-400 hover:shadow-[0_14px_34px_rgba(234,179,8,0.38)] sm:max-w-sm sm:text-lg md:w-auto md:max-w-none md:px-10 md:py-5 md:text-xl">
                   Get In Touch
                 </Button>
               </div>
             </motion.div>
-          </header>
 
-          <div
-            className={cn(SECTION_SCROLL_BODY, "lg:justify-start")}
-            style={SECTION_SCROLL_STYLE}
-          >
-            <footer className="mt-auto w-full shrink-0 border-t border-gray-800 px-6 pt-8 pb-6">
+            <footer className="mt-auto w-full shrink-0 border-t border-gray-800 px-6 pb-6 pt-8">
               <div className="mx-auto grid w-full max-w-7xl gap-8 md:grid-cols-4 md:gap-10">
                 <div>
                   <h3 className="text-base font-semibold text-white">Address & Contact</h3>

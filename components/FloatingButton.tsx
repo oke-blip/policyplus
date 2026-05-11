@@ -75,11 +75,11 @@ export default function FloatingButton() {
             >
               <button
                 type="button"
-                aria-label="Scroll to menu"
+                aria-label="Open navigation menu"
                 className={subButtonClass}
                 onClick={() => {
                   setIsOpen(false);
-                  window.scrollTo({ top: 0, behavior: "smooth" });
+                  window.dispatchEvent(new Event("policy:toggle-nav-drawer"));
                 }}
               >
                 <Menu className="h-5 w-5" aria-hidden />

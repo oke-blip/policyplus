@@ -2,25 +2,24 @@
   "hero": {
     "headlineLine1Prefix": "MENDORONG DAMPAK",
     "headlineLine1Accent": "BERMAKNA",
-    "headlineLine2": "MELALUI SOLUSI KEBIJAKAN",
-    "headlineLine3Prefix": "YANG KETAT DAN",
-    "headlineLine3Accent": "TERUKUR",
-    "subheadline": "Pusat Pengetahuan Indonesia untuk riset pembangunan yang aplikatif, pelatihan strategis, dan advokasi inklusif.",
+    "headlineLine2Prefix": "MELALUI YANG KETAT DAN",
+    "headlineLine2Accent": "SOLUSI KEBIJAKAN TERUKUR",
+    "subheadline": "Perusahaan konsultasi terpercaya yang menyediakan solusi untuk tata kelola yang dinamis.",
     "primaryButton": "Keahlian Kami",
     "secondaryButton": "Insight Terbaru"
   },
   "navbar": {
     "left": [
-      { "label": "Tentang Kami", "href": "#" },
-      { "label": "Keahlian Kami", "href": "#expertise" },
-      { "label": "Karya Kami", "href": "#" },
-      { "label": "Pusat Pengetahuan", "href": "#knowledge" }
+      { "label": "Tentang Kami", "href": "/about" },
+      { "label": "Keahlian Kami", "href": "/expertise" },
+      { "label": "Karya Kami", "href": "/work" },
+      { "label": "Pusat Pengetahuan", "href": "/knowledge-center" }
     ],
     "right": [
-      { "label": "Publikasi", "href": "#" },
-      { "label": "Wawasan", "href": "/blog" },
-      { "label": "Acara", "href": "#" },
-      { "label": "Karir", "href": "#" }
+      { "label": "Publikasi", "href": "/publications" },
+      { "label": "Wawasan", "href": "/insights" },
+      { "label": "Acara", "href": "/events" },
+      { "label": "Karir", "href": "/career" }
     ]
   },
   "about": {
@@ -28,6 +27,57 @@
     "title": "Mendorong Kebijakan Berbasis Bukti di Indonesia",
     "description": "Policy Plus adalah pusat pengetahuan independen yang berdedikasi untuk mengubah data kompleks menjadi wawasan yang dapat ditindaklanjuti. Kami menjembatani kesenjangan antara riset yang ketat dan tata kelola praktis untuk mendorong pembangunan berkelanjutan.",
     "link": "Baca cerita kami"
+  },
+  "aboutPage": {
+    "originCta": "Selengkapnya tentang asal-usul kami ->",
+    "missionEyebrow": "MISI KAMI",
+    "heroLine1": "Mendorong",
+    "heroLine2": "Kebijakan Berbasis Bukti",
+    "heroLine3": "di",
+    "heroLine4": "Indonesia",
+    "valuesHeading": "Nilai yang Kami Junjung",
+    "value1": "Berorientasi pada keunggulan",
+    "value2": "Berkolaborasi untuk pertumbuhan",
+    "value3": "Kebenaran dan kepercayaan sebagai fondasi kesuksesan",
+    "value4": "Terbuka pada inovasi dan kreativitas tanpa batas",
+    "value5": "Dipelihara empati dan siap membantu",
+    "value6": "Berwawasan internasional dengan akar kebutuhan lokal",
+    "teamEyebrow": "TIM KAMI",
+    "teamHeading": "Kenali Tim Kami",
+    "teamSub": "Strategis, peneliti, dan operator yang menerjemahkan bukti menjadi perubahan yang dapat dipertanggungjawabkan — satu kemitraan pada satu waktu.",
+    "teamJoinCta": "Berkarya bersama kami",
+    "teamKeyboardHint": "Tips: gunakan tombol panah untuk menjelajahi daftar.",
+    "teamTouchHint": "Ketuk nama anggota untuk memfokuskan, atau gunakan panah pada potret.",
+    "footerEyebrow": "Ajakan Bertindak",
+    "footerTitle": "Siap mendorong dampak sosial yang bermakna?",
+    "footerCta": "Hubungi Kami",
+    "teamMembers": [
+      {
+        "name": "Dr. Sari Wijaya",
+        "role": "Direktur Utama",
+        "focus": "Strategi institusi, tata kelola penyampaian, dan koalisi yang tetap kokoh di bawah tekanan."
+      },
+      {
+        "name": "James Okonkwo",
+        "role": "Direktur Riset",
+        "focus": "Desain riset mixed-methods dan jaminan kualitas bukti di portofolio kebijakan yang kompleks."
+      },
+      {
+        "name": "Mei Lin",
+        "role": "Kepala Kemitraan",
+        "focus": "Kemitraan jangka panjang yang menjembatani sektor publik, swasta, dan masyarakat sipil."
+      },
+      {
+        "name": "André Dubois",
+        "role": "Penasihat Kebijakan Utama",
+        "focus": "Arsitektur briefing dan narasi siap keputusan bagi pemimpin di ruang dengan taruhan tinggi."
+      },
+      {
+        "name": "Nadia Rahman",
+        "role": "Program & Dampak",
+        "focus": "Ilmu implementasi, pemantauan, dan akuntabilitas hasil dari percontohan hingga skala."
+      }
+    ]
   },
   "expertise": {
     "header": "KEAHLIAN KAMI",
@@ -90,6 +140,8 @@
   },
   "approach": {
     "header": "APA YANG MEMBUAT PENDEKATAN KAMI BERBEDA",
+    "headerLine1": "APA YANG MEMBUAT",
+    "headerLine2": "PENDEKATAN KAMI BERBEDA?",
     "description": "Pekerjaan kami menghubungkan riset, pemangku kepentingan, dan komunikasi untuk mendorong ide kebijakan dari tahap diskusi menuju implementasi.",
     "items": [
       {
@@ -103,6 +155,10 @@
       {
         "title": "Disesuaikan dengan Setiap Konteks",
         "desc": "Setiap tantangan kebijakan itu berbeda. Kami menyesuaikan pendekatan riset, pelibatan, dan komunikasi kami dengan kebutuhan masing-masing mitra."
+      },
+      {
+        "title": "Bukti di Pusat",
+        "desc": "Kami menempatkan bukti dan pembelajaran di pusat keputusan, beriterasi bersama mitra seiring konteks dan prioritas berubah."
       }
     ]
   },

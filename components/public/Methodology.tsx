@@ -5,13 +5,7 @@ import { motion } from "framer-motion";
 import { FileText, Lightbulb, Search, Settings, Users } from "lucide-react";
 
 import { useLanguage } from "@/contexts/LanguageContext";
-import { asArray, cn } from "@/lib/utils";
-import {
-  SECTION_HEADER,
-  SECTION_SCROLL_BODY,
-  SECTION_SCROLL_STYLE,
-  SNAP_SECTION,
-} from "@/lib/section-shell";
+import { cn } from "@/lib/utils";
 
 type MethodologyStep = {
   id: string;
@@ -71,8 +65,8 @@ function StepCardContent({
         {step.title}
       </h3>
       <ul className="list-disc space-y-0.5 pl-3 text-left text-[11px] leading-snug text-gray-400 marker:text-yellow-500 lg:space-y-1 lg:pl-3.5 lg:text-xs">
-        {asArray<string>(step.points).map((point, i) => (
-          <li key={`${step.id}-pt-${i}`}>{point}</li>
+        {step.points.map((point) => (
+          <li key={point}>{point}</li>
         ))}
       </ul>
     </>
@@ -80,73 +74,89 @@ function StepCardContent({
 }
 
 const CARD_BOX =
-  "relative z-10 flex h-[30vh] min-h-[220px] max-h-[320px] w-full flex-col overflow-hidden rounded-t-xl border border-gray-800 bg-[#111] p-4 shadow-xl lg:p-5";
+  "relative z-10 flex h-[35vh] min-h-[220px] max-h-[300px] w-full flex-col overflow-hidden rounded-t-xl border border-gray-800 bg-[#111] p-4 shadow-xl lg:p-5";
 
 export function MethodologySection() {
   const { t } = useLanguage();
-  const steps = asArray<MethodologyStep>(t("methodology.steps"));
+  const steps = t<MethodologyStep[]>("methodology.steps");
 
   return (
-    <section className={`${SNAP_SECTION} isolate text-white`}>
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 -z-[25] bg-black"
-      />
+    <section className="relative isolate flex min-h-svh w-full snap-start flex-col bg-black pt-28 pb-12 text-white lg:pt-32 lg:pb-16">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute bottom-0 left-[-10%] -z-10 h-[50vh] w-[50vw] rounded-full bg-white/5 blur-[120px]"
       />
 
-      <div className={`${SECTION_HEADER} max-w-4xl text-center lg:text-center`}>
-        <span className="inline-block rounded-full border border-gray-700 bg-[#111] px-3 py-1 text-[10px] font-semibold tracking-wide text-yellow-500 uppercase sm:px-4 sm:py-1.5 sm:text-xs">
-          {t("methodology.tag")}
-        </span>
-        <h2 className="mt-3 break-words font-serif text-3xl font-bold leading-tight tracking-tight text-white hyphens-auto lg:text-5xl">
-          {t("methodology.header")}
-        </h2>
-        <p className="mt-2 text-sm leading-snug text-gray-400 sm:text-base">
-          {t("methodology.description")}
-        </p>
-      </div>
+      <div className="relative z-10 flex w-full flex-1 flex-col">
+        <div className="flex w-full flex-1 flex-col justify-start py-2 xl:justify-center">
+          <div className="mx-auto flex w-full min-w-0 max-w-7xl flex-col px-4 sm:px-6">
+            <header className="mx-auto mb-6 max-w-3xl shrink-0 text-center lg:mb-8">
+              <span className="inline-block rounded-full border border-gray-700 bg-[#111] px-3 py-1 text-[10px] font-semibold tracking-wide text-yellow-500 uppercase sm:px-4 sm:py-1.5 sm:text-xs">
+                {t("methodology.tag")}
+              </span>
+              <h2 className="mt-3 break-words font-sans text-3xl font-bold leading-tight tracking-tight text-white hyphens-auto lg:text-4xl xl:text-5xl">
+                {t("methodology.header")}
+              </h2>
+              <p className="mt-2 text-sm leading-snug text-gray-400 sm:text-base">
+                {t("methodology.description")}
+              </p>
+            </header>
 
-      <div className={SECTION_SCROLL_BODY} style={SECTION_SCROLL_STYLE}>
-        <div className="mx-auto w-full min-w-0 max-w-7xl px-4 sm:px-6">
-            {/* ——— Mobile: horizontal swipe deck (no staircase — saves vertical space) ——— */}
-            <div className="relative mt-2 block min-h-0 lg:hidden">
-              <motion.div
-                className="flex w-full flex-row gap-4 overflow-x-auto overscroll-x-contain pb-2 [-webkit-overflow-scrolling:touch] hide-scrollbar snap-x snap-mandatory touch-pan-x"
-                style={SECTION_SCROLL_STYLE}
-                variants={containerVars}
-                initial="hidden"
-                whileInView="show"
-                viewport={{ once: true, margin: "-40px" }}
-              >
+            {/* ——— Mobile: vertical timeline (scroll via section inner wrapper) ——— */}
+            <div className="relative mt-5 block min-h-0 lg:hidden">
+              <div className="relative pr-1 [-webkit-overflow-scrolling:touch]">
+                <motion.div
+                  className="absolute bottom-0 left-6 top-0 w-0.5 origin-top bg-gradient-to-b from-yellow-500 to-gray-600"
+                  initial={{ scaleY: 0 }}
+                  whileInView={{ scaleY: 1 }}
+                  viewport={{ once: true, margin: "-40px" }}
+                  transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
+                  style={{ transformOrigin: "top" }}
+                />
+
                 {steps.map((step, index) => {
                   const Icon = STEP_ICONS[index] ?? Settings;
                   return (
-                    <motion.div
-                      key={`m-deck-${step.id}`}
-                      variants={desktopStepVars}
-                      className="min-w-[85vw] shrink-0 snap-center"
+                    <div
+                      key={`m-${step.id}-${step.title}`}
+                      className={cn("relative flex gap-4", index < steps.length - 1 ? "mb-6" : "")}
                     >
-                      <div className="relative flex translate-y-0 flex-col items-center">
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 border-yellow-500 bg-[#111] text-xs font-bold text-yellow-400 shadow-[0_0_12px_rgba(234,179,8,0.35)]">
+                      <div className="pointer-events-none relative z-10 w-12 shrink-0">
+                        <motion.div
+                          className="absolute left-6 top-0 flex h-11 w-11 -translate-x-1/2 items-center justify-center rounded-full border-4 border-yellow-500 bg-[#111] text-xs font-bold text-yellow-400 shadow-[0_0_15px_rgba(234,179,8,0.35)]"
+                          animate={{
+                            scale: [1, 1.06, 1],
+                            boxShadow: [
+                              "0 0 15px rgba(234,179,8,0.35)",
+                              "0 0 22px rgba(234,179,8,0.55)",
+                              "0 0 15px rgba(234,179,8,0.35)",
+                            ],
+                          }}
+                          transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+                        >
                           {step.id}
-                        </div>
-                        <div className={cn(CARD_BOX, "mt-3 h-auto min-h-[200px] max-h-[42vh] w-full translate-y-0")}>
-                          <div className="flex min-h-0 flex-1 flex-col items-center overflow-y-auto">
-                            <StepCardContent step={step} Icon={Icon} />
-                          </div>
-                        </div>
+                        </motion.div>
                       </div>
-                    </motion.div>
+
+                      <motion.div
+                        className="min-w-0 flex-1 overflow-hidden rounded-2xl border border-gray-800 bg-[#111] p-4 shadow-lg sm:p-5"
+                        initial={{ opacity: 0, x: 50 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true, margin: "-32px" }}
+                        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: index * 0.05 }}
+                      >
+                        <div className="flex flex-col items-center">
+                          <StepCardContent step={step} Icon={Icon} />
+                        </div>
+                      </motion.div>
+                    </div>
                   );
                 })}
-              </motion.div>
+              </div>
             </div>
 
             {/* ——— Desktop: horizontal staircase (ascends left → right) ——— */}
-            <div className="relative mx-auto mt-4 hidden min-h-0 w-full lg:block">
+            <div className="relative mx-auto mt-3 hidden min-h-0 w-full max-w-7xl pb-24 lg:mt-4 lg:block lg:pb-32">
               <motion.div
                 aria-hidden="true"
                 className="pointer-events-none absolute bottom-6 left-3 right-3 z-0 border-t border-dashed border-gray-700 lg:bottom-8"
@@ -158,7 +168,7 @@ export function MethodologySection() {
               />
 
               <motion.div
-                className="relative z-10 flex w-full justify-center items-start gap-3 lg:grid lg:grid-cols-5 lg:gap-4"
+                className="relative z-10 grid grid-cols-5 gap-3 lg:items-start lg:gap-4"
                 variants={containerVars}
                 initial="hidden"
                 whileInView="show"
@@ -170,7 +180,7 @@ export function MethodologySection() {
 
                   return (
                     <motion.div
-                      key={`d-${step.id}`}
+                      key={`d-${step.id}-${step.title}`}
                       variants={desktopStepVars}
                       style={{ transform: `translateY(${columnStairTranslateY(index)})` }}
                       className="group relative flex w-full flex-col items-center will-change-transform"
@@ -178,7 +188,7 @@ export function MethodologySection() {
                       <div className="flex w-full flex-col items-center">
                         <div className="transition-all duration-500 ease-out lg:group-hover:-translate-y-0.5 lg:group-hover:shadow-[0_12px_28px_-12px_rgba(234,179,8,0.22)]">
                           <div className={CARD_BOX}>
-                            <div className="flex min-h-0 flex-1 flex-col items-center overflow-y-auto">
+                            <div className="hide-scrollbar flex min-h-0 flex-1 flex-col items-center overflow-y-auto">
                               <StepCardContent step={step} Icon={Icon} />
                             </div>
                           </div>
@@ -191,7 +201,7 @@ export function MethodologySection() {
                           aria-hidden="true"
                         />
 
-                        <div className="relative z-20 -mt-px flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-yellow-500 bg-[#111] text-[10px] font-bold text-yellow-400 shadow-sm transition-colors duration-300 lg:group-hover:bg-yellow-500 lg:group-hover:text-black lg:h-9 lg:w-9 lg:text-xs">
+                        <div className="relative z-20 -mt-px flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-yellow-500 bg-[#111] text-[10px] font-bold text-yellow-400 shadow-sm transition-colors duration-300 group-hover:bg-yellow-500 group-hover:text-black lg:h-9 lg:w-9 lg:text-xs">
                           {step.id}
                         </div>
                       </div>
@@ -201,6 +211,7 @@ export function MethodologySection() {
               </motion.div>
             </div>
           </div>
+        </div>
       </div>
     </section>
   );
