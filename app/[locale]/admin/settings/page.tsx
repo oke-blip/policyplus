@@ -14,6 +14,20 @@ export default function SettingsPage() {
     { id: 4, platform: "Facebook", url: "" }
   ]);
 
+  const [images, setImages] = useState<{ [key: string]: string | null }>({
+    logo: null,
+    favicon: null,
+    preloader: null,
+  });
+
+  const handleImageUpload = (key: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const url = URL.createObjectURL(file);
+      setImages(prev => ({ ...prev, [key]: url }));
+    }
+  };
+
   const addSocialLink = () => {
     setSocialLinks([...socialLinks, { id: Date.now(), platform: "", url: "" }]);
   };
@@ -102,18 +116,42 @@ export default function SettingsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Company Logo</label>
-                    <div className="w-full h-32 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl flex flex-col items-center justify-center bg-slate-50 hover:bg-slate-100 dark:bg-white/5 dark:hover:bg-white/10 transition-colors cursor-pointer text-slate-500 dark:text-slate-400">
-                      <ImageIcon size={24} className="mb-2 text-slate-400" />
-                      <span className="text-sm font-medium">Upload logo</span>
-                      <span className="text-xs mt-1">PNG, JPG (Max 2MB)</span>
+                    <div className="w-full h-32 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl flex flex-col items-center justify-center bg-slate-50 hover:bg-slate-100 dark:bg-white/5 dark:hover:bg-white/10 transition-colors cursor-pointer text-slate-500 dark:text-slate-400 relative overflow-hidden group">
+                      <input type="file" accept="image/*" onChange={(e) => handleImageUpload('logo', e)} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
+                      {images.logo ? (
+                        <>
+                          <img src={images.logo} alt="Company Logo" className="w-full h-full object-contain p-2" />
+                          <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <span className="text-white text-xs font-bold">Change Logo</span>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <ImageIcon size={24} className="mb-2 text-slate-400" />
+                          <span className="text-sm font-medium">Upload logo</span>
+                          <span className="text-xs mt-1">PNG, JPG (Max 2MB)</span>
+                        </>
+                      )}
                     </div>
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Favicon</label>
-                    <div className="w-full h-32 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl flex flex-col items-center justify-center bg-slate-50 hover:bg-slate-100 dark:bg-white/5 dark:hover:bg-white/10 transition-colors cursor-pointer text-slate-500 dark:text-slate-400">
-                      <ImageIcon size={24} className="mb-2 text-slate-400" />
-                      <span className="text-sm font-medium">Upload favicon</span>
-                      <span className="text-xs mt-1">ICO, PNG (32x32px)</span>
+                    <div className="w-full h-32 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl flex flex-col items-center justify-center bg-slate-50 hover:bg-slate-100 dark:bg-white/5 dark:hover:bg-white/10 transition-colors cursor-pointer text-slate-500 dark:text-slate-400 relative overflow-hidden group">
+                      <input type="file" accept="image/*" onChange={(e) => handleImageUpload('favicon', e)} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
+                      {images.favicon ? (
+                        <>
+                          <img src={images.favicon} alt="Favicon" className="w-full h-full object-contain p-2" />
+                          <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <span className="text-white text-xs font-bold">Change Favicon</span>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <ImageIcon size={24} className="mb-2 text-slate-400" />
+                          <span className="text-sm font-medium">Upload favicon</span>
+                          <span className="text-xs mt-1">ICO, PNG (32x32px)</span>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -141,10 +179,22 @@ export default function SettingsPage() {
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Preloader Logo</label>
-                  <div className="w-full h-32 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl flex flex-col items-center justify-center bg-slate-50 hover:bg-slate-100 dark:bg-white/5 dark:hover:bg-white/10 transition-colors cursor-pointer text-slate-500 dark:text-slate-400">
-                    <ImageIcon size={24} className="mb-2 text-slate-400" />
-                    <span className="text-sm font-medium">Upload preloader logo</span>
-                    <span className="text-xs mt-1">We recommend using an icon-only logo</span>
+                  <div className="w-full h-32 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl flex flex-col items-center justify-center bg-slate-50 hover:bg-slate-100 dark:bg-white/5 dark:hover:bg-white/10 transition-colors cursor-pointer text-slate-500 dark:text-slate-400 relative overflow-hidden group">
+                    <input type="file" accept="image/*" onChange={(e) => handleImageUpload('preloader', e)} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
+                    {images.preloader ? (
+                      <>
+                        <img src={images.preloader} alt="Preloader Logo" className="w-full h-full object-contain p-2" />
+                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          <span className="text-white text-xs font-bold">Change Logo</span>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <ImageIcon size={24} className="mb-2 text-slate-400" />
+                        <span className="text-sm font-medium">Upload preloader logo</span>
+                        <span className="text-xs mt-1">We recommend using an icon-only logo</span>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
