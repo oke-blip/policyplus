@@ -1,30 +1,18 @@
 "use client";
 
 import { useState } from "react";
-<<<<<<< HEAD
 import { motion, AnimatePresence, type Variants } from "framer-motion";
-=======
-import { motion, AnimatePresence } from "framer-motion";
->>>>>>> 622514ea99a46e985ffc8aaf4c13fc3f253752e0
 import { Save, Briefcase, Map, Clock, Plus, MoreVertical, Edit2, Trash2 } from "lucide-react";
 
 export default function CompanyProfilePage() {
   const [activeTab, setActiveTab] = useState("expertise");
 
-<<<<<<< HEAD
   const containerVariants: Variants = {
-=======
-  const containerVariants = {
->>>>>>> 622514ea99a46e985ffc8aaf4c13fc3f253752e0
     hidden: { opacity: 0 },
     show: { opacity: 1, transition: { staggerChildren: 0.1 } }
   };
 
-<<<<<<< HEAD
   const itemVariants: Variants = {
-=======
-  const itemVariants = {
->>>>>>> 622514ea99a46e985ffc8aaf4c13fc3f253752e0
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
   };
