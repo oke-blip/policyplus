@@ -61,7 +61,7 @@ export default function PublicHomePage() {
               {...reveal}
               className="flex flex-1 flex-col items-center justify-start px-6 pt-24 pb-8 md:justify-center md:pt-0"
             >
-              <div className="mx-auto flex w-full max-w-7xl flex-col items-center gap-6 text-center md:flex-row md:items-center md:justify-between md:text-left">
+              <div className="mx-auto flex w-full max-w-7xl flex-col items-center gap-6 text-center md:items-start md:text-left">
                 <div className="max-w-3xl">
                   <p className="text-xs font-semibold tracking-[0.18em] text-yellow-400 uppercase">
                     Final Call To Action
@@ -69,10 +69,10 @@ export default function PublicHomePage() {
                   <h2 className="mt-3 text-2xl font-semibold tracking-tight text-white sm:text-3xl md:text-4xl">
                     Ready to drive meaningful social impact?
                   </h2>
+                  <Button className="mt-8 h-auto w-full max-w-md rounded-full bg-yellow-500 px-10 py-4 text-base font-bold text-black shadow-[0_10px_30px_rgba(234,179,8,0.3)] transition-all duration-300 hover:bg-yellow-400 hover:shadow-[0_14px_34px_rgba(234,179,8,0.38)] sm:max-w-lg sm:text-lg md:max-w-xl md:py-5 md:text-xl">
+                    Get In Touch
+                  </Button>
                 </div>
-                <Button className="h-auto w-full max-w-xs rounded-full bg-yellow-500 px-8 py-4 text-base font-bold text-black shadow-[0_10px_30px_rgba(234,179,8,0.3)] transition-all duration-300 hover:bg-yellow-400 hover:shadow-[0_14px_34px_rgba(234,179,8,0.38)] sm:max-w-sm sm:text-lg md:w-auto md:max-w-none md:px-10 md:py-5 md:text-xl">
-                  Get In Touch
-                </Button>
               </div>
             </motion.div>
 

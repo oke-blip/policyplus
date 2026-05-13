@@ -73,7 +73,7 @@ export function ApproachSection() {
             return (
               <div
                 key={`approach-card-${item.title}`}
-                className="group relative h-[240px] w-full cursor-pointer overflow-hidden rounded-2xl outline-none focus-within:ring-2 focus-within:ring-yellow-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-950 sm:h-[250px] lg:h-[230px]"
+                className="group relative h-[320px] w-full cursor-pointer overflow-hidden rounded-2xl outline-none focus-within:ring-2 focus-within:ring-yellow-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-950 sm:h-[350px] lg:h-[380px]"
                 tabIndex={0}
                 role="article"
                 aria-label={`${phaseLabel}: ${item.title}`}
@@ -95,12 +95,12 @@ export function ApproachSection() {
                   {phaseLabel}
                 </div>
 
-                <div className="absolute inset-x-0 bottom-0 z-[1] flex flex-col justify-end p-5 md:p-6">
+                <div className="absolute inset-x-0 bottom-0 z-[1] flex flex-col justify-end p-5 md:p-6 lg:p-8">
                   <div className={hoverRevealClass}>
-                    <h3 className="text-lg font-bold leading-snug text-white md:text-xl lg:text-2xl">
+                    <h3 className="text-xl font-bold leading-snug text-white md:text-2xl lg:text-3xl">
                       {item.title}
                     </h3>
-                    <p className="mt-2 text-sm leading-relaxed text-gray-200 md:text-base">{item.desc}</p>
+                    <p className="mt-3 text-sm leading-relaxed text-gray-200 md:text-base">{item.desc}</p>
                   </div>
                 </div>
               </div>

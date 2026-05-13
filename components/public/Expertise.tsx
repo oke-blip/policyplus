@@ -83,9 +83,7 @@ export function ExpertiseSection() {
                   index === 0 && "top-[100px] lg:top-auto",
                   index === 1 && "top-[120px] lg:top-auto",
                   index === 2 && "top-[140px] lg:top-auto",
-                  isFirst
-                    ? "bg-yellow-500 text-black group-hover/grid:bg-[#111] group-hover/grid:text-white hover:!bg-yellow-500 hover:!text-black"
-                    : "bg-[#111] text-white hover:bg-yellow-500 hover:text-black"
+                  "bg-[#111] text-white hover:bg-yellow-500 hover:text-black"
                 )}
               >
                 <div className="relative flex-1 p-6 lg:p-8">

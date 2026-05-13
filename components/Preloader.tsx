@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { usePathname } from "next/navigation";
 
 type Phase = "loading" | "quote" | "exit";
 
@@ -9,6 +10,7 @@ export function Preloader() {
   const [progress, setProgress] = React.useState(0);
   const [phase, setPhase] = React.useState<Phase>("loading");
   const [removed, setRemoved] = React.useState(false);
+  const pathname = usePathname();
   const phaseRef = React.useRef<Phase>(phase);
   phaseRef.current = phase;
 
@@ -46,7 +48,7 @@ export function Preloader() {
     return () => window.clearTimeout(t);
   }, [phase]);
 
-  if (removed) {
+  if (removed || (pathname && pathname.includes("/admin"))) {
     return null;
   }
 

@@ -15,32 +15,6 @@ type MethodologyStep = {
 
 const STEP_ICONS = [Lightbulb, Search, Users, FileText, Settings] as const;
 
-/** Ascending staircase (step up left → right): leftmost lowest, rightmost highest */
-const STAIR_OFFSET_VH = [12, 9, 6, 3, 0] as const;
-
-function columnStairTranslateY(index: number): string {
-  const v = STAIR_OFFSET_VH[Math.min(index, STAIR_OFFSET_VH.length - 1)] ?? 0;
-  return `${v}vh`;
-}
-
-/** Vertical dash from pedestal to numbered circle — shorter on the right where cards sit higher */
-function connectorHeightPx(index: number): number {
-  const heights = [34, 28, 22, 16, 10] as const;
-  return heights[Math.min(index, heights.length - 1)] ?? 12;
-}
-
-const containerVars = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.15, delayChildren: 0.08 },
-  },
-};
-
-const desktopStepVars = {
-  hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { duration: 0.45, ease: "easeOut" as const } },
-};
 
 function StepCardContent({
   step,
@@ -73,8 +47,6 @@ function StepCardContent({
   );
 }
 
-const CARD_BOX =
-  "relative z-10 flex h-[35vh] min-h-[220px] max-h-[300px] w-full flex-col overflow-hidden rounded-t-xl border border-gray-800 bg-[#111] p-4 shadow-xl lg:p-5";
 
 export function MethodologySection() {
   const { t } = useLanguage();
@@ -102,8 +74,8 @@ export function MethodologySection() {
               </p>
             </header>
 
-            {/* ——— Mobile: vertical timeline (scroll via section inner wrapper) ——— */}
-            <div className="relative mt-5 block min-h-0 lg:hidden">
+            {/* ——— Vertical timeline (scroll via section inner wrapper) ——— */}
+            <div className="relative mt-5 block min-h-0">
               <div className="relative pr-1 [-webkit-overflow-scrolling:touch]">
                 <motion.div
                   className="absolute bottom-0 left-6 top-0 w-0.5 origin-top bg-gradient-to-b from-yellow-500 to-gray-600"
@@ -155,61 +127,7 @@ export function MethodologySection() {
               </div>
             </div>
 
-            {/* ——— Desktop: horizontal staircase (ascends left → right) ——— */}
-            <div className="relative mx-auto mt-3 hidden min-h-0 w-full max-w-7xl pb-24 lg:mt-4 lg:block lg:pb-32">
-              <motion.div
-                aria-hidden="true"
-                className="pointer-events-none absolute bottom-6 left-3 right-3 z-0 border-t border-dashed border-gray-700 lg:bottom-8"
-                initial={{ scaleX: 0 }}
-                whileInView={{ scaleX: 1 }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
-                style={{ transformOrigin: "left center" }}
-              />
 
-              <motion.div
-                className="relative z-10 grid grid-cols-5 gap-3 lg:items-start lg:gap-4"
-                variants={containerVars}
-                initial="hidden"
-                whileInView="show"
-                viewport={{ once: true, margin: "-100px" }}
-              >
-                {steps.map((step, index) => {
-                  const Icon = STEP_ICONS[index] ?? Settings;
-                  const connectorPx = connectorHeightPx(index);
-
-                  return (
-                    <motion.div
-                      key={`d-${step.id}-${step.title}`}
-                      variants={desktopStepVars}
-                      style={{ transform: `translateY(${columnStairTranslateY(index)})` }}
-                      className="group relative flex w-full flex-col items-center will-change-transform"
-                    >
-                      <div className="flex w-full flex-col items-center">
-                        <div className="transition-all duration-500 ease-out lg:group-hover:-translate-y-0.5 lg:group-hover:shadow-[0_12px_28px_-12px_rgba(234,179,8,0.22)]">
-                          <div className={CARD_BOX}>
-                            <div className="hide-scrollbar flex min-h-0 flex-1 flex-col items-center overflow-y-auto">
-                              <StepCardContent step={step} Icon={Icon} />
-                            </div>
-                          </div>
-                          <div className="relative z-[5] -mt-px h-8 w-full rounded-b-md bg-[#0a0a0a] shadow-lg ring-1 ring-gray-800 lg:h-9" />
-                        </div>
-
-                        <div
-                          className="w-px shrink-0 border-l border-dashed border-gray-600"
-                          style={{ height: `${connectorPx}px` }}
-                          aria-hidden="true"
-                        />
-
-                        <div className="relative z-20 -mt-px flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-yellow-500 bg-[#111] text-[10px] font-bold text-yellow-400 shadow-sm transition-colors duration-300 group-hover:bg-yellow-500 group-hover:text-black lg:h-9 lg:w-9 lg:text-xs">
-                          {step.id}
-                        </div>
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </motion.div>
-            </div>
           </div>
         </div>
       </div>
