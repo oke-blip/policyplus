@@ -1,7 +1,11 @@
 "use client";
 
 import { useState } from "react";
+<<<<<<< HEAD
 import { motion, type Variants } from "framer-motion";
+=======
+import { motion } from "framer-motion";
+>>>>>>> 622514ea99a46e985ffc8aaf4c13fc3f253752e0
 import { Save, Globe, LayoutTemplate, Image as ImageIcon, Loader, Type, Briefcase, AtSign, Camera, Plus, Trash2 } from "lucide-react";
 
 export default function SettingsPage() {
@@ -48,12 +52,20 @@ export default function SettingsPage() {
     setHeroBanners(heroBanners.filter(banner => banner.id !== id));
   };
 
+<<<<<<< HEAD
   const containerVariants: Variants = {
+=======
+  const containerVariants = {
+>>>>>>> 622514ea99a46e985ffc8aaf4c13fc3f253752e0
     hidden: { opacity: 0 },
     show: { opacity: 1, transition: { staggerChildren: 0.1 } }
   };
 
+<<<<<<< HEAD
   const itemVariants: Variants = {
+=======
+  const itemVariants = {
+>>>>>>> 622514ea99a46e985ffc8aaf4c13fc3f253752e0
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
   };

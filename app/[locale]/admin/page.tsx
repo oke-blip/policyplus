@@ -1,6 +1,10 @@
 "use client";
 
+<<<<<<< HEAD
 import { motion, type Variants } from "framer-motion";
+=======
+import { motion } from "framer-motion";
+>>>>>>> 622514ea99a46e985ffc8aaf4c13fc3f253752e0
 import { FileText, CalendarDays, HeartHandshake, MessageSquareQuote, ArrowUpRight, ArrowDownRight, MapPin, Star, MoreHorizontal, Briefcase } from "lucide-react";
 
 export default function AdminDashboardPage() {
@@ -23,7 +27,11 @@ export default function AdminDashboardPage() {
     { id: 3, name: "Urban Dev Org", rating: 4, quote: "Very professional and data-driven." },
   ];
 
+<<<<<<< HEAD
   const containerVariants: Variants = {
+=======
+  const containerVariants = {
+>>>>>>> 622514ea99a46e985ffc8aaf4c13fc3f253752e0
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
@@ -31,7 +39,11 @@ export default function AdminDashboardPage() {
     }
   };
 
+<<<<<<< HEAD
   const itemVariants: Variants = {
+=======
+  const itemVariants = {
+>>>>>>> 622514ea99a46e985ffc8aaf4c13fc3f253752e0
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
   };
