@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { Save, Globe, LayoutTemplate, Image as ImageIcon, Loader, Type, Briefcase, AtSign, Camera, Plus, Trash2, CheckCircle2, AlertCircle, Award, Target, Cpu } from "lucide-react";
 import { METHODOLOGY_ICON_OPTIONS, getDefaultMethodologyIconId } from "@/lib/methodology-icons";
 import { getMethodologyEditorPoints, getMethodologyPoints } from "@/lib/settings-utils";
@@ -246,14 +246,14 @@ export default function SettingsPage() {
     );
   }
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     show: { opacity: 1, transition: { staggerChildren: 0.1 } }
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 10 },
-    show: { opacity: 1, y: 0 }
+    show: { opacity: 1, y: 0 },
   };
 
   return (

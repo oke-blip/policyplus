@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import { FileText, CalendarDays, HeartHandshake, MessageSquareQuote, ArrowUpRight, ArrowDownRight, MapPin, Star, MoreHorizontal, Briefcase } from "lucide-react";
 
 export default function AdminDashboardPage() {
@@ -23,7 +23,7 @@ export default function AdminDashboardPage() {
     { id: 3, name: "Urban Dev Org", rating: 4, quote: "Very professional and data-driven." },
   ];
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
@@ -31,7 +31,7 @@ export default function AdminDashboardPage() {
     }
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
   };

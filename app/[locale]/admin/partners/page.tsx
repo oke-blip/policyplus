@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { HeartHandshake, MessageSquareQuote, Plus, Edit2, Trash2, Save, Loader, Camera, CheckCircle2, AlertCircle, X } from "lucide-react";
 
 export default function PartnersPage() {
@@ -85,14 +85,14 @@ export default function PartnersPage() {
     }
   };
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     show: { opacity: 1, transition: { staggerChildren: 0.1 } }
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 10 },
-    show: { opacity: 1, y: 0 }
+    show: { opacity: 1, y: 0 },
   };
 
   if (loading) return <div className="h-[60vh] flex items-center justify-center"><Loader className="animate-spin text-slate-400" size={40} /></div>;

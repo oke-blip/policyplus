@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { CalendarDays, MapPin, Plus, Edit2, Trash2, X, Loader, Camera, Globe, ExternalLink, CheckCircle2, AlertCircle, Search } from "lucide-react";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
+import { CalendarDays, MapPin, Plus, Edit2, Trash2, X, Loader, Camera, Globe, CheckCircle2, AlertCircle, Search } from "lucide-react";
 
 export default function EventsPage() {
   const [events, setEvents] = useState<any[]>([]);
@@ -141,12 +141,12 @@ export default function EventsPage() {
     e.location.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     show: { opacity: 1, transition: { staggerChildren: 0.1 } }
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0 }
   };
