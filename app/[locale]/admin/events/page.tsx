@@ -4,11 +4,21 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { CalendarDays, MapPin, Plus, Edit2, Trash2, X, Loader, Camera, Globe, CheckCircle2, AlertCircle, Search } from "lucide-react";
 
+type EventRecord = {
+  id: string;
+  title: string;
+  date: string;
+  location: string;
+  image: string;
+  category?: string | null;
+  link?: string | null;
+};
+
 export default function EventsPage() {
-  const [events, setEvents] = useState<any[]>([]);
+  const [events, setEvents] = useState<EventRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
-  const [editingEvent, setEditingEvent] = useState<any>(null);
+  const [editingEvent, setEditingEvent] = useState<EventRecord | null>(null);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
   const [searchQuery, setSearchQuery] = useState("");
@@ -22,26 +32,44 @@ export default function EventsPage() {
     link: ""
   });
 
-  useEffect(() => {
-    fetchEvents();
-  }, []);
-
   const fetchEvents = async () => {
     try {
       setLoading(true);
       const res = await fetch("/api/events");
       if (res.ok) {
-        const data = await res.json();
+        const data = (await res.json()) as EventRecord[];
         setEvents(data);
       }
-    } catch (error) {
-      console.error("Error fetching events:", error);
+    } catch (err) {
+      console.error("Error fetching events:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleOpenModal = (event: any = null) => {
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      try {
+        setLoading(true);
+        const res = await fetch("/api/events");
+        if (res.ok && !cancelled) {
+          setEvents((await res.json()) as EventRecord[]);
+        }
+      } catch (err) {
+        console.error("Error fetching events:", err);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleOpenModal = (event: EventRecord | null = null) => {
     if (event) {
       setEditingEvent(event);
       setFormData({
@@ -87,7 +115,7 @@ export default function EventsPage() {
       } else {
         setMessage({ type: "error", text: "Failed to save event." });
       }
-    } catch (error) {
+    } catch {
       setMessage({ type: "error", text: "An error occurred." });
     } finally {
       setSaving(false);
@@ -104,7 +132,7 @@ export default function EventsPage() {
         fetchEvents();
         setTimeout(() => setMessage({ type: "", text: "" }), 3000);
       }
-    } catch (error) {
+    } catch {
       setMessage({ type: "error", text: "Failed to delete event." });
     }
   };
@@ -131,7 +159,7 @@ export default function EventsPage() {
         hour: "2-digit",
         minute: "2-digit",
       }).format(date);
-    } catch (e) {
+    } catch {
       return dateStr;
     }
   };

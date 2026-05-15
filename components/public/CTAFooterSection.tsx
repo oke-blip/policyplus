@@ -11,7 +11,24 @@ const reveal = {
   transition: { duration: 0.55, ease: "easeOut" as const },
 };
 
-export function CTAFooterSection({ settings }: { settings: any }) {
+type SocialLink = {
+  id?: string | number;
+  platform?: string;
+  url?: string;
+};
+
+function pickString(obj: Record<string, unknown>, key: string, fallback: string): string {
+  const value = obj[key];
+  return typeof value === "string" && value.length > 0 ? value : fallback;
+}
+
+function parseSocialLinks(raw: unknown): SocialLink[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.filter((item): item is SocialLink => typeof item === "object" && item !== null);
+}
+
+export function CTAFooterSection({ settings = {} }: { settings?: Record<string, unknown> }) {
+  const socialLinks = parseSocialLinks(settings.social_links);
   return (
     <section className="w-full snap-start bg-black">
       <div className="flex min-h-svh w-full flex-col">
@@ -22,18 +39,18 @@ export function CTAFooterSection({ settings }: { settings: any }) {
           <div className="mx-auto flex w-full max-w-7xl flex-col items-center gap-6 text-center md:flex-row md:items-center md:justify-between md:text-left">
             <div className="max-w-3xl">
               <p className="text-xs font-semibold tracking-[0.18em] text-yellow-400 uppercase">
-                {settings?.cta_subtitle || "Final Call To Action"}
+                {pickString(settings, "cta_subtitle", "Final Call To Action")}
               </p>
               <h2 className="mt-3 text-2xl font-semibold tracking-tight text-white sm:text-3xl md:text-4xl">
-                {settings?.cta_title || "Ready to drive meaningful social impact?"}
+                {pickString(settings, "cta_title", "Ready to drive meaningful social impact?")}
               </h2>
             </div>
             <Link
-              href={settings?.cta_button_link || "#"}
+              href={pickString(settings, "cta_button_link", "#")}
               className="w-full shrink-0 md:w-auto"
             >
               <Button className="h-auto min-h-[4.5rem] w-full min-w-[280px] rounded-full bg-yellow-500 px-12 py-6 text-xl font-bold tracking-wide text-black shadow-[0_12px_40px_rgba(234,179,8,0.45)] transition-all duration-300 hover:scale-[1.02] hover:bg-yellow-400 hover:shadow-[0_16px_48px_rgba(234,179,8,0.55)] sm:min-h-[5rem] sm:min-w-[320px] sm:px-14 sm:py-7 sm:text-2xl md:min-h-[5.5rem] md:min-w-[380px] md:px-16 md:py-8 md:text-3xl lg:min-w-[420px] lg:px-20 lg:py-9 lg:text-4xl">
-                {settings?.cta_button_text || "Get In Touch"}
+                {pickString(settings, "cta_button_text", "Get In Touch")}
               </Button>
             </Link>
           </div>
@@ -44,11 +61,11 @@ export function CTAFooterSection({ settings }: { settings: any }) {
             <div>
               <h3 className="text-base font-semibold text-white">Address & Contact</h3>
               <p className="mt-3 text-sm leading-7 text-gray-400">
-                {settings?.office_address || "Eco-S Sahid Sudirman, Jakarta"}
+                {pickString(settings, "office_address", "Eco-S Sahid Sudirman, Jakarta")}
                 <br />
-                {settings?.email_address || "hello@policyplus.id"}
+                {pickString(settings, "email_address", "hello@policyplus.id")}
                 <br />
-                {settings?.phone_number || "+62 21 0000 0000"}
+                {pickString(settings, "phone_number", "+62 21 0000 0000")}
               </p>
             </div>
             <div>
@@ -72,16 +89,16 @@ export function CTAFooterSection({ settings }: { settings: any }) {
             <div>
               <h3 className="text-base font-semibold text-white">Follow Us</h3>
               <ul className="mt-3 space-y-2 text-sm text-gray-400">
-                {settings?.social_links?.length > 0
-                  ? settings.social_links.map((link: any) => (
-                      <li key={link.id}>
+                {socialLinks.length > 0
+                  ? socialLinks.map((link) => (
+                      <li key={String(link.id ?? link.platform ?? link.url)}>
                         <a
-                          href={link.url}
+                          href={link.url ?? "#"}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="hover:text-white transition-colors"
                         >
-                          {link.platform}
+                          {link.platform ?? "Link"}
                         </a>
                       </li>
                     ))
@@ -97,7 +114,7 @@ export function CTAFooterSection({ settings }: { settings: any }) {
             </div>
           </div>
           <div className="mx-auto mt-8 max-w-7xl border-t border-gray-800 pt-5 text-center text-sm text-gray-500">
-            © {new Date().getFullYear()} {settings?.company_name || "Policy+"} All rights reserved
+            © {new Date().getFullYear()} {pickString(settings, "company_name", "Policy+")} All rights reserved
           </div>
         </footer>
       </div>
