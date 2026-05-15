@@ -48,7 +48,7 @@ export function Preloader() {
     return () => window.clearTimeout(t);
   }, [phase]);
 
-  if (removed || (pathname && pathname.includes("/admin"))) {
+  if (removed || (pathname && (pathname.includes("/admin") || pathname.includes("/login")))) {
     return null;
   }
 

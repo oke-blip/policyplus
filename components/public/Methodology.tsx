@@ -1,20 +1,12 @@
 "use client";
 
 import type { ComponentType } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { FileText, Lightbulb, Search, Settings, Users } from "lucide-react";
-
 import { useLanguage } from "@/contexts/LanguageContext";
+import { getMethodologyIcon, getDefaultMethodologyIconId } from "@/lib/methodology-icons";
+import { toMethodologySteps, type MethodologyStep } from "@/lib/settings-utils";
 import { cn } from "@/lib/utils";
-
-type MethodologyStep = {
-  id: string;
-  title: string;
-  points: string[];
-};
-
-const STEP_ICONS = [Lightbulb, Search, Users, FileText, Settings] as const;
-
 
 function StepCardContent({
   step,
@@ -38,19 +30,59 @@ function StepCardContent({
       >
         {step.title}
       </h3>
-      <ul className="list-disc space-y-0.5 pl-3 text-left text-[11px] leading-snug text-gray-400 marker:text-yellow-500 lg:space-y-1 lg:pl-3.5 lg:text-xs">
-        {step.points.map((point) => (
-          <li key={point}>{point}</li>
-        ))}
-      </ul>
+      {step.points.length > 0 ? (
+        <ul className="list-disc space-y-0.5 pl-3 text-left text-[11px] leading-snug text-gray-400 marker:text-yellow-500 lg:space-y-1 lg:pl-3.5 lg:text-xs">
+          {step.points.map((point, pointIndex) => (
+            <li key={`${point}-${pointIndex}`}>{point}</li>
+          ))}
+        </ul>
+      ) : null}
     </>
   );
 }
 
-
-export function MethodologySection() {
+export function MethodologySection({
+  data,
+  initialSteps,
+}: {
+  data?: Record<string, unknown>;
+  initialSteps?: MethodologyStep[];
+}) {
   const { t } = useLanguage();
-  const steps = t<MethodologyStep[]>("methodology.steps");
+  const [fetchedSteps, setFetchedSteps] = useState<MethodologyStep[]>([]);
+
+  const tag = String(data?.methodology_tag || t("methodology.tag"));
+  const header = String(data?.methodology_header || t("methodology.header"));
+  const description = String(
+    data?.methodology_description || t("methodology.description")
+  );
+
+  const cmsSteps = useMemo(() => {
+    if (initialSteps?.length) return initialSteps;
+    return toMethodologySteps(data?.methodology_items);
+  }, [initialSteps, data?.methodology_items]);
+
+  useEffect(() => {
+    if (cmsSteps.length > 0) return;
+
+    fetch("/api/settings", { cache: "no-store" })
+      .then((res) => res.json())
+      .then((settings) => {
+        const fromApi = toMethodologySteps(settings.methodology_items);
+        if (fromApi.length > 0) setFetchedSteps(fromApi);
+      })
+      .catch(() => {});
+  }, [cmsSteps.length]);
+
+  const fallbackSteps = t<MethodologyStep[]>("methodology.steps");
+  const steps =
+    cmsSteps.length > 0
+      ? cmsSteps
+      : fetchedSteps.length > 0
+        ? fetchedSteps
+        : fallbackSteps;
+
+  if (steps.length === 0) return null;
 
   return (
     <section className="relative isolate flex min-h-svh w-full snap-start flex-col bg-black pt-28 pb-12 text-white lg:pt-32 lg:pb-16">
@@ -64,17 +96,16 @@ export function MethodologySection() {
           <div className="mx-auto flex w-full min-w-0 max-w-7xl flex-col px-4 sm:px-6">
             <header className="mx-auto mb-6 max-w-3xl shrink-0 text-center lg:mb-8">
               <span className="inline-block rounded-full border border-gray-700 bg-[#111] px-3 py-1 text-[10px] font-semibold tracking-wide text-yellow-500 uppercase sm:px-4 sm:py-1.5 sm:text-xs">
-                {t("methodology.tag")}
+                {tag}
               </span>
               <h2 className="mt-3 break-words font-sans text-3xl font-bold leading-tight tracking-tight text-white hyphens-auto lg:text-4xl xl:text-5xl">
-                {t("methodology.header")}
+                {header}
               </h2>
               <p className="mt-2 text-sm leading-snug text-gray-400 sm:text-base">
-                {t("methodology.description")}
+                {description}
               </p>
             </header>
 
-            {/* ——— Vertical timeline (scroll via section inner wrapper) ——— */}
             <div className="relative mt-5 block min-h-0">
               <div className="relative pr-1 [-webkit-overflow-scrolling:touch]">
                 <motion.div
@@ -87,11 +118,16 @@ export function MethodologySection() {
                 />
 
                 {steps.map((step, index) => {
-                  const Icon = STEP_ICONS[index] ?? Settings;
+                  const Icon = getMethodologyIcon(
+                    step.icon || getDefaultMethodologyIconId(index)
+                  );
                   return (
                     <div
-                      key={`m-${step.id}-${step.title}`}
-                      className={cn("relative flex gap-4", index < steps.length - 1 ? "mb-6" : "")}
+                      key={`m-${step.id}-${step.title}-${index}`}
+                      className={cn(
+                        "relative flex gap-4",
+                        index < steps.length - 1 ? "mb-6" : ""
+                      )}
                     >
                       <div className="pointer-events-none relative z-10 w-12 shrink-0">
                         <motion.div
@@ -115,7 +151,11 @@ export function MethodologySection() {
                         initial={{ opacity: 0, x: 50 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true, margin: "-32px" }}
-                        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: index * 0.05 }}
+                        transition={{
+                          duration: 0.5,
+                          ease: [0.22, 1, 0.36, 1],
+                          delay: index * 0.05,
+                        }}
                       >
                         <div className="flex flex-col items-center">
                           <StepCardContent step={step} Icon={Icon} />
@@ -126,8 +166,6 @@ export function MethodologySection() {
                 })}
               </div>
             </div>
-
-
           </div>
         </div>
       </div>

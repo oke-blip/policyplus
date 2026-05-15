@@ -1,52 +1,250 @@
 "use client";
 
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { Save, Globe, LayoutTemplate, Image as ImageIcon, Loader, Type, Briefcase, AtSign, Camera, Plus, Trash2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Save, Globe, LayoutTemplate, Image as ImageIcon, Loader, Type, Briefcase, AtSign, Camera, Plus, Trash2, CheckCircle2, AlertCircle, Award, Target, Cpu } from "lucide-react";
+import { METHODOLOGY_ICON_OPTIONS, getDefaultMethodologyIconId } from "@/lib/methodology-icons";
+import { getMethodologyEditorPoints, getMethodologyPoints } from "@/lib/settings-utils";
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState("global");
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState({ type: "", text: "" });
 
-  const [socialLinks, setSocialLinks] = useState([
-    { id: 1, platform: "LinkedIn", url: "https://linkedin.com/company/policyplus" },
-    { id: 2, platform: "Twitter", url: "" },
-    { id: 3, platform: "Instagram", url: "https://instagram.com/policyplus" },
-    { id: 4, platform: "Facebook", url: "" }
-  ]);
+  // State for settings
+  const [settings, setSettings] = useState<any>({
+    // Global
+    company_name: "PolicyPlus",
+    email_address: "hello@policyplus.com",
+    phone_number: "+62 812 3456 7890",
+    office_address: "Jakarta, Indonesia",
+    social_links: [],
+    preloader_text: "Empowering Policies for the Future...",
+    
+    // Hero
+    hero_line1_prefix: "DRIVING MEANINGFUL",
+    hero_line1_accent: "IMPACT",
+    hero_line2_prefix: "THROUGH RIGOROUS",
+    hero_line2_accent: "POLICY SOLUTIONS",
+    hero_description: "A trusted advisory firm providing solutions for dynamic governance.",
+    hero_cta_text: "Our Expertise",
+    hero_cta_link: "#expertise",
+    hero_secondary_text: "Latest Insights",
+    hero_secondary_link: "#insights",
+    hero_banners: [],
 
-  const [images, setImages] = useState<{ [key: string]: string | null }>({
-    logo: null,
-    favicon: null,
-    preloader: null,
+    // Intro
+    intro_subtitle: "",
+    intro_title: "",
+    intro_description: "",
+    intro_image_url: "",
+
+    // Expertise
+    expertise_header: "Our Expertise",
+    expertise_description: "We bring a deep understanding of policy ecosystems...",
+    expertise_items: [
+      { id: 1, tag: "Research", title: "Evidence-Based Policy Research", desc: "Rigorous data collection and analysis...", image: "" },
+      { id: 2, tag: "Engagement", title: "Stakeholder Management", desc: "Building bridges between government and society...", image: "" },
+      { id: 3, tag: "Strategy", title: "Strategic Advisory", desc: "Navigating complex regulatory environments...", image: "" },
+    ],
+
+    // Approach
+    approach_line1: "WHAT MAKES",
+    approach_line2: "OUR APPROACH DIFFERENT?",
+    approach_description: "Our work connects research, stakeholders, and communication to move policy ideas from discussion to implementation.",
+    approach_items: [
+      { id: 1, title: "Deep Analysis", desc: "We start by understanding the root cause..." },
+      { id: 2, title: "Collaborative Design", desc: "We work closely with all partners..." },
+      { id: 3, title: "Execution Excellence", desc: "Ensuring impact through measurable results..." },
+      { id: 4, title: "Scale & Impact", desc: "Scaling solutions for wider governance." },
+    ],
+
+    // CTA
+    cta_subtitle: "",
+    cta_title: "Ready to drive meaningful social impact?",
+    cta_button_text: "Get In Touch",
+    cta_button_link: "#contact",
+
+    // Methodology
+    methodology_tag: "Our Process",
+    methodology_header: "Our Methodology",
+    methodology_description: "A framework built for dynamic governance.",
+    methodology_items: [
+      {
+        id: 1,
+        title: "IDEATION",
+        icon: "lightbulb",
+        points: ["Scanning issue", "Framing policy challenges", "Early insight"],
+        order: 0,
+      },
+      {
+        id: 2,
+        title: "RESEARCH",
+        icon: "search",
+        points: ["Policy research", "Benchmarking", "Data & evidence"],
+        order: 1,
+      },
+      {
+        id: 3,
+        title: "DIALOGUE",
+        icon: "users",
+        points: ["Stakeholder engagement", "Convenings", "Policy discussions"],
+        order: 2,
+      },
+    ],
+
+    // Insights
+    insights_header: "Latest Insights",
+    insights_description: "Explore our latest research and policy updates.",
   });
 
-  const handleImageUpload = (key: string, e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      const url = URL.createObjectURL(file);
-      setImages(prev => ({ ...prev, [key]: url }));
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  const fetchSettings = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch("/api/settings");
+      if (res.ok) {
+        const data = await res.json();
+        if (Object.keys(data).length > 0) {
+          // Merge fetched data with defaults
+          setSettings((prev: any) => ({ ...prev, ...data }));
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching settings:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const addSocialLink = () => {
-    setSocialLinks([...socialLinks, { id: Date.now(), platform: "", url: "" }]);
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      setMessage({ type: "", text: "" });
+      const res = await fetch("/api/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(settings),
+      });
+
+      if (res.ok) {
+        setMessage({ type: "success", text: "All settings saved successfully!" });
+        setTimeout(() => setMessage({ type: "", text: "" }), 3000);
+      } else {
+        setMessage({ type: "error", text: "Failed to save settings." });
+      }
+    } catch (error) {
+      setMessage({ type: "error", text: "An error occurred." });
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const removeSocialLink = (id: number) => {
-    setSocialLinks(socialLinks.filter(link => link.id !== id));
+  const updateSetting = (key: string, value: any) => {
+    setSettings((prev: any) => ({ ...prev, [key]: value }));
   };
 
-  const [heroBanners, setHeroBanners] = useState([
-    { id: 1, image: "/images/hero-1.jpg" }
-  ]);
-
-  const addHeroBanner = () => {
-    setHeroBanners([...heroBanners, { id: Date.now(), image: "" }]);
+  const addExpertiseItem = () => {
+    updateSetting("expertise_items", [
+      ...(settings.expertise_items || []),
+      { id: Date.now(), tag: "", title: "", desc: "", image: "" },
+    ]);
   };
 
-  const removeHeroBanner = (id: number) => {
-    setHeroBanners(heroBanners.filter(banner => banner.id !== id));
+  const removeExpertiseItem = (index: number) => {
+    const newList = [...(settings.expertise_items || [])];
+    newList.splice(index, 1);
+    updateSetting("expertise_items", newList);
   };
+
+  const addApproachItem = () => {
+    const now = Date.now();
+    updateSetting("approach_items", [
+      ...(settings.approach_items || []),
+      {
+        id: now,
+        createdAt: now,
+        phase: `PHASE_0${(settings.approach_items?.length ?? 0) + 1}`,
+        title: "",
+        desc: "",
+        image: "",
+      },
+    ]);
+  };
+
+  const removeApproachItem = (index: number) => {
+    const newList = [...(settings.approach_items || [])];
+    newList.splice(index, 1);
+    updateSetting("approach_items", newList);
+  };
+
+  const addMethodologyItem = () => {
+    const nextOrder = settings.methodology_items?.length ?? 0;
+    updateSetting("methodology_items", [
+      ...(settings.methodology_items || []),
+      {
+        id: Date.now(),
+        title: "",
+        icon: getDefaultMethodologyIconId(nextOrder),
+        points: [""],
+        order: nextOrder,
+      },
+    ]);
+  };
+
+  const removeMethodologyItem = (index: number) => {
+    const newList = [...(settings.methodology_items || [])];
+    newList.splice(index, 1);
+    updateSetting(
+      "methodology_items",
+      newList.map((item: { order?: number }, i: number) => ({ ...item, order: i }))
+    );
+  };
+
+  const updateMethodologyItem = (index: number, patch: Record<string, unknown>) => {
+    const newList = [...(settings.methodology_items || [])];
+    newList[index] = { ...newList[index], ...patch };
+    updateSetting("methodology_items", newList);
+  };
+
+  const setMethodologyPoints = (index: number, points: string[]) => {
+    updateMethodologyItem(index, {
+      points,
+      desc: points
+        .map((p) => p.trim())
+        .filter(Boolean)
+        .join("\n"),
+    });
+  };
+
+  const handleImageUpload = (key: string, e: React.ChangeEvent<HTMLInputElement>, subKey?: string, index?: number) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (subKey !== undefined && index !== undefined) {
+          const newList = [...settings[key]];
+          newList[index][subKey] = reader.result;
+          updateSetting(key, newList);
+        } else {
+          updateSetting(key, reader.result);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="h-[60vh] flex items-center justify-center">
+        <Loader className="animate-spin text-slate-400" size={40} />
+      </div>
+    );
+  }
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -54,229 +252,90 @@ export default function SettingsPage() {
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+    hidden: { opacity: 0, y: 10 },
+    show: { opacity: 1, y: 0 }
   };
 
   return (
-    <motion.div
-      variants={containerVariants}
-      initial="hidden"
-      animate="show"
-      className="space-y-8 pb-10"
-    >
+    <motion.div variants={containerVariants} initial="hidden" animate="show" className="space-y-8 pb-20">
       <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Settings</h1>
-          <p className="mt-1.5 text-slate-500 dark:text-slate-400">Manage global website configurations and homepage layout.</p>
+          <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Setting Compro</h1>
+          <p className="mt-1.5 text-slate-500 dark:text-slate-400">Kelola konten company profile dan landing page.</p>
+        </div>
+        
+        <div className="flex items-center gap-4">
+          <AnimatePresence>
+            {message.text && (
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold ${
+                  message.type === "success" ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400" : "bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400"
+                }`}
+              >
+                {message.type === "success" ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
+                {message.text}
+              </motion.div>
+            )}
+          </AnimatePresence>
+          <button 
+            onClick={handleSave}
+            disabled={saving}
+            className="flex items-center gap-2 px-8 py-3.5 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-200 text-white dark:text-slate-900 font-bold rounded-xl shadow-lg transition-all disabled:opacity-70"
+          >
+            {saving ? <Loader className="animate-spin" size={20} /> : <Save size={20} />}
+            {saving ? "Saving..." : "Save Changes"}
+          </button>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 p-1 bg-slate-200/50 dark:bg-white/5 rounded-2xl w-fit backdrop-blur-md">
-        <button
-          onClick={() => setActiveTab("global")}
-          className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTab === "global"
-            ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm"
-            : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
-            }`}
-        >
-          <Globe size={16} />
-          Global Settings
-        </button>
-        <button
-          onClick={() => setActiveTab("homepage")}
-          className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTab === "homepage"
-            ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm"
-            : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
-            }`}
-        >
-          <LayoutTemplate size={16} />
-          Homepage Layout
-        </button>
+      <div className="flex flex-wrap gap-2 p-1 bg-slate-200/50 dark:bg-white/5 rounded-2xl w-fit backdrop-blur-md">
+        {[
+          { id: "global", icon: Globe, label: "Global & Branding" },
+          { id: "homepage", icon: LayoutTemplate, label: "Hero & Intro" },
+          { id: "expertise", icon: Award, label: "Expertise" },
+          { id: "approach", icon: Target, label: "Approach" },
+          { id: "methodology", icon: Cpu, label: "Methodology" },
+          { id: "cta", icon: Type, label: "CTA & Footer" },
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTab === tab.id
+              ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm"
+              : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+              }`}
+          >
+            <tab.icon size={16} />
+            {tab.label}
+          </button>
+        ))}
       </div>
 
-      {/* Content Area */}
       <motion.div variants={itemVariants} className="bg-white/60 dark:bg-white/[0.02] backdrop-blur-xl border border-slate-200/50 dark:border-white/5 rounded-3xl p-6 md:p-8 shadow-sm">
 
         {activeTab === "global" && (
           <div className="space-y-10">
-            {/* Header Settings */}
+            {/* Branding */}
             <section className="space-y-6">
               <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white">Header & Branding</h2>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Configure company logo and primary branding elements.</p>
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white">Branding & Contact</h2>
               </div>
-
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Company Name</label>
-                  <input type="text" defaultValue="PolicyPlus" className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-slate-500/50 outline-none transition-all" />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Company Logo</label>
-                    <div className="w-full h-32 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl flex flex-col items-center justify-center bg-slate-50 hover:bg-slate-100 dark:bg-white/5 dark:hover:bg-white/10 transition-colors cursor-pointer text-slate-500 dark:text-slate-400 relative overflow-hidden group">
-                      <input type="file" accept="image/*" onChange={(e) => handleImageUpload('logo', e)} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
-                      {images.logo ? (
-                        <>
-                          <img src={images.logo} alt="Company Logo" className="w-full h-full object-contain p-2" />
-                          <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                            <span className="text-white text-xs font-bold">Change Logo</span>
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          <ImageIcon size={24} className="mb-2 text-slate-400" />
-                          <span className="text-sm font-medium">Upload logo</span>
-                          <span className="text-xs mt-1">PNG, JPG (Max 2MB)</span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Favicon</label>
-                    <div className="w-full h-32 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl flex flex-col items-center justify-center bg-slate-50 hover:bg-slate-100 dark:bg-white/5 dark:hover:bg-white/10 transition-colors cursor-pointer text-slate-500 dark:text-slate-400 relative overflow-hidden group">
-                      <input type="file" accept="image/*" onChange={(e) => handleImageUpload('favicon', e)} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
-                      {images.favicon ? (
-                        <>
-                          <img src={images.favicon} alt="Favicon" className="w-full h-full object-contain p-2" />
-                          <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                            <span className="text-white text-xs font-bold">Change Favicon</span>
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          <ImageIcon size={24} className="mb-2 text-slate-400" />
-                          <span className="text-sm font-medium">Upload favicon</span>
-                          <span className="text-xs mt-1">ICO, PNG (32x32px)</span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            {/* Preloader Settings */}
-            <section className="space-y-6">
-              <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <Loader size={20} className="text-slate-500" />
-                  Preloader Configuration
-                </h2>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Customize the loading screen shown before the website fully loads.</p>
-              </div>
-
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Preloader Text (Greeting / Quote)</label>
-                  <div className="relative">
-                    <Type className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                    <input type="text" defaultValue="Empowering Policies for the Future..." className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl pl-11 pr-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-slate-500/50 outline-none transition-all" />
-                  </div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">This text appears after the percentage counter finishes.</p>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Preloader Logo</label>
-                  <div className="w-full h-32 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl flex flex-col items-center justify-center bg-slate-50 hover:bg-slate-100 dark:bg-white/5 dark:hover:bg-white/10 transition-colors cursor-pointer text-slate-500 dark:text-slate-400 relative overflow-hidden group">
-                    <input type="file" accept="image/*" onChange={(e) => handleImageUpload('preloader', e)} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
-                    {images.preloader ? (
-                      <>
-                        <img src={images.preloader} alt="Preloader Logo" className="w-full h-full object-contain p-2" />
-                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                          <span className="text-white text-xs font-bold">Change Logo</span>
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <ImageIcon size={24} className="mb-2 text-slate-400" />
-                        <span className="text-sm font-medium">Upload preloader logo</span>
-                        <span className="text-xs mt-1">We recommend using an icon-only logo</span>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            {/* Footer Settings */}
-            <section className="space-y-6">
-              <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white">Global Footer</h2>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Company address, contact info, and copyright.</p>
-              </div>
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Email Address</label>
-                  <input type="email" defaultValue="hello@policyplus.com" className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-slate-500/50 outline-none transition-all" />
+                   <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Company Name</label>
+                   <input type="text" value={settings.company_name} onChange={(e) => updateSetting("company_name", e.target.value)} className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-slate-500/50 transition-all" />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Phone Number</label>
-                  <input type="text" defaultValue="+62 812 3456 7890" className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-slate-500/50 outline-none transition-all" />
+                   <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Email Address</label>
+                   <input type="email" value={settings.email_address} onChange={(e) => updateSetting("email_address", e.target.value)} className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-slate-500/50 transition-all" />
                 </div>
                 <div className="space-y-2 md:col-span-2">
-                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Office Address</label>
-                  <textarea rows={3} defaultValue="Jakarta, Indonesia" className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-slate-500/50 outline-none transition-all resize-none" />
-                </div>
-
-                <div className="md:col-span-2 pt-4 border-t border-slate-200 dark:border-white/5">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-sm font-bold text-slate-900 dark:text-white">Social Media Links</h3>
-                    <button onClick={addSocialLink} className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/20 text-slate-700 dark:text-slate-300 text-xs font-bold rounded-lg transition-all">
-                      <Plus size={14} />
-                      Add Link
-                    </button>
-                  </div>
-                  <div className="space-y-3">
-                    {socialLinks.map((link) => (
-                      <div key={link.id} className="flex items-center gap-3">
-                        <div className="w-1/3 relative">
-                          <select 
-                            value={link.platform || ""} 
-                            onChange={(e) => {
-                              const newLinks = [...socialLinks];
-                              const index = newLinks.findIndex(l => l.id === link.id);
-                              newLinks[index].platform = e.target.value;
-                              setSocialLinks(newLinks);
-                            }}
-                            className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-slate-500/50 outline-none transition-all text-sm appearance-none cursor-pointer" 
-                          >
-                            <option value="" disabled>Select Platform</option>
-                            <option value="LinkedIn">LinkedIn</option>
-                            <option value="Twitter">Twitter</option>
-                            <option value="Instagram">Instagram</option>
-                            <option value="Facebook">Facebook</option>
-                            <option value="YouTube">YouTube</option>
-                            <option value="TikTok">TikTok</option>
-                            <option value="Other">Other / Website</option>
-                          </select>
-                          <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-slate-400">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                          </div>
-                        </div>
-                        <div className="flex-1 relative">
-                          <Globe className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                          <input 
-                            type="text" 
-                            placeholder="URL" 
-                            value={link.url}
-                            onChange={(e) => {
-                              const newLinks = [...socialLinks];
-                              const index = newLinks.findIndex(l => l.id === link.id);
-                              newLinks[index].url = e.target.value;
-                              setSocialLinks(newLinks);
-                            }}
-                            className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl pl-11 pr-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-slate-500/50 outline-none transition-all text-sm" 
-                          />
-                        </div>
-                        <button onClick={() => removeSocialLink(link.id)} className="p-3 text-slate-400 hover:text-rose-600 bg-slate-50 hover:bg-rose-50 dark:bg-white/5 dark:hover:bg-rose-500/10 rounded-xl transition-all">
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
+                   <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Office Address</label>
+                   <textarea rows={2} value={settings.office_address} onChange={(e) => updateSetting("office_address", e.target.value)} className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-slate-500/50 transition-all resize-none" />
                 </div>
               </div>
             </section>
@@ -285,133 +344,501 @@ export default function SettingsPage() {
 
         {activeTab === "homepage" && (
           <div className="space-y-10">
-            {/* Hero Section */}
+            {/* Hero */}
             <section className="space-y-6">
               <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white">Hero Section</h2>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">The first impression area at the top of the homepage.</p>
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white">Hero & Introduction</h2>
               </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4 md:col-span-2">
-                  <div className="flex items-center justify-between">
-                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Banner Images (Carousel)</label>
-                    <button onClick={addHeroBanner} className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/20 text-slate-700 dark:text-slate-300 text-xs font-bold rounded-lg transition-all">
-                      <Plus size={14} />
-                      Add Banner
-                    </button>
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Hero Line 1 (White)</label>
+                    <input type="text" value={settings.hero_line1_prefix} onChange={(e) => updateSetting("hero_line1_prefix", e.target.value)} className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-slate-500/50 transition-all font-bold" />
                   </div>
-                  
-                  <div className="flex gap-4 overflow-x-auto pb-4 snap-x custom-scrollbar">
-                    {heroBanners.map((banner, index) => (
-                      <div key={banner.id} className="group relative w-48 shrink-0 aspect-video bg-slate-100 dark:bg-slate-800 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 snap-center">
-                        {/* Placeholder for actual image */}
-                        <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400">
-                           <ImageIcon size={24} className="mb-1 opacity-50" />
-                           <span className="text-[10px] uppercase font-bold tracking-wider">Banner {index + 1}</span>
-                        </div>
-                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button onClick={() => removeHeroBanner(banner.id)} className="p-1.5 bg-white/90 dark:bg-slate-900/90 text-rose-600 rounded-lg shadow-sm hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors">
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-yellow-600">Hero Line 1 (Yellow Accent)</label>
+                    <input type="text" value={settings.hero_line1_accent} onChange={(e) => updateSetting("hero_line1_accent", e.target.value)} className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-yellow-600 dark:text-yellow-500 outline-none focus:ring-2 focus:ring-slate-500/50 transition-all font-bold" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Hero Line 2 (White)</label>
+                    <input type="text" value={settings.hero_line2_prefix} onChange={(e) => updateSetting("hero_line2_prefix", e.target.value)} className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-slate-500/50 transition-all font-bold" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-yellow-600">Hero Line 2 (Yellow Accent)</label>
+                    <input type="text" value={settings.hero_line2_accent} onChange={(e) => updateSetting("hero_line2_accent", e.target.value)} className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-yellow-600 dark:text-yellow-500 outline-none focus:ring-2 focus:ring-slate-500/50 transition-all font-bold" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Hero Subheadline</label>
+                  <textarea rows={2} value={settings.hero_description} onChange={(e) => updateSetting("hero_description", e.target.value)} className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-slate-500/50 transition-all resize-none" />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold">Primary Button Text</label>
+                    <input type="text" value={settings.hero_cta_text} onChange={(e) => updateSetting("hero_cta_text", e.target.value)} className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold">Primary Button Link</label>
+                    <input type="text" value={settings.hero_cta_link} onChange={(e) => updateSetting("hero_cta_link", e.target.value)} className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold">Secondary Button Text</label>
+                    <input type="text" value={settings.hero_secondary_text} onChange={(e) => updateSetting("hero_secondary_text", e.target.value)} className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold">Secondary Button Link</label>
+                    <input type="text" value={settings.hero_secondary_link} onChange={(e) => updateSetting("hero_secondary_link", e.target.value)} className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3" />
+                  </div>
+                </div>
+
+                <div className="space-y-4 pt-4">
+                   <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Hero Banners (Slideshow Images)</label>
+                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                      {settings.hero_banners?.map((banner: any, index: number) => (
+                        <div key={index} className="relative aspect-video rounded-xl overflow-hidden group border border-slate-200 dark:border-white/10">
+                          <img src={banner.image} className="w-full h-full object-cover" />
+                          <button 
+                            onClick={() => {
+                              const newList = [...settings.hero_banners];
+                              newList.splice(index, 1);
+                              updateSetting("hero_banners", newList);
+                            }}
+                            className="absolute top-2 right-2 p-1 bg-rose-500 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
                             <Trash2 size={14} />
                           </button>
                         </div>
+                      ))}
+                      <div className="relative aspect-video rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-400 hover:border-slate-400 transition-all cursor-pointer">
+                        <input 
+                          type="file" 
+                          accept="image/*" 
+                          onChange={(e) => {
+                            if (e.target.files?.[0]) {
+                              const reader = new FileReader();
+                              reader.onloadend = () => {
+                                updateSetting("hero_banners", [...(settings.hero_banners || []), { image: reader.result }]);
+                              };
+                              reader.readAsDataURL(e.target.files[0]);
+                            }
+                          }} 
+                          className="absolute inset-0 opacity-0 cursor-pointer" 
+                        />
+                        <Plus size={24} />
                       </div>
-                    ))}
-                    
-                    {/* Add new placeholder */}
-                    <div onClick={addHeroBanner} className="w-48 shrink-0 aspect-video border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl flex flex-col items-center justify-center bg-slate-50 hover:bg-slate-100 dark:bg-white/5 dark:hover:bg-white/10 transition-colors cursor-pointer text-slate-500 dark:text-slate-400 snap-center">
-                      <Plus size={24} className="mb-1 text-slate-400" />
-                      <span className="text-xs font-medium">Upload Image</span>
-                    </div>
-                  </div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">Recommended size: 1920x1080px. You can add multiple images to create a carousel.</p>
-                </div>
-                <div className="space-y-2 md:col-span-2">
-                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Main Title</label>
-                  <input type="text" defaultValue="Shaping Policies, Transforming Futures." className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-slate-500/50 outline-none transition-all font-bold text-lg" />
-                </div>
-                <div className="space-y-2 md:col-span-2">
-                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Description</label>
-                  <textarea rows={3} defaultValue="We provide strategic insights and data-driven solutions to navigate complex regulatory landscapes." className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-slate-500/50 outline-none transition-all resize-none" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300">CTA Button Text</label>
-                  <input type="text" defaultValue="Discover Our Expertise" className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-slate-500/50 outline-none transition-all" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300">CTA Button Link</label>
-                  <input type="text" defaultValue="/expertise" className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-slate-500/50 outline-none transition-all" />
-                </div>
-              </div>
-            </section>
-
-            {/* Introduction Section */}
-            <section className="space-y-6">
-              <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white">Introduction Section</h2>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Brief intro text and visual right below the hero.</p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Section Subtitle (Kicker)</label>
-                  <input type="text" defaultValue="About Us" className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-slate-500/50 outline-none transition-all uppercase text-xs font-bold" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Section Title</label>
-                  <input type="text" defaultValue="Who We Are" className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-slate-500/50 outline-none transition-all font-bold" />
-                </div>
-                <div className="space-y-2 md:col-span-2">
-                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Description</label>
-                  <textarea rows={4} defaultValue="PolicyPlus is a leading advisory firm..." className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-slate-500/50 outline-none transition-all resize-none" />
-                </div>
-                <div className="space-y-2 md:col-span-2">
-                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Accompanying Image</label>
-                  <div className="w-full h-32 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl flex flex-col items-center justify-center bg-slate-50 hover:bg-slate-100 dark:bg-white/5 dark:hover:bg-white/10 transition-colors cursor-pointer text-slate-500 dark:text-slate-400">
-                    <ImageIcon size={24} className="mb-2 text-slate-400" />
-                    <span className="text-sm font-medium">Upload introduction image</span>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            {/* Pre-Footer CTA */}
-            <section className="space-y-6">
-              <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white">Pre-Footer CTA</h2>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">The final call to action before the website footer.</p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Subtitle (Kicker)</label>
-                  <input type="text" defaultValue="Ready to start?" className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-slate-500/50 outline-none transition-all uppercase text-xs font-bold" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Main Title</label>
-                  <input type="text" defaultValue="Let's build the future together." className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-slate-500/50 outline-none transition-all font-bold" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300">CTA Button Text</label>
-                  <input type="text" defaultValue="Contact Us" className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-slate-500/50 outline-none transition-all" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300">CTA Button Link</label>
-                  <input type="text" defaultValue="/contact" className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-slate-500/50 outline-none transition-all" />
+                   </div>
                 </div>
               </div>
             </section>
           </div>
         )}
 
-      </motion.div>
+        {activeTab === "expertise" && (
+          <div className="space-y-10">
+            <section className="space-y-6">
+              <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white">Expertise Cards</h2>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Section Header</label>
+                  <input type="text" value={settings.expertise_header} onChange={(e) => updateSetting("expertise_header", e.target.value)} className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-slate-500/50 transition-all" />
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Description</label>
+                  <textarea rows={2} value={settings.expertise_description} onChange={(e) => updateSetting("expertise_description", e.target.value)} className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-slate-500/50 transition-all resize-none" />
+                </div>
+              </div>
 
-      {/* Save Button Container */}
-      <motion.div variants={itemVariants} className="flex justify-end pt-4">
-        <button className="flex items-center gap-2 px-8 py-3.5 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-200 text-white dark:text-slate-900 font-bold rounded-xl shadow-lg transition-all hover:-translate-y-0.5">
-          <Save size={20} />
-          Save Changes
-        </button>
+              <div className="space-y-6 pt-6">
+                <motion.div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest">
+                    Expertise Cards ({settings.expertise_items?.length ?? 0})
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={addExpertiseItem}
+                    className="flex items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 px-4 py-2.5 text-sm font-bold text-slate-600 transition-colors hover:border-slate-400 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-white/5"
+                  >
+                    <Plus size={16} />
+                    Add Card
+                  </button>
+                </motion.div>
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+                  {settings.expertise_items?.map((item: any, index: number) => (
+                    <motion.div
+                      key={item.id ?? index}
+                      className="relative space-y-4 rounded-3xl border border-slate-200 bg-slate-50 p-6 dark:border-white/5 dark:bg-white/5"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => removeExpertiseItem(index)}
+                        className="absolute top-4 right-4 rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-500 dark:hover:bg-rose-500/10"
+                        aria-label="Remove card"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                      <p className="text-xs font-bold text-slate-400">Card {index + 1}</p>
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-slate-500">Tag</label>
+                        <input type="text" value={item.tag} onChange={(e) => {
+                          const newList = [...settings.expertise_items];
+                          newList[index].tag = e.target.value;
+                          updateSetting("expertise_items", newList);
+                        }} className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-slate-500">Title</label>
+                        <input type="text" value={item.title} onChange={(e) => {
+                          const newList = [...settings.expertise_items];
+                          newList[index].title = e.target.value;
+                          updateSetting("expertise_items", newList);
+                        }} className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm font-bold" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-slate-500">Description (optional)</label>
+                        <textarea
+                          rows={2}
+                          value={item.desc || ""}
+                          onChange={(e) => {
+                            const newList = [...settings.expertise_items];
+                            newList[index].desc = e.target.value;
+                            updateSetting("expertise_items", newList);
+                          }}
+                          className="w-full resize-none rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-slate-900"
+                          placeholder="Short description"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-slate-500">Image</label>
+                        <div className="relative h-28 w-full cursor-pointer overflow-hidden rounded-xl bg-slate-200 dark:bg-slate-800">
+                           <input type="file" accept="image/*" onChange={(e) => handleImageUpload("expertise_items", e, "image", index)} className="absolute inset-0 opacity-0 z-10 cursor-pointer" />
+                           {item.image ? (
+                             <img src={item.image} className="w-full h-full object-cover" />
+                           ) : (
+                             <div className="flex items-center justify-center h-full text-slate-400"><Camera size={20} /></div>
+                           )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+                {(settings.expertise_items?.length ?? 0) === 0 && (
+                  <p className="text-center text-sm text-slate-500">
+                    No cards yet. Click &quot;Add Card&quot; to create your first expertise item.
+                  </p>
+                )}
+              </div>
+            </section>
+          </div>
+        )}
+
+        {activeTab === "approach" && (
+          <div className="space-y-10">
+            <section className="space-y-6">
+              <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white">Strategic Approach</h2>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Header Line 1 (White)</label>
+                  <input type="text" value={settings.approach_line1} onChange={(e) => updateSetting("approach_line1", e.target.value)} className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-slate-500/50 transition-all font-bold" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-yellow-600">Header Line 2 (Yellow Accent)</label>
+                  <input type="text" value={settings.approach_line2} onChange={(e) => updateSetting("approach_line2", e.target.value)} className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-yellow-600 dark:text-yellow-500 outline-none focus:ring-2 focus:ring-slate-500/50 transition-all font-bold" />
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Description</label>
+                  <textarea rows={2} value={settings.approach_description} onChange={(e) => updateSetting("approach_description", e.target.value)} className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-slate-500/50 transition-all resize-none" />
+                </div>
+              </div>
+
+              <div className="space-y-6 pt-6">
+                <motion.div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <motion.div>
+                    <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest">
+                      Approach Cards ({settings.approach_items?.length ?? 0})
+                    </h3>
+                    <p className="mt-1 text-xs text-slate-500">
+                      Landing page menampilkan 4 card terbaru saja.
+                    </p>
+                  </motion.div>
+                  <button
+                    type="button"
+                    onClick={addApproachItem}
+                    className="flex items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 px-4 py-2.5 text-sm font-bold text-slate-600 transition-colors hover:border-slate-400 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-white/5"
+                  >
+                    <Plus size={16} />
+                    Add Card
+                  </button>
+                </motion.div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {settings.approach_items?.map((item: any, index: number) => (
+                    <div
+                      key={item.id ?? index}
+                      className="relative space-y-4 rounded-3xl border border-slate-200 bg-slate-50 p-6 dark:border-white/5 dark:bg-white/5"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => removeApproachItem(index)}
+                        className="absolute top-4 right-4 rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-500 dark:hover:bg-rose-500/10"
+                        aria-label="Remove card"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                      <p className="text-xs font-bold text-slate-400">Card {index + 1}</p>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-xs font-bold text-slate-500">Phase Label</label>
+                          <input type="text" value={item.phase || `PHASE_0${index + 1}`} onChange={(e) => {
+                            const newList = [...settings.approach_items];
+                            newList[index].phase = e.target.value;
+                            updateSetting("approach_items", newList);
+                          }} className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm font-bold text-yellow-600" />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-xs font-bold text-slate-500">Title</label>
+                          <input type="text" value={item.title} onChange={(e) => {
+                            const newList = [...settings.approach_items];
+                            newList[index].title = e.target.value;
+                            updateSetting("approach_items", newList);
+                          }} className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm font-bold" />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-slate-500">Description</label>
+                        <textarea rows={2} value={item.desc} onChange={(e) => {
+                          const newList = [...settings.approach_items];
+                          newList[index].desc = e.target.value;
+                          updateSetting("approach_items", newList);
+                        }} className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm resize-none" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-slate-500">Card Background Image</label>
+                        <div className="relative h-32 w-full bg-slate-200 dark:bg-slate-800 rounded-xl overflow-hidden group cursor-pointer">
+                           <input type="file" accept="image/*" onChange={(e) => {
+                             if (e.target.files?.[0]) {
+                               const reader = new FileReader();
+                               reader.onloadend = () => {
+                                 const newList = [...settings.approach_items];
+                                 newList[index].image = reader.result;
+                                 updateSetting("approach_items", newList);
+                               };
+                               reader.readAsDataURL(e.target.files[0]);
+                             }
+                           }} className="absolute inset-0 opacity-0 z-10 cursor-pointer" />
+                           {item.image ? (
+                             <img src={item.image} className="w-full h-full object-cover" />
+                           ) : (
+                             <div className="flex items-center justify-center h-full text-slate-400"><Camera size={24} /></div>
+                           )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {(settings.approach_items?.length ?? 0) === 0 && (
+                  <p className="text-center text-sm text-slate-500">
+                    No cards yet. Click &quot;Add Card&quot; to create an approach item.
+                  </p>
+                )}
+              </div>
+            </section>
+          </div>
+        )}
+
+        {activeTab === "methodology" && (
+          <div className="space-y-10">
+            <section className="space-y-6">
+              <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white">Policy Methodology</h2>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Tag (small label above header)</label>
+                  <input type="text" value={settings.methodology_tag} onChange={(e) => updateSetting("methodology_tag", e.target.value)} className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-slate-500/50 transition-all" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Section Header</label>
+                  <input type="text" value={settings.methodology_header} onChange={(e) => updateSetting("methodology_header", e.target.value)} className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-slate-500/50 transition-all" />
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Description</label>
+                  <textarea rows={2} value={settings.methodology_description} onChange={(e) => updateSetting("methodology_description", e.target.value)} className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-slate-500/50 transition-all resize-none" />
+                </div>
+              </div>
+
+              <div className="space-y-6 pt-6">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest">
+                      Timeline Steps ({settings.methodology_items?.length ?? 0})
+                    </h3>
+                    <p className="mt-1 text-xs text-slate-500">
+                      Semua step tampil di landing. Tambah bullet per poin, pilih icon per step.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={addMethodologyItem}
+                    className="flex items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 px-4 py-2.5 text-sm font-bold text-slate-600 transition-colors hover:border-slate-400 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-white/5"
+                  >
+                    <Plus size={16} />
+                    Add Step
+                  </button>
+                </div>
+                <motion.div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  {settings.methodology_items?.map((item: any, index: number) => (
+                    <motion.div
+                      key={item.id ?? index}
+                      className="relative space-y-3 rounded-3xl border border-slate-200 bg-slate-50 p-6 dark:border-white/5 dark:bg-white/5"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => removeMethodologyItem(index)}
+                        className="absolute top-4 right-4 rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-500 dark:hover:bg-rose-500/10"
+                        aria-label="Remove step"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                      <p className="text-xs font-bold text-slate-400">
+                        Step {String(index + 1).padStart(2, "0")}
+                      </p>
+
+                      <motion.div className="space-y-2">
+                        <label className="text-xs font-bold text-slate-500">Icon</label>
+                        <div className="grid grid-cols-4 gap-2">
+                          {METHODOLOGY_ICON_OPTIONS.map((opt) => {
+                            const Icon = opt.Icon;
+                            const selected =
+                              (item.icon || getDefaultMethodologyIconId(index)) === opt.id;
+                            return (
+                              <button
+                                key={opt.id}
+                                type="button"
+                                onClick={() => updateMethodologyItem(index, { icon: opt.id })}
+                                className={`flex flex-col items-center gap-1 rounded-xl border p-2 transition-all ${
+                                  selected
+                                    ? "border-yellow-500 bg-yellow-500/10 text-yellow-600"
+                                    : "border-slate-200 bg-white text-slate-500 hover:border-slate-300 dark:border-white/10 dark:bg-slate-900"
+                                }`}
+                                title={opt.label}
+                              >
+                                <Icon size={18} />
+                                <span className="text-[9px] font-semibold leading-tight">{opt.label}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </motion.div>
+
+                      <input
+                        type="text"
+                        value={item.title}
+                        onChange={(e) => updateMethodologyItem(index, { title: e.target.value })}
+                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-bold dark:border-white/10 dark:bg-slate-900"
+                        placeholder="e.g. IDEATION"
+                      />
+
+                      <motion.div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <label className="text-xs font-bold text-slate-500">Bullet points</label>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const points = getMethodologyEditorPoints(item);
+                              setMethodologyPoints(index, [...points, ""]);
+                            }}
+                            className="flex items-center gap-1 text-xs font-bold text-yellow-600 hover:text-yellow-500"
+                          >
+                            <Plus size={12} /> Add bullet
+                          </button>
+                        </div>
+                        <div className="space-y-2">
+                          {getMethodologyEditorPoints(item).map((point: string, pointIndex: number) => (
+                            <div key={pointIndex} className="flex items-center gap-2">
+                              <span className="text-yellow-500">•</span>
+                              <input
+                                type="text"
+                                value={point}
+                                onChange={(e) => {
+                                  const next = [...getMethodologyEditorPoints(item)];
+                                  next[pointIndex] = e.target.value;
+                                  setMethodologyPoints(index, next);
+                                }}
+                                className="min-w-0 flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-slate-900"
+                                placeholder="Bullet text"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const next = getMethodologyEditorPoints(item).filter(
+                                    (_, i) => i !== pointIndex
+                                  );
+                                  setMethodologyPoints(index, next.length > 0 ? next : [""]);
+                                }}
+                                className="rounded-lg p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-500"
+                                aria-label="Remove bullet"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                        <ul className="list-disc space-y-1 rounded-xl border border-dashed border-slate-200 bg-slate-100/80 px-4 py-3 text-xs text-slate-600 dark:border-white/10 dark:bg-slate-900/50 dark:text-slate-300">
+                          {getMethodologyPoints(item)
+                            .filter(Boolean)
+                            .map((point: string, i: number) => (
+                              <li key={i}>{point}</li>
+                            ))}
+                          {getMethodologyPoints(item).filter(Boolean).length === 0 && (
+                            <li className="list-none text-slate-400">Preview bullet akan muncul di sini</li>
+                          )}
+                        </ul>
+                      </motion.div>
+                    </motion.div>
+                  ))}
+                </motion.div>
+                {(settings.methodology_items?.length ?? 0) === 0 && (
+                  <p className="text-center text-sm text-slate-500">
+                    No steps yet. Click &quot;Add Step&quot; to create a timeline item.
+                  </p>
+                )}
+              </div>
+            </section>
+          </div>
+        )}
+
+        {activeTab === "cta" && (
+          <div className="space-y-10">
+            <section className="space-y-6">
+              <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white">Call To Action & Footer</h2>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300">CTA Subtitle (small label)</label>
+                  <input type="text" value={settings.cta_subtitle} onChange={(e) => updateSetting("cta_subtitle", e.target.value)} className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-slate-500/50 transition-all" />
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300">CTA Title</label>
+                  <input type="text" value={settings.cta_title} onChange={(e) => updateSetting("cta_title", e.target.value)} className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-slate-500/50 transition-all" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300">CTA Button Text</label>
+                  <input type="text" value={settings.cta_button_text} onChange={(e) => updateSetting("cta_button_text", e.target.value)} className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-slate-500/50 transition-all" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300">CTA Button Link</label>
+                  <input type="text" value={settings.cta_button_link} onChange={(e) => updateSetting("cta_button_link", e.target.value)} className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-slate-500/50 transition-all" />
+                </div>
+              </div>
+            </section>
+          </div>
+        )}
+
       </motion.div>
     </motion.div>
   );

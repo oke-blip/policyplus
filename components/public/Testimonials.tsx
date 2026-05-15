@@ -11,9 +11,18 @@ type TestimonialItem = {
   image: string;
 };
 
-export function Testimonials() {
+export function Testimonials({ data }: { data?: any }) {
   const { t } = useLanguage();
-  const items = t<TestimonialItem[]>("testimonials.items");
+  
+  const header = data?.testimonials_header || t("testimonials.header");
+  const items = data?.testimonials && data.testimonials.length > 0 
+    ? data.testimonials.map((i: any) => ({
+        quote: i.quote,
+        author: i.author,
+        role: i.role,
+        image: i.image
+      }))
+    : t<TestimonialItem[]>("testimonials.items");
 
   return (
     <section className="relative isolate flex min-h-svh w-full snap-start flex-col bg-black pt-28 pb-12 lg:pt-32 lg:pb-16">
@@ -23,7 +32,7 @@ export function Testimonials() {
       />
       <header className="relative z-10 mx-auto w-full max-w-7xl shrink-0 px-4 text-center">
         <h2 className="font-sans text-xl font-bold uppercase tracking-wide text-white sm:text-2xl md:text-3xl">
-          {t("testimonials.header")}
+          {header}
         </h2>
       </header>
 

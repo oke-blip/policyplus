@@ -6,12 +6,33 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider  = "postgresql"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Setting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum PostStatus {
   DRAFT
   PUBLISHED
+}
+
+enum PostType {
+  INSIGHT
+  KNOWLEDGE
 }
 
 enum JobType {
@@ -34,14 +55,26 @@ enum ApplicationStatus {
 }
 
 model Post {
-  id         String      @id @default(cuid())
-  title      String
-  slug       String      @unique
-  content    String      @db.Text
-  image_url  String?
-  status     PostStatus  @default(DRAFT)
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
+  id          String            @id @default(cuid())
+  title       String
+  slug        String            @unique
+  content     String            @db.Text
+  image_url   String?
+  author_name String?
+  author_image String?
+  status      PostStatus        @default(DRAFT)
+  type        PostType          @default(INSIGHT)
+  category    String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+}
+
+model KnowledgeCategory {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Job {
@@ -68,4 +101,16 @@ model Application {
   updatedAt      DateTime            @updatedAt
 
   @@index([jobId])
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  date        String
+  location    String
+  image       String   @db.Text
+  category    String?
+  link        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

@@ -2,19 +2,16 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { useEffect, useMemo, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { parseExpertiseItems, type ExpertiseItem } from "@/lib/settings-utils";
 import { cn } from "@/lib/utils";
 
-type ExpertiseItem = {
-  tag: string;
-  title: string;
-  desc: string;
-};
-
-const CARD_IMAGES = [
+const FALLBACK_IMAGES = [
   "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1200",
   "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=1200",
   "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1200",
+  "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1200",
 ] as const;
 
 const containerVariants = {
@@ -33,21 +30,80 @@ const cardVariants = {
   },
 };
 
-export function ExpertiseSection() {
+function getGridClass(count: number) {
+  if (count <= 1) return "grid-cols-1 max-w-md mx-auto";
+  if (count === 2) return "grid-cols-1 md:grid-cols-2";
+  if (count === 3) return "grid-cols-1 lg:grid-cols-3";
+  if (count === 4) return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4";
+  return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
+}
+
+function CardImage({ src, alt }: { src: string; alt: string }) {
+  if (src.startsWith("data:")) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img src={src} alt={alt} className="absolute inset-0 h-full w-full object-cover" />
+    );
+  }
+
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      fill
+      className="absolute inset-0 h-full w-full object-cover"
+      sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 25vw"
+    />
+  );
+}
+
+export function ExpertiseSection({
+  data,
+  initialItems,
+}: {
+  data?: Record<string, unknown>;
+  initialItems?: ExpertiseItem[];
+}) {
   const { t } = useLanguage();
-  const allItems = t<ExpertiseItem[]>("expertise.items");
-  const items = allItems.slice(0, 3);
+  const [fetchedItems, setFetchedItems] = useState<ExpertiseItem[]>([]);
+
+  const header = String(data?.expertise_header || t("expertise.header"));
+  const description = String(data?.expertise_description || t("expertise.description"));
+
+  const cmsItems = useMemo(() => {
+    if (initialItems?.length) return initialItems;
+    return parseExpertiseItems(data?.expertise_items);
+  }, [initialItems, data?.expertise_items]);
+
+  useEffect(() => {
+    if (cmsItems.length > 0) return;
+
+    fetch("/api/settings", { cache: "no-store" })
+      .then((res) => res.json())
+      .then((settings) => {
+        const fromApi = parseExpertiseItems(settings.expertise_items);
+        if (fromApi.length > 0) setFetchedItems(fromApi);
+      })
+      .catch(() => {});
+  }, [cmsItems.length]);
+
+  const fallbackItems = t<ExpertiseItem[]>("expertise.items");
+  const items =
+    cmsItems.length > 0 ? cmsItems : fetchedItems.length > 0 ? fetchedItems : fallbackItems;
+  const count = items.length;
+
+  if (count === 0) return null;
 
   return (
     <section
       id="expertise"
       className="relative h-auto min-h-svh w-full snap-start bg-black pt-28 pb-32 text-white lg:pt-32"
     >
-      <div
+      <motion.div
         aria-hidden="true"
         className="pointer-events-none absolute top-0 right-[-5%] -z-10 h-[50vh] w-[40vw] rounded-full bg-yellow-500/5 blur-[120px]"
       />
-      <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col px-4 font-sans">
+      <motion.div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col px-4 font-sans">
         <motion.header
           className="shrink-0 text-center"
           initial={{ opacity: 0, y: 20 }}
@@ -56,61 +112,65 @@ export function ExpertiseSection() {
           transition={{ duration: 0.6, ease: "easeOut" }}
         >
           <p className="text-[10px] font-semibold tracking-[0.25em] text-gray-500 uppercase sm:text-xs">
-            {t("expertise.header")}
+            {header}
           </p>
           <p className="mx-auto mt-2 max-w-3xl text-balance text-sm leading-relaxed text-gray-300 sm:mt-3 sm:text-base md:text-lg">
-            {t("expertise.description")}
+            {description}
           </p>
         </motion.header>
 
         <motion.div
-          className="group/grid relative mx-auto mt-6 flex w-full max-w-6xl flex-col gap-6 px-4 lg:grid lg:grid-cols-3 lg:px-0"
+          className={cn(
+            "group/grid relative mx-auto mt-6 grid w-full max-w-6xl gap-6 px-4 lg:px-0",
+            getGridClass(count)
+          )}
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-60px" }}
         >
           {items.map((item, index) => {
-            const imageSrc = CARD_IMAGES[index] ?? CARD_IMAGES[0];
-            const isFirst = index === 0;
+            const imageSrc =
+              item.image || FALLBACK_IMAGES[index % FALLBACK_IMAGES.length];
+            const stickyTop = 100 + index * 20;
 
             return (
               <motion.article
-                key={`${item.title}-${index}`}
+                key={`${item.id ?? item.title}-${index}`}
                 variants={cardVariants}
                 className={cn(
-                  "sticky lg:static flex h-[380px] flex-col overflow-hidden rounded-3xl border border-white/5 shadow-2xl transition-colors duration-300 lg:h-[420px]",
-                  index === 0 && "top-[100px] lg:top-auto",
-                  index === 1 && "top-[120px] lg:top-auto",
-                  index === 2 && "top-[140px] lg:top-auto",
-                  "bg-[#111] text-white hover:bg-yellow-500 hover:text-black"
+                  "sticky flex h-[380px] flex-col overflow-hidden rounded-3xl border border-white/5 shadow-2xl transition-colors duration-300 lg:static lg:h-[420px]",
+                  "bg-[#111] text-white hover:bg-yellow-500 hover:text-black",
+                  "lg:top-auto"
                 )}
+                style={{ top: `${stickyTop}px` }}
               >
-                <div className="relative flex-1 p-6 lg:p-8">
+                <motion.div className="relative flex-1 p-6 lg:p-8">
                   <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.22em] opacity-70">
                     {item.tag}
                   </p>
-                  <h3 className="w-3/4 text-xl font-bold leading-snug lg:text-2xl">{item.title}</h3>
+                  <h3 className="w-3/4 text-xl font-bold leading-snug lg:text-2xl">
+                    {item.title}
+                  </h3>
+                  {item.desc ? (
+                    <p className="mt-3 text-sm leading-relaxed opacity-80 line-clamp-3">
+                      {item.desc}
+                    </p>
+                  ) : null}
                   <div
                     aria-hidden
                     className="absolute top-6 right-6 h-8 w-8 rounded-full border border-current opacity-50"
                   />
-                </div>
+                </motion.div>
 
                 <div className="relative h-[45%] w-full shrink-0">
-                  <Image
-                    src={imageSrc}
-                    alt={item.title}
-                    fill
-                    className="absolute inset-0 h-full w-full object-cover"
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                  />
+                  <CardImage src={imageSrc} alt={item.title} />
                 </div>
               </motion.article>
             );
           })}
         </motion.div>
-      </div>
+      </motion.div>
     </section>
   );
 }

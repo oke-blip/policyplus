@@ -1,50 +1,67 @@
 "use client";
 
-import Image from "next/image";
-
+import { motion } from "framer-motion";
+import { useEffect, useMemo, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { cn } from "@/lib/utils";
+import {
+  getLatestApproachItems,
+  type ApproachItem,
+} from "@/lib/settings-utils";
 
-type ApproachItem = {
-  title: string;
-  desc: string;
-};
-
-const APPROACH_IMAGES = [
-  {
-    src: "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1500",
-    alt: "Circuit technology",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1500",
-    alt: "Cyber security abstract",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=1500",
-    alt: "Digital matrix",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1500",
-    alt: "Global connectivity",
-  },
+const FALLBACK_IMAGES = [
+  "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1500",
+  "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1500",
+  "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=1500",
+  "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1500",
 ] as const;
 
-const hoverRevealClass = cn(
-  "transition-all duration-500 ease-out",
-  "max-lg:translate-x-0 max-lg:opacity-100",
-  "lg:translate-x-8 lg:opacity-0",
-  "lg:group-hover:translate-x-0 lg:group-hover:opacity-100",
-  "lg:group-focus-within:translate-x-0 lg:group-focus-within:opacity-100",
-  "lg:group-active:translate-x-0 lg:group-active:opacity-100"
-);
+const LANDING_LIMIT = 4;
 
-export function ApproachSection() {
+export function ApproachSection({
+  data,
+  initialItems,
+}: {
+  data?: Record<string, unknown>;
+  initialItems?: ApproachItem[];
+}) {
   const { t } = useLanguage();
-  const items = t<ApproachItem[]>("approach.items").slice(0, 4);
+  const [fetchedItems, setFetchedItems] = useState<ApproachItem[]>([]);
+
+  const line1 = String(data?.approach_line1 || "WHAT MAKES");
+  const line2 = String(data?.approach_line2 || "OUR APPROACH DIFFERENT?");
+  const description = String(
+    data?.approach_description ||
+      "Our work connects research, stakeholders, and communication to move policy ideas from discussion to implementation."
+  );
+
+  const cmsItems = useMemo(() => {
+    if (initialItems?.length) return initialItems.slice(0, LANDING_LIMIT);
+    return getLatestApproachItems(data?.approach_items, LANDING_LIMIT);
+  }, [initialItems, data?.approach_items]);
+
+  useEffect(() => {
+    if (cmsItems.length > 0) return;
+
+    fetch("/api/settings", { cache: "no-store" })
+      .then((res) => res.json())
+      .then((settings) => {
+        const fromApi = getLatestApproachItems(settings.approach_items, LANDING_LIMIT);
+        if (fromApi.length > 0) setFetchedItems(fromApi);
+      })
+      .catch(() => {});
+  }, [cmsItems.length]);
+
+  const fallbackItems = t<ApproachItem[]>("approach.items").slice(0, LANDING_LIMIT);
+  const items =
+    cmsItems.length > 0
+      ? cmsItems
+      : fetchedItems.length > 0
+        ? fetchedItems
+        : fallbackItems;
 
   return (
     <section className="relative flex min-h-svh w-full snap-start scroll-mt-24 flex-col overflow-x-hidden bg-gray-950 pb-20 text-white lg:scroll-mt-32 lg:pb-20">
-      <div
+      <motion.div
         aria-hidden
         className="pointer-events-none absolute inset-0 select-none font-sans text-4xl text-white/5"
       >
@@ -52,62 +69,57 @@ export function ApproachSection() {
         <span className="absolute top-1/3 right-[12%] text-3xl">+</span>
         <span className="absolute bottom-24 right-[18%]">+</span>
         <span className="absolute bottom-32 left-[22%] text-3xl">+</span>
-      </div>
+      </motion.div>
 
-      <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col justify-start px-4 py-6 font-sans lg:min-h-0 lg:flex-1 lg:justify-center lg:py-10">
+      <motion.div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col justify-start px-4 py-6 font-sans lg:min-h-0 lg:flex-1 lg:justify-center lg:py-10">
         <header className="mx-auto mb-10 max-w-4xl shrink-0 text-center lg:mb-12">
           <h2 className="text-2xl font-bold uppercase leading-tight tracking-tight sm:text-3xl md:text-4xl lg:text-[2.9rem]">
-            <span className="block text-white">{String(t("approach.headerLine1"))}</span>
-            <span className="mt-1 block text-yellow-500 sm:mt-2">{String(t("approach.headerLine2"))}</span>
+            <span className="block text-white">{line1}</span>
+            <span className="mt-1 block text-yellow-500 sm:mt-2">{line2}</span>
           </h2>
           <p className="mx-auto mt-4 max-w-3xl text-sm leading-relaxed text-gray-400 sm:mt-5 sm:text-base md:text-lg">
-            {t("approach.description")}
+            {description}
           </p>
         </header>
 
-        <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-3">
-          {items.map((item, index) => {
-            const meta = APPROACH_IMAGES[index] ?? APPROACH_IMAGES[0];
-            const phaseLabel = `PHASE_0${index + 1}`;
-
-            return (
-              <div
-                key={`approach-card-${item.title}`}
-                className="group relative h-[320px] w-full cursor-pointer overflow-hidden rounded-2xl outline-none focus-within:ring-2 focus-within:ring-yellow-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-950 sm:h-[350px] lg:h-[380px]"
-                tabIndex={0}
-                role="article"
-                aria-label={`${phaseLabel}: ${item.title}`}
-              >
-                <Image
-                  src={meta.src}
-                  alt={meta.alt}
-                  fill
-                  className="object-cover transition-opacity duration-500 group-hover:opacity-90"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
+        <div className="mt-12 grid w-full grid-cols-1 gap-6 sm:grid-cols-2 lg:mt-16 lg:grid-cols-4">
+          {items.map((item, i) => (
+            <motion.div
+              key={`${item.id ?? item.title}-${i}`}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1, duration: 0.5 }}
+              className="group relative flex min-h-[420px] flex-col overflow-hidden rounded-[2.5rem] border border-white/10 bg-gray-900/50 p-8 transition-all hover:border-yellow-500/30"
+            >
+              <div className="absolute inset-0 z-0">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={item.image || FALLBACK_IMAGES[i % FALLBACK_IMAGES.length]}
+                  alt=""
+                  className="h-full w-full object-cover opacity-40 transition-transform duration-700 group-hover:scale-110 group-hover:opacity-60"
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/60 to-transparent" />
+              </div>
 
-                <div
-                  aria-hidden
-                  className="pointer-events-none absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/75 via-40% to-transparent"
-                />
+              <div className="relative z-10 flex flex-1 flex-col">
+                <span className="mb-6 inline-flex w-fit rounded-lg border border-yellow-500/30 bg-yellow-500/10 px-3 py-1 text-[10px] font-bold tracking-widest text-yellow-500">
+                  {item.phase || `PHASE_0${i + 1}`}
+                </span>
 
-                <div className="absolute left-4 top-4 z-10 rounded-md border border-yellow-500/60 bg-gray-950/85 px-3 py-1 font-sans text-[10px] font-semibold uppercase tracking-[0.2em] text-yellow-400 backdrop-blur-sm">
-                  {phaseLabel}
-                </div>
-
-                <div className="absolute inset-x-0 bottom-0 z-[1] flex flex-col justify-end p-5 md:p-6 lg:p-8">
-                  <div className={hoverRevealClass}>
-                    <h3 className="text-xl font-bold leading-snug text-white md:text-2xl lg:text-3xl">
-                      {item.title}
-                    </h3>
-                    <p className="mt-3 text-sm leading-relaxed text-gray-200 md:text-base">{item.desc}</p>
-                  </div>
+                <div className="mt-auto">
+                  <h3 className="mb-4 translate-y-4 text-2xl font-bold leading-tight text-white opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">
+                    {item.title}
+                  </h3>
+                  <p className="translate-y-4 text-sm leading-relaxed text-gray-400 opacity-0 transition-all delay-75 duration-500 group-hover:translate-y-0 group-hover:opacity-100">
+                    {item.desc}
+                  </p>
                 </div>
               </div>
-            );
-          })}
+            </motion.div>
+          ))}
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 }

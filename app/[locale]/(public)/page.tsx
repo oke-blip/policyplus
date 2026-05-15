@@ -1,6 +1,3 @@
-"use client";
-
-import { motion } from "framer-motion";
 import { AboutSection } from "@/components/public/about";
 import { ApproachSection } from "@/components/public/Approach";
 import { ExpertiseSection } from "@/components/public/Expertise";
@@ -11,16 +8,30 @@ import { Partners } from "@/components/public/Partners";
 import { Testimonials } from "@/components/public/Testimonials";
 import { UpcomingEvents } from "@/components/public/UpcomingEvents";
 import { PublicHeroSection } from "@/components/public/hero-section";
-import { Button } from "@/components/ui/button";
+import { CTAFooterSection } from "@/components/public/CTAFooterSection";
+import {
+  getAllSettings,
+  getLatestApproachItems,
+  parseExpertiseItems,
+  parseHeroBanners,
+  toMethodologySteps,
+} from "@/lib/settings";
 
-const reveal = {
-  initial: { opacity: 0, y: 30 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, amount: 0.2 },
-  transition: { duration: 0.55, ease: "easeOut" as const },
-};
+export const dynamic = "force-dynamic";
 
-export default function PublicHomePage() {
+export default async function PublicHomePage() {
+  let settings: Record<string, unknown> = {};
+  try {
+    settings = await getAllSettings();
+  } catch {
+    settings = {};
+  }
+
+  const heroBanners = parseHeroBanners(settings.hero_banners);
+  const expertiseItems = parseExpertiseItems(settings.expertise_items);
+  const approachItems = getLatestApproachItems(settings.approach_items, 4);
+  const methodologySteps = toMethodologySteps(settings.methodology_items);
+
   return (
     <div className="relative h-svh w-full overflow-hidden bg-white text-slate-900">
       <div
@@ -36,92 +47,25 @@ export default function PublicHomePage() {
         className="h-full w-full overflow-x-hidden overflow-y-auto overscroll-y-contain scroll-smooth hide-scrollbar snap-y snap-proximity"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
-        <PublicHeroSection />
-        <AboutSection />
+        <PublicHeroSection data={settings} initialBanners={heroBanners} />
+        <AboutSection data={settings} />
 
-        <ExpertiseSection />
+        <ExpertiseSection data={settings} initialItems={expertiseItems} />
 
-        <ApproachSection />
+        <ApproachSection data={settings} initialItems={approachItems} />
 
-        <MethodologySection />
+        <MethodologySection data={settings} initialSteps={methodologySteps} />
 
         <KnowledgeCenterSection />
 
-        <Testimonials />
-
-        <Partners />
+        <Testimonials data={settings} />
+        <Partners data={settings} />
 
         <UpcomingEvents />
 
-        <LatestInsights />
+        <LatestInsights data={settings} />
 
-        <section className="w-full snap-start bg-black">
-          <div className="flex min-h-svh w-full flex-col">
-            <motion.div
-              {...reveal}
-              className="flex flex-1 flex-col items-center justify-start px-6 pt-24 pb-8 md:justify-center md:pt-0"
-            >
-              <div className="mx-auto flex w-full max-w-7xl flex-col items-center gap-6 text-center md:flex-row md:items-center md:justify-between md:text-left">
-                <div className="max-w-3xl">
-                  <p className="text-xs font-semibold tracking-[0.18em] text-yellow-400 uppercase">
-                    Final Call To Action
-                  </p>
-                  <h2 className="mt-3 text-2xl font-semibold tracking-tight text-white sm:text-3xl md:text-4xl">
-                    Ready to drive meaningful social impact?
-                  </h2>
-                </div>
-                <Button className="h-auto w-full max-w-xs rounded-full bg-yellow-500 px-8 py-4 text-base font-bold text-black shadow-[0_10px_30px_rgba(234,179,8,0.3)] transition-all duration-300 hover:bg-yellow-400 hover:shadow-[0_14px_34px_rgba(234,179,8,0.38)] sm:max-w-sm sm:text-lg md:w-auto md:max-w-none md:px-10 md:py-5 md:text-xl">
-                  Get In Touch
-                </Button>
-              </div>
-            </motion.div>
-
-            <footer className="mt-auto w-full shrink-0 border-t border-gray-800 px-6 pb-6 pt-8">
-              <div className="mx-auto grid w-full max-w-7xl gap-8 md:grid-cols-4 md:gap-10">
-                <div>
-                  <h3 className="text-base font-semibold text-white">Address & Contact</h3>
-                  <p className="mt-3 text-sm leading-7 text-gray-400">
-                    Eco-S Sahid Sudirman, Jakarta
-                    <br />
-                    hello@policyplus.id
-                    <br />
-                    +62 21 0000 0000
-                  </p>
-                </div>
-                <div>
-                  <h3 className="text-base font-semibold text-white">Our Expertise</h3>
-                  <ul className="mt-3 space-y-2 text-sm text-gray-400">
-                    <li>Research & Analysis</li>
-                    <li>Stakeholder Engagement</li>
-                    <li>Project Management</li>
-                    <li>Strategy & Training</li>
-                  </ul>
-                </div>
-                <div>
-                  <h3 className="text-base font-semibold text-white">About Us</h3>
-                  <ul className="mt-3 space-y-2 text-sm text-gray-400">
-                    <li>Our Story</li>
-                    <li>Team</li>
-                    <li>Careers</li>
-                    <li>Contact</li>
-                  </ul>
-                </div>
-                <div>
-                  <h3 className="text-base font-semibold text-white">Follow Us</h3>
-                  <ul className="mt-3 space-y-2 text-sm text-gray-400">
-                    <li>LinkedIn</li>
-                    <li>Instagram</li>
-                    <li>YouTube</li>
-                    <li>X / Twitter</li>
-                  </ul>
-                </div>
-              </div>
-              <div className="mx-auto mt-8 max-w-7xl border-t border-gray-800 pt-5 text-center text-sm text-gray-500">
-                © 2026 Policy+ All rights reserved
-              </div>
-            </footer>
-          </div>
-        </section>
+        <CTAFooterSection settings={settings} />
       </main>
     </div>
   );

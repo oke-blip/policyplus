@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { parseHeroBanners, type HeroBanner } from "@/lib/settings-utils";
 
 const HERO_IMAGES = [
   {
@@ -23,29 +24,59 @@ const HERO_IMAGES = [
 const HERO_NOISE_DATA_URI =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256'%3E%3Cfilter id='n' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E";
 
-export function PublicHeroSection() {
+export function PublicHeroSection({
+  data,
+  initialBanners,
+}: {
+  data?: Record<string, unknown>;
+  initialBanners?: HeroBanner[];
+}) {
   const reduceMotion = useReducedMotion();
   const [imageIndex, setImageIndex] = React.useState(0);
+  const [bannerImages, setBannerImages] = React.useState<HeroBanner[]>(
+    initialBanners?.length ? initialBanners : []
+  );
   const { t } = useLanguage();
 
   /** Plain strings for motion children (avoids Framer Motion vs. generic `t()` type clash). */
   const hero = {
-    headlineLine1Prefix: String(t("hero.headlineLine1Prefix")),
-    headlineLine1Accent: String(t("hero.headlineLine1Accent")),
-    headlineLine2Prefix: String(t("hero.headlineLine2Prefix")),
-    headlineLine2Accent: String(t("hero.headlineLine2Accent")),
-    subheadline: String(t("hero.subheadline")),
-    primaryButton: String(t("hero.primaryButton")),
-    secondaryButton: String(t("hero.secondaryButton")),
+    headlineLine1Prefix: data?.hero_line1_prefix || String(t("hero.headlineLine1Prefix")),
+    headlineLine1Accent: data?.hero_line1_accent || String(t("hero.headlineLine1Accent")),
+    headlineLine2Prefix: data?.hero_line2_prefix || String(t("hero.headlineLine2Prefix")),
+    headlineLine2Accent: data?.hero_line2_accent || String(t("hero.headlineLine2Accent")),
+    subheadline: data?.hero_description || String(t("hero.subheadline")),
+    primaryButton: data?.hero_cta_text || String(t("hero.primaryButton")),
+    secondaryButton: data?.hero_secondary_text || String(t("hero.secondaryButton")),
   };
+
+  React.useEffect(() => {
+    if (bannerImages.length > 0) return;
+
+    const fromData = parseHeroBanners(data?.hero_banners);
+    if (fromData.length > 0) {
+      setBannerImages(fromData);
+      return;
+    }
+
+    fetch("/api/settings", { cache: "no-store" })
+      .then((res) => res.json())
+      .then((settings) => {
+        const fromApi = parseHeroBanners(settings.hero_banners);
+        if (fromApi.length > 0) setBannerImages(fromApi);
+      })
+      .catch(() => {});
+  }, [bannerImages.length, data?.hero_banners]);
+
+  const images = bannerImages.length > 0 ? bannerImages : HERO_IMAGES;
+  const imagesCount = images.length;
 
   React.useEffect(() => {
     if (reduceMotion) return;
     const id = window.setInterval(() => {
-      setImageIndex((i) => (i + 1) % HERO_IMAGES.length);
+      setImageIndex((i) => (i + 1) % imagesCount);
     }, 6000);
     return () => window.clearInterval(id);
-  }, [reduceMotion]);
+  }, [reduceMotion, imagesCount]);
 
   const containerVariants = {
     hidden: {},
@@ -94,8 +125,8 @@ export function PublicHeroSection() {
       />
       {/* Background carousel */}
       <div className="pointer-events-none absolute inset-0 z-0">
-        {HERO_IMAGES.map((img, i) => (
-          <React.Fragment key={img.src}>
+        {images.map((img, i) => (
+          <React.Fragment key={`${img.src.slice(0, 32)}-${i}`}>
             {/* Plain img: remote Unsplash URLs (no next/image remotePatterns for carousel). */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -159,7 +190,7 @@ export function PublicHeroSection() {
             animate="visible"
             className="mx-auto mt-6 max-w-md text-center font-sans text-sm leading-relaxed text-gray-400 lg:mt-8 lg:max-w-lg lg:text-base"
           >
-            {hero.subheadline}
+            {data?.hero_description || hero.subheadline}
           </motion.p>
 
           <motion.div
@@ -169,13 +200,13 @@ export function PublicHeroSection() {
             className="mt-8 flex w-full flex-col items-center justify-center gap-4 px-4 sm:w-auto sm:flex-row"
           >
             <Link
-              href="#expertise"
+              href={data?.hero_cta_link || "#expertise"}
               className="inline-flex min-h-[3rem] w-full items-center justify-center rounded-full bg-yellow-500 px-8 py-3 text-center text-sm font-semibold tracking-wide text-white transition-colors duration-200 hover:bg-yellow-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-300 sm:w-auto"
             >
-              {hero.primaryButton}
+              {data?.hero_cta_text || hero.primaryButton}
             </Link>
             <Link
-              href="/blog"
+              href={String(data?.hero_secondary_link || "/blog")}
               className="inline-flex min-h-[3rem] w-full items-center justify-center rounded-full border border-yellow-500 bg-transparent px-8 py-3 text-center text-sm font-semibold tracking-wide text-white transition-colors duration-200 hover:border-yellow-400 hover:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-400 sm:w-auto"
             >
               {hero.secondaryButton}

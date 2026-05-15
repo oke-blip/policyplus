@@ -8,7 +8,6 @@ import {
   LayoutDashboard,
   FileText,
   CalendarDays,
-  Building2,
   HeartHandshake,
   Settings,
   Bell,
@@ -26,10 +25,9 @@ const sidebarLinks = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { name: "Publications", href: "/admin/publications", icon: FileText },
   { name: "Events", href: "/admin/events", icon: CalendarDays },
-  { name: "Company Profile", href: "/admin/profile", icon: Building2 },
   { name: "Job Postings", href: "/admin/jobs", icon: BriefcaseBusiness },
   { name: "Partners & Reviews", href: "/admin/partners", icon: HeartHandshake },
-  { name: "Settings", href: "/admin/settings", icon: Settings },
+  { name: "Setting Compro", href: "/admin/settings", icon: Settings },
 ];
 
 export default function AdminLayout({
@@ -153,7 +151,14 @@ export default function AdminLayout({
                     <p className="text-xs text-slate-500 dark:text-slate-400 truncate">admin@policy.com</p>
                   </div>
                 </div>
-                <button className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/20 rounded-2xl font-bold transition-all">
+                <button 
+                  onClick={async () => {
+                    await fetch("/api/auth/logout", { method: "POST" });
+                    const currentLocale = pathname.split('/')[1] || 'en';
+                    window.location.href = `/${currentLocale}/login`;
+                  }}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/20 rounded-2xl font-bold transition-all"
+                >
                   Logout
                 </button>
               </div>

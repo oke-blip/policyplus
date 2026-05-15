@@ -61,9 +61,13 @@ function PartnerMarqueeRow({
   );
 }
 
-export function Partners() {
+export function Partners({ data }: { data?: any }) {
   const { t } = useLanguage();
-  const items = t<PartnerItem[]>("partners.items");
+  
+  const header = data?.partners_header || t("partners.header");
+  const items = data?.partners && data.partners.length > 0 
+    ? data.partners 
+    : t<PartnerItem[]>("partners.items");
 
   return (
     <section className="relative isolate flex min-h-svh w-full snap-start flex-col bg-black pt-28 pb-12 lg:pt-32 lg:pb-16">
@@ -73,7 +77,7 @@ export function Partners() {
       />
       <header className="relative z-10 mx-auto w-full max-w-7xl shrink-0 px-4 text-center">
         <h2 className="font-sans text-xl font-bold uppercase tracking-wide text-white sm:text-2xl md:text-3xl">
-          {t("partners.header")}
+          {header}
         </h2>
       </header>
 

@@ -8,8 +8,10 @@ import { useLanguage } from "@/contexts/LanguageContext";
 const ABOUT_IMAGE =
   "https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=1500";
 
-export function AboutSection() {
+export function AboutSection({ data }: { data?: any }) {
   const { t } = useLanguage();
+
+  const introImage = data?.intro_image_url || ABOUT_IMAGE;
 
   return (
     <section className="flex min-h-svh w-full snap-start flex-col bg-gray-50 dark:bg-neutral-900">
@@ -18,13 +20,13 @@ export function AboutSection() {
           <div className="order-1 flex h-full min-h-0 flex-col justify-center py-2 font-sans">
             <div className="flex min-h-0 w-full flex-col items-start gap-3 text-left">
               <p className="text-xs font-semibold tracking-widest text-yellow-600 uppercase dark:text-yellow-500">
-                {t("about.eyebrow")}
+                {data?.intro_subtitle || t("about.eyebrow")}
               </p>
               <h2 className="max-w-xl text-2xl font-bold leading-tight text-gray-900 md:text-4xl lg:text-5xl dark:text-white">
-                {t("about.title")}
+                {data?.intro_title || t("about.title")}
               </h2>
               <p className="max-w-lg text-base leading-relaxed text-gray-600 md:text-lg dark:text-gray-400">
-                {t("about.description")}
+                {data?.intro_description || t("about.description")}
               </p>
             </div>
             <div className="mt-6 flex w-full justify-start lg:mt-8">
@@ -40,7 +42,7 @@ export function AboutSection() {
 
           <div className="order-2 relative h-[220px] w-full overflow-hidden rounded-2xl shadow-lg sm:h-[320px] lg:h-[360px] lg:rounded-3xl">
             <Image
-              src={ABOUT_IMAGE}
+              src={introImage}
               alt="Professional collaboration in discussion"
               fill
               className="object-cover transition-transform duration-500 hover:scale-[1.02]"
