@@ -177,6 +177,36 @@ export function toMethodologySteps(raw: unknown): MethodologyStep[] {
   });
 }
 
+export type AboutValueItem = {
+  id?: number | string;
+  text: string;
+  text_id?: string;
+  icon?: string;
+  image?: string;
+};
+
+export function parseAboutValueItems(raw: unknown): AboutValueItem[] {
+  const value = parseSettingValue(raw);
+  if (!Array.isArray(value)) return [];
+
+  const items: AboutValueItem[] = [];
+  for (let index = 0; index < value.length; index++) {
+    const item = value[index];
+    if (!item || typeof item !== "object") continue;
+    const text = String(item.text ?? "").trim();
+    const text_id = item.text_id ? String(item.text_id).trim() : undefined;
+    if (!text && !text_id) continue;
+    items.push({
+      id: item.id ?? index,
+      text,
+      ...(text_id ? { text_id } : {}),
+      icon: item.icon ? String(item.icon) : undefined,
+      image: item.image ? String(item.image) : undefined,
+    });
+  }
+  return items;
+}
+
 export function parseHeroBanners(raw: unknown): HeroBanner[] {
   const value = parseSettingValue(raw);
   if (!Array.isArray(value) || value.length === 0) return [];

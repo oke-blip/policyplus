@@ -16,7 +16,6 @@
       { "label": "Knowledge Center", "href": "/knowledge-center" }
     ],
     "right": [
-      { "label": "Publications", "href": "/publications" },
       { "label": "Insights", "href": "/insights" },
       { "label": "Events", "href": "/events" },
       { "label": "Career", "href": "/career" }
@@ -48,6 +47,7 @@
     "teamJoinCta": "Build with us",
     "teamKeyboardHint": "Tip: use arrow keys to explore the roster.",
     "teamTouchHint": "Tap a teammate to focus, or use the arrows on the portrait.",
+    "teamEmpty": "Team profiles will appear here once they are published in the admin.",
     "footerEyebrow": "Final Call To Action",
     "footerTitle": "Ready to drive meaningful social impact?",
     "footerCta": "Get In Touch",
@@ -165,6 +165,12 @@
   "knowledge": {
     "header": "KNOWLEDGE CENTER",
     "description": "Explore our initiatives advancing knowledge, dialogue, and evidence-based policymaking.",
+    "detail": {
+      "back": "Back to Library",
+      "readNext": "Read Next Analysis",
+      "generalCategory": "General",
+      "defaultAuthor": "Policy+ Team"
+    },
     "filters": ["All", "Good Governance", "Sustainability", "Human Rights"],
     "items": [
       {
@@ -278,6 +284,15 @@
     "header": "Latest Insights",
     "readMore": "Read More",
     "readAll": "Read All Insights",
+    "detail": {
+      "back": "Back to Insights",
+      "notFoundTitle": "Article Not Found",
+      "notFoundDesc": "The publication you are looking for does not exist or has been removed.",
+      "minRead": "5 min read",
+      "writtenBy": "Written by",
+      "generalCategory": "General",
+      "defaultAuthor": "Policy+ Team"
+    },
     "items": [
       {
         "title": "Carbon Pricing in Indonesian Cities: Design Choices That Actually Stick",
@@ -301,5 +316,44 @@
         "image": "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=1200&auto=format&fit=crop"
       }
     ]
+  },
+  "careers": {
+    "heroTitle": "Join Our",
+    "heroTitleAccent": "Mission",
+    "heroSubtitle": "Help us shape the future of public policy across Southeast Asia.",
+    "viewDetails": "View Details & Apply",
+    "description": "Description",
+    "requirements": "Requirements",
+    "applyForPosition": "Apply for this position",
+    "backToDetails": "Back to Details",
+    "submitApplication": "Submit Application",
+    "fullName": "Full Name",
+    "emailAddress": "Email Address",
+    "phoneNumber": "Phone Number",
+    "linkedinUrl": "LinkedIn URL",
+    "coverLetter": "Cover Letter (Optional)",
+    "uploadCv": "Upload CV / Resume",
+    "uploading": "Uploading...",
+    "cvAttached": "CV Attached Successfully",
+    "clickToReplace": "Click to replace file",
+    "dropCv": "Drop your CV here or Click to upload",
+    "pdfOnly": "PDF only (Max 5MB)",
+    "uploadFailed": "Upload failed",
+    "uploadCvFirst": "Please upload your CV first.",
+    "applicationSent": "Application Sent! We'll be in touch.",
+    "submissionFailed": "Submission failed",
+    "jobTypes": {
+      "FULL_TIME": "Full-Time",
+      "PART_TIME": "Part-Time",
+      "CONTRACT": "Contract",
+      "INTERNSHIP": "Internship"
+    },
+    "placeholders": {
+      "fullName": "John Doe",
+      "email": "john@example.com",
+      "phone": "+62 812...",
+      "linkedin": "https://linkedin.com/in/...",
+      "coverLetter": "Tell us why you are a great fit..."
+    }
   }
 }

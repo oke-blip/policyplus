@@ -6,10 +6,12 @@ import en from "@/locales/en.json";
 import id from "@/locales/id.json";
 
 type Language = "EN" | "ID";
+export type ContentLocale = "en" | "id";
 type Dictionary = Record<string, unknown>;
 
 type LanguageContextValue = {
   language: Language;
+  locale: ContentLocale;
   setLanguage: React.Dispatch<React.SetStateAction<Language>>;
   toggleLanguage: () => void;
   t: <T = string>(key: string) => T;
@@ -47,9 +49,11 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     [language]
   );
 
+  const locale: ContentLocale = language === "ID" ? "id" : "en";
+
   const value = React.useMemo(
-    () => ({ language, setLanguage, toggleLanguage, t }),
-    [language, setLanguage, toggleLanguage, t]
+    () => ({ language, locale, setLanguage, toggleLanguage, t }),
+    [language, locale, setLanguage, toggleLanguage, t]
   );
 
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;

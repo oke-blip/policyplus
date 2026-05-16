@@ -1,9 +1,11 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 import {
+  ArrowRight,
   BadgeCheck,
   Globe2,
   Heart,
@@ -13,8 +15,19 @@ import {
   UsersRound,
 } from "lucide-react";
 
+import { getAboutValueIcon, getDefaultAboutValueIconId } from "@/lib/about-value-icons";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { AboutTeamSection, type AboutTeamMember } from "@/components/public/about-team-section";
+import { CTAFooterSection } from "@/components/public/CTAFooterSection";
+import { pickLocalized } from "@/lib/content-locale";
+import {
+  hasAboutPageSource,
+  pickAboutBilingualField,
+  pickAboutSettings,
+  type AboutPageSettings,
+} from "@/lib/about-intro-settings";
+import type { AboutValueItem } from "@/lib/settings-utils";
+import { parseTeamMembers, type TeamMemberRecord } from "@/lib/team-members";
 
 const ABOUT_HERO_IMAGE =
   "https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=1600";
@@ -37,17 +50,108 @@ const VALUE_ICONS: LucideIcon[] = [
   Globe2,
 ];
 
+export type { AboutPageSettings };
+
 type AboutFullPageProps = {
-  /** Final snap section: CTA + multi-column footer (passed from `app/about/page.tsx`). */
-  footer: ReactNode;
+  /** CMS roster from settings (`team_members`), sorted by `order` when loaded server-side. */
+  initialTeamMembers?: TeamMemberRecord[];
+  /** About page copy from settings, when loaded server-side. */
+  initialAboutSettings?: AboutPageSettings;
+  /** CTA + footer copy from settings (`cta_*`, contact, social), when loaded server-side. */
+  initialCtaSettings?: Record<string, unknown>;
 };
 
-export function AboutFullPage({ footer }: AboutFullPageProps) {
-  const { t } = useLanguage();
+function toAboutMembers(
+  records: TeamMemberRecord[],
+  locale: "en" | "id",
+): AboutTeamMember[] {
+  return records.map(({ id, name, name_id, role, role_id, focus, focus_id, image }) => ({
+    id,
+    name: pickLocalized(locale, name, name_id),
+    role: pickLocalized(locale, role, role_id),
+    focus: pickLocalized(locale, focus, focus_id),
+    ...(image?.trim() ? { image: image.trim() } : {}),
+  }));
+}
 
-  const missionEyebrow = String(t("aboutPage.missionEyebrow"));
-  const missionQuote = String(t("hero.subheadline"));
-  const missionSupporting = String(t("about.description"));
+function localizeValueItems(
+  items: AboutValueItem[],
+  locale: "en" | "id",
+): AboutValueItem[] {
+  return items.map((item) => ({
+    ...item,
+    text: pickLocalized(locale, item.text, item.text_id),
+  }));
+}
+
+export function AboutFullPage({
+  initialTeamMembers,
+  initialAboutSettings,
+  initialCtaSettings,
+}: AboutFullPageProps) {
+  const { locale, t } = useLanguage();
+  const [fetchedTeam, setFetchedTeam] = useState<TeamMemberRecord[]>([]);
+  const [fetchedAbout, setFetchedAbout] = useState<AboutPageSettings | null>(null);
+  const [fetchedCtaSettings, setFetchedCtaSettings] = useState<Record<string, unknown> | null>(null);
+
+  const settingsSource = useMemo(
+    () => initialCtaSettings ?? fetchedCtaSettings ?? {},
+    [initialCtaSettings, fetchedCtaSettings],
+  );
+
+  const ctaSettings = settingsSource;
+
+  const about = useMemo(
+    () => initialAboutSettings ?? fetchedAbout ?? pickAboutSettings(settingsSource),
+    [initialAboutSettings, fetchedAbout, settingsSource],
+  );
+
+  const heroSubtitle = pickAboutBilingualField(
+    settingsSource,
+    "about_hero_subtitle",
+    locale,
+    String(t("about.eyebrow")),
+  );
+  const heroTitle = pickAboutBilingualField(
+    settingsSource,
+    "about_hero_title",
+    locale,
+    String(t("about.title")),
+  );
+  const heroDescription = pickAboutBilingualField(
+    settingsSource,
+    "about_hero_description",
+    locale,
+    String(t("about.description")),
+  );
+  const heroImage =
+    about.about_hero_image?.trim() || ABOUT_HERO_IMAGE;
+  const heroCtaText = pickAboutBilingualField(
+    settingsSource,
+    "about_hero_cta_text",
+    locale,
+    String(t("about.link")),
+  );
+  const heroCtaLink = about.about_hero_cta_link?.trim() || "";
+
+  const missionEyebrow = pickAboutBilingualField(
+    settingsSource,
+    "about_mission_eyebrow",
+    locale,
+    String(t("aboutPage.missionEyebrow")),
+  );
+  const missionQuote = pickAboutBilingualField(
+    settingsSource,
+    "about_mission_title",
+    locale,
+    String(t("hero.subheadline")),
+  );
+  const missionSupporting = pickAboutBilingualField(
+    settingsSource,
+    "about_mission_description",
+    locale,
+    String(t("about.description")),
+  );
   const valuesHeading = String(t("aboutPage.valuesHeading"));
   const teamEyebrow = String(t("aboutPage.teamEyebrow"));
   const teamHeading = String(t("aboutPage.teamHeading"));
@@ -55,14 +159,55 @@ export function AboutFullPage({ footer }: AboutFullPageProps) {
   const teamJoinCta = String(t("aboutPage.teamJoinCta"));
   const teamKeyboardHint = String(t("aboutPage.teamKeyboardHint"));
   const teamTouchHint = String(t("aboutPage.teamTouchHint"));
-  const teamRaw = t("aboutPage.teamMembers") as unknown;
-  const teamMembers: AboutTeamMember[] = Array.isArray(teamRaw)
-    ? (teamRaw as Array<{ name: string; role: string; focus?: string }>).map((m) => ({
-        name: m.name,
-        role: m.role,
-        focus: typeof m.focus === "string" ? m.focus : "",
-      }))
-    : [];
+  const cmsTeam = useMemo(() => {
+    if (initialTeamMembers !== undefined) return initialTeamMembers;
+    return fetchedTeam;
+  }, [initialTeamMembers, fetchedTeam]);
+
+  const teamMembers = useMemo(() => toAboutMembers(cmsTeam, locale), [cmsTeam, locale]);
+
+  useEffect(() => {
+    const needsTeam = initialTeamMembers === undefined;
+    const needsAbout =
+      initialAboutSettings === undefined && !hasAboutPageSource(initialCtaSettings);
+    const needsCta = initialCtaSettings === undefined;
+    if (!needsTeam && !needsAbout && !needsCta) return;
+
+    fetch("/api/settings", { cache: "no-store" })
+      .then((res) => res.json())
+      .then((settings) => {
+        const raw = settings as Record<string, unknown>;
+        if (needsTeam) {
+          setFetchedTeam(parseTeamMembers(settings.team_members));
+        }
+        if (needsAbout && hasAboutPageSource(raw)) {
+          setFetchedAbout(pickAboutSettings(raw));
+        }
+        if (needsCta) {
+          setFetchedCtaSettings(raw);
+        }
+      })
+      .catch(() => {});
+  }, [initialTeamMembers, initialAboutSettings, initialCtaSettings]);
+
+  const cmsValues = useMemo(() => {
+    const items = about.about_value_items;
+    if (!items?.length) return [];
+    return localizeValueItems(items, locale);
+  }, [about.about_value_items, locale]);
+
+  const localeValues = useMemo(
+    () => VALUE_KEYS.map((key) => String(t(key))),
+    [t],
+  );
+
+  const valueCards = cmsValues.length > 0 ? cmsValues : localeValues.map((text, index) => ({
+    id: index,
+    text,
+    icon: getDefaultAboutValueIconId(index),
+  }));
+
+  const teamEmptyMessage = String(t("aboutPage.teamEmpty"));
 
   return (
     <main className="hide-scrollbar relative h-svh w-full snap-y snap-proximity overflow-x-hidden overflow-y-auto overscroll-y-contain bg-black font-sans">
@@ -78,32 +223,47 @@ export function AboutFullPage({ footer }: AboutFullPageProps) {
             {/* Left: Text Content */}
             <div className="order-1 flex flex-col items-start justify-start text-left lg:justify-center">
               <span className="text-yellow-500 text-sm font-bold uppercase tracking-widest mb-4">
-                WHO WE ARE
+                {heroSubtitle}
               </span>
               <h1
                 id="about-hero-heading"
                 className="mb-6 max-w-xl text-3xl font-bold leading-tight text-white sm:text-4xl lg:text-5xl"
               >
-                Fostering Evidence-Based <br className="hidden lg:block" /> Policy in Indonesia
+                {heroTitle}
               </h1>
-              <p className="mb-8 max-w-lg text-base text-gray-400">
-                Policy Plus is an independent knowledge hub dedicated to transforming complex data
-                into actionable insights. We bridge the gap between rigorous research and practical
-                governance to drive sustainable development.
-              </p>
-              <button
-                type="button"
-                className="w-max self-start rounded-full bg-yellow-500 px-8 py-3 font-bold text-black transition-colors hover:bg-yellow-400"
-              >
-                Read our story -&gt;
-              </button>
+              <p className="mb-8 max-w-lg text-base text-gray-400">{heroDescription}</p>
+              {heroCtaText ? (
+                heroCtaLink ? (
+                  <Link
+                    href={heroCtaLink}
+                    className="group inline-flex w-max items-center gap-2 self-start rounded-full bg-yellow-500 px-8 py-3 font-bold text-black transition-colors hover:bg-yellow-400"
+                  >
+                    {heroCtaText}
+                    <ArrowRight
+                      className="h-4 w-4 shrink-0 transition-transform duration-300 group-hover:translate-x-1"
+                      aria-hidden
+                    />
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    className="group inline-flex w-max items-center gap-2 self-start rounded-full bg-yellow-500 px-8 py-3 font-bold text-black transition-colors hover:bg-yellow-400"
+                  >
+                    {heroCtaText}
+                    <ArrowRight
+                      className="h-4 w-4 shrink-0 transition-transform duration-300 group-hover:translate-x-1"
+                      aria-hidden
+                    />
+                  </button>
+                )
+              ) : null}
             </div>
 
             {/* Right: Image */}
             <div className="order-2 relative h-[260px] w-full overflow-hidden rounded-2xl sm:h-[320px] lg:h-[360px] lg:rounded-3xl">
               {/* KEEP YOUR EXISTING IMAGE TAG HERE */}
               <Image
-                src={ABOUT_HERO_IMAGE}
+                src={heroImage}
                 alt="Policy advisors collaborating"
                 fill
                 className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out"
@@ -165,17 +325,36 @@ export function AboutFullPage({ footer }: AboutFullPageProps) {
             {valuesHeading}
           </h2>
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {VALUE_KEYS.map((key, index) => {
-              const Icon = VALUE_ICONS[index]!;
+            {valueCards.map((item, index) => {
+              const iconFromPicker = getAboutValueIcon(
+                "icon" in item ? item.icon : getDefaultAboutValueIconId(index),
+              );
+              const FallbackIcon = VALUE_ICONS[index] ?? Target;
+              const Icon = iconFromPicker ?? FallbackIcon;
+              const cardKey = "id" in item ? String(item.id ?? index) : `locale-${index}`;
+              const text = "text" in item ? item.text : String(item);
+              const image = "image" in item && item.image?.trim() ? item.image.trim() : "";
+
               return (
                 <div
-                  key={key}
+                  key={cardKey}
                   className="flex flex-col items-start gap-4 rounded-2xl border border-white/5 bg-[#111] p-8 transition-transform hover:-translate-y-1"
                 >
-                  <Icon className="size-9 shrink-0 text-yellow-500" strokeWidth={1.75} aria-hidden />
-                  <p className="text-left text-base font-medium leading-snug text-gray-100">
-                    {String(t(key))}
-                  </p>
+                  {image ? (
+                    <div className="relative size-9 shrink-0 overflow-hidden rounded-lg">
+                      <Image
+                        src={image}
+                        alt=""
+                        fill
+                        className="object-cover"
+                        sizes="36px"
+                        unoptimized={image.startsWith("data:")}
+                      />
+                    </div>
+                  ) : (
+                    <Icon className="size-9 shrink-0 text-yellow-500" strokeWidth={1.75} aria-hidden />
+                  )}
+                  <p className="text-left text-base font-medium leading-snug text-gray-100">{text}</p>
                 </div>
               );
             })}
@@ -183,7 +362,7 @@ export function AboutFullPage({ footer }: AboutFullPageProps) {
         </div>
       </section>
 
-      {/* Section 4 — Our team (interactive spotlight + roster) */}
+      {/* Section 4 — Our team (CMS `team_members` only; order from admin) */}
       {teamMembers.length > 0 ? (
         <AboutTeamSection
           eyebrow={teamEyebrow}
@@ -194,12 +373,24 @@ export function AboutFullPage({ footer }: AboutFullPageProps) {
           touchHint={teamTouchHint}
           members={teamMembers}
         />
-      ) : null}
+      ) : (
+        <section
+          id="meet-the-team"
+          className="relative min-h-[40vh] w-full shrink-0 snap-start bg-black"
+          aria-labelledby="about-team-empty-heading"
+        >
+          <div className="mx-auto max-w-3xl px-4 py-28 text-center sm:px-6 lg:py-32">
+            <p className="text-xs font-semibold tracking-[0.32em] text-yellow-500 uppercase">{teamEyebrow}</p>
+            <h2 id="about-team-empty-heading" className="mt-3 text-3xl font-bold text-white sm:text-4xl">
+              {teamHeading}
+            </h2>
+            <p className="mt-4 text-sm leading-relaxed text-gray-400 sm:text-base">{teamEmptyMessage}</p>
+          </div>
+        </section>
+      )}
 
-      {/* Section 5 — Footer + CTA */}
-      <section id="about-footer" className="min-h-svh w-full shrink-0 snap-start bg-black">
-        <div className="px-4 pb-12 pt-28 sm:px-6">{footer}</div>
-      </section>
+      {/* Section 5 — CTA + footer (shared with home) */}
+      <CTAFooterSection settings={ctaSettings} />
     </main>
   );
 }

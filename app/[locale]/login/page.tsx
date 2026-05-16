@@ -67,7 +67,7 @@ export default function LoginPage() {
               Welcome Back
             </h1>
             <p className="text-slate-500 dark:text-slate-400 mt-2 font-medium">
-              Sign in to manage PolicyPlus
+              Sign in to manage Policy+
             </p>
           </div>
 
@@ -146,7 +146,7 @@ export default function LoginPage() {
         </div>
         
         <p className="text-center mt-8 text-slate-400 dark:text-slate-600 text-xs font-medium uppercase tracking-widest">
-          Secured by PolicyPlus Shield
+          Secured by Policy+ Shield
         </p>
       </motion.div>
     </div>

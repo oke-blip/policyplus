@@ -16,13 +16,20 @@ export {
   type MethodologyStep,
 } from "@/lib/settings-utils";
 
+import { applySettingLocaleFields } from "@/lib/setting-locale";
+
 export async function getAllSettings(): Promise<Record<string, unknown>> {
   const rows = await prisma.setting.findMany();
   return rows.reduce(
     (acc, row) => {
-      acc[row.key] = parseSettingValue(row.value);
+      applySettingLocaleFields(
+        acc,
+        row.key,
+        parseSettingValue(row.value),
+        row.value_id,
+      );
       return acc;
     },
-    {} as Record<string, unknown>
+    {} as Record<string, unknown>,
   );
 }

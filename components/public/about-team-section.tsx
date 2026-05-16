@@ -7,9 +7,11 @@ import { AnimatePresence, motion, useMotionTemplate, useMotionValue, useSpring }
 import { ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
 
 export type AboutTeamMember = {
+  id?: number;
   name: string;
   role: string;
   focus: string;
+  image?: string;
 };
 
 type AboutTeamSectionProps = {
@@ -22,8 +24,8 @@ type AboutTeamSectionProps = {
   members: AboutTeamMember[];
 };
 
-/** Curated portrait plates — editorial, consistent lighting, Unsplash-sourced. */
-const PORTRAIT_BY_INDEX: readonly string[] = [
+/** Unsplash plates when a member has no uploaded portrait (`member.image`). */
+const PORTRAIT_FALLBACK_BY_INDEX: readonly string[] = [
   "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=960&q=80",
   "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=960&q=80",
   "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=960&q=80",
@@ -58,6 +60,9 @@ export function AboutTeamSection({
   const count = members.length;
   const safeIndex = clamp(active, 0, Math.max(0, count - 1));
   const current = members[safeIndex];
+  const portraitSrc =
+    current?.image?.trim() ||
+    PORTRAIT_FALLBACK_BY_INDEX[safeIndex % PORTRAIT_FALLBACK_BY_INDEX.length]!;
 
   const go = useCallback(
     (dir: -1 | 1) => {
@@ -174,7 +179,7 @@ export function AboutTeamSection({
 
                 <AnimatePresence initial={false} mode="popLayout">
                   <motion.div
-                    key={current.name}
+                    key={current.id ?? current.name}
                     initial={{ opacity: 0, scale: 1.06 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.98 }}
@@ -182,8 +187,9 @@ export function AboutTeamSection({
                     className="absolute inset-0"
                   >
                     <Image
-                      src={PORTRAIT_BY_INDEX[safeIndex % PORTRAIT_BY_INDEX.length]!}
+                      src={portraitSrc}
                       alt=""
+                      unoptimized={portraitSrc.startsWith("data:")}
                       fill
                       draggable={false}
                       sizes="(max-width: 1024px) 100vw, 58vw"
@@ -195,7 +201,7 @@ export function AboutTeamSection({
 
                 <div className="relative z-30 flex h-full flex-col justify-end p-6 sm:p-8 lg:max-w-[85%] lg:p-10">
                   <motion.div
-                    key={`meta-${current.name}`}
+                    key={`meta-${current.id ?? current.name}`}
                     initial={{ opacity: 0, y: 16 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
@@ -251,9 +257,10 @@ export function AboutTeamSection({
               >
                 {members.map((member, index) => {
                   const isActive = index === safeIndex;
+                  const memberKey = member.id ?? `${member.name}-${index}`;
                   return (
                     <motion.button
-                      key={member.name}
+                      key={memberKey}
                       type="button"
                       role="radio"
                       aria-checked={isActive}

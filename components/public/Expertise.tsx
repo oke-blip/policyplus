@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
+import { ArrowUpRight } from "lucide-react"; // <-- Import icon panah
 import { useLanguage } from "@/contexts/LanguageContext";
 import { parseExpertiseItems, type ExpertiseItem } from "@/lib/settings-utils";
 import { cn } from "@/lib/utils";
@@ -30,12 +31,12 @@ const cardVariants = {
   },
 };
 
+// Logika grid diperbaiki agar rata tengah jika data cuma 1
 function getGridClass(count: number) {
-  if (count <= 1) return "grid-cols-1 max-w-md mx-auto";
-  if (count === 2) return "grid-cols-1 md:grid-cols-2";
-  if (count === 3) return "grid-cols-1 lg:grid-cols-3";
-  if (count === 4) return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4";
-  return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
+  if (count <= 1) return "grid grid-cols-1 max-w-[320px] mx-auto";
+  if (count === 2) return "grid grid-cols-1 md:grid-cols-2 max-w-3xl mx-auto";
+  if (count === 3) return "grid grid-cols-1 lg:grid-cols-3 max-w-5xl mx-auto";
+  return "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 max-w-7xl mx-auto";
 }
 
 function CardImage({ src, alt }: { src: string; alt: string }) {
@@ -92,8 +93,6 @@ export function ExpertiseSection({
     cmsItems.length > 0 ? cmsItems : fetchedItems.length > 0 ? fetchedItems : fallbackItems;
   const count = items.length;
 
-  if (count === 0) return null;
-
   return (
     <section
       id="expertise"
@@ -119,57 +118,74 @@ export function ExpertiseSection({
           </p>
         </motion.header>
 
-        <motion.div
-          className={cn(
-            "group/grid relative mx-auto mt-6 grid w-full max-w-6xl gap-6 px-4 lg:px-0",
-            getGridClass(count)
-          )}
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-60px" }}
-        >
-          {items.map((item, index) => {
-            const imageSrc =
-              item.image || FALLBACK_IMAGES[index % FALLBACK_IMAGES.length];
-            const stickyTop = 100 + index * 20;
+        {/* Handling khusus jika data 0 */}
+        {count === 0 ? (
+          <div className="mt-20 text-center text-slate-500">
+            <p>Belum ada data expertise yang ditambahkan.</p>
+          </div>
+        ) : (
+          <motion.div
+            className={cn(
+              "group/grid relative mx-auto mt-12 w-full gap-6 px-4 lg:mt-16 lg:px-0",
+              getGridClass(count)
+            )}
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-60px" }}
+          >
+            {items.map((item, index) => {
+              const imageSrc =
+                item.image || FALLBACK_IMAGES[index % FALLBACK_IMAGES.length];
+              const stickyTop = 100 + index * 20;
 
-            return (
-              <motion.article
-                key={`${item.id ?? item.title}-${index}`}
-                variants={cardVariants}
-                className={cn(
-                  "sticky flex h-[380px] flex-col overflow-hidden rounded-3xl border border-white/5 shadow-2xl transition-colors duration-300 lg:static lg:h-[420px]",
-                  "bg-[#111] text-white hover:bg-yellow-500 hover:text-black",
-                  "lg:top-auto"
-                )}
-                style={{ top: `${stickyTop}px` }}
-              >
-                <motion.div className="relative flex-1 p-6 lg:p-8">
-                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.22em] opacity-70">
-                    {item.tag}
-                  </p>
-                  <h3 className="w-3/4 text-xl font-bold leading-snug lg:text-2xl">
-                    {item.title}
-                  </h3>
-                  {item.desc ? (
-                    <p className="mt-3 text-sm leading-relaxed opacity-80 line-clamp-3">
-                      {item.desc}
-                    </p>
-                  ) : null}
-                  <div
-                    aria-hidden
-                    className="absolute top-6 right-6 h-8 w-8 rounded-full border border-current opacity-50"
-                  />
-                </motion.div>
+              return (
+                <motion.article
+                  key={`${item.id ?? item.title}-${index}`}
+                  variants={cardVariants}
+                  className={cn(
+                    "group relative sticky flex h-[440px] flex-col overflow-hidden rounded-[2.5rem] border border-white/5 shadow-2xl transition-colors duration-300 lg:static lg:h-[480px]",
+                    "bg-[#111] text-white hover:bg-yellow-500 hover:text-black",
+                    "lg:top-auto"
+                  )}
+                  style={{ top: `${stickyTop}px` }}
+                >
+                  {/* Wrapper konten text dikasih overflow-hidden biar ngga tumpah */}
+                  <motion.div className="relative flex flex-1 flex-col overflow-hidden p-6 lg:p-8">
+                    <div className="pr-12">
+                      <p className="mb-3 shrink-0 text-[10px] font-semibold uppercase tracking-[0.22em] opacity-70">
+                        {item.tag}
+                      </p>
+                      {/* line-clamp-3 membatasi judul maksimal 3 baris */}
+                      <h3 className="shrink-0 text-xl font-bold leading-snug line-clamp-3 lg:text-2xl">
+                        {item.title}
+                      </h3>
+                      {item.desc ? (
+                        /* line-clamp-3 membatasi deskripsi maksimal 3 baris */
+                        <p className="mt-3 text-sm leading-relaxed opacity-80 line-clamp-3">
+                          {item.desc}
+                        </p>
+                      ) : null}
+                    </div>
 
-                <div className="relative h-[45%] w-full shrink-0">
-                  <CardImage src={imageSrc} alt={item.title} />
-                </div>
-              </motion.article>
-            );
-          })}
-        </motion.div>
+                    {/* Ikon panah yang rapi di pojok */}
+                    <div
+                      aria-hidden
+                      className="absolute top-6 right-6 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-current opacity-50 transition-transform duration-300 group-hover:-translate-y-1 group-hover:translate-x-1"
+                    >
+                      <ArrowUpRight size={18} strokeWidth={2.5} />
+                    </div>
+                  </motion.div>
+
+                  {/* Wrapper gambar diganti jadi aspect-video (16:9) yang di-shrink-0 (gak bisa kegencet) */}
+                  <div className="relative mt-auto w-full shrink-0 aspect-video">
+                    <CardImage src={imageSrc} alt={item.title} />
+                  </div>
+                </motion.article>
+              );
+            })}
+          </motion.div>
+        )}
       </motion.div>
     </section>
   );

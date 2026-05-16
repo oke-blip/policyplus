@@ -16,7 +16,6 @@
       { "label": "Pusat Pengetahuan", "href": "/knowledge-center" }
     ],
     "right": [
-      { "label": "Publikasi", "href": "/publications" },
       { "label": "Wawasan", "href": "/insights" },
       { "label": "Acara", "href": "/events" },
       { "label": "Karir", "href": "/career" }
@@ -48,6 +47,7 @@
     "teamJoinCta": "Berkarya bersama kami",
     "teamKeyboardHint": "Tips: gunakan tombol panah untuk menjelajahi daftar.",
     "teamTouchHint": "Ketuk nama anggota untuk memfokuskan, atau gunakan panah pada potret.",
+    "teamEmpty": "Profil tim akan ditampilkan di sini setelah dipublikasikan melalui admin.",
     "footerEyebrow": "Ajakan Bertindak",
     "footerTitle": "Siap mendorong dampak sosial yang bermakna?",
     "footerCta": "Hubungi Kami",
@@ -165,6 +165,12 @@
   "knowledge": {
     "header": "PUSAT PENGETAHUAN",
     "description": "Jelajahi inisiatif kami yang memajukan pengetahuan, dialog, dan kebijakan berbasis bukti.",
+    "detail": {
+      "back": "Kembali ke Perpustakaan",
+      "readNext": "Baca Analisis Berikutnya",
+      "generalCategory": "Umum",
+      "defaultAuthor": "Tim Policy+"
+    },
     "filters": ["Semua", "Tata Kelola Baik", "Keberlanjutan", "Hak Asasi Manusia"],
     "items": [
       {
@@ -278,6 +284,15 @@
     "header": "Wawasan Terbaru",
     "readMore": "Baca Selengkapnya",
     "readAll": "Baca Semua Wawasan",
+    "detail": {
+      "back": "Kembali ke Wawasan",
+      "notFoundTitle": "Artikel Tidak Ditemukan",
+      "notFoundDesc": "Publikasi yang Anda cari tidak ada atau telah dihapus.",
+      "minRead": "5 menit baca",
+      "writtenBy": "Ditulis oleh",
+      "generalCategory": "Umum",
+      "defaultAuthor": "Tim Policy+"
+    },
     "items": [
       {
         "title": "Harga Karbon di Kota Indonesia: Pilihan Desain yang Bertahan",
@@ -301,5 +316,44 @@
         "image": "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=1200&auto=format&fit=crop"
       }
     ]
+  },
+  "careers": {
+    "heroTitle": "Bergabung dengan",
+    "heroTitleAccent": "Misi Kami",
+    "heroSubtitle": "Bantu kami membentuk masa depan kebijakan publik di Asia Tenggara.",
+    "viewDetails": "Lihat Detail & Lamar",
+    "description": "Deskripsi",
+    "requirements": "Persyaratan",
+    "applyForPosition": "Lamar posisi ini",
+    "backToDetails": "Kembali ke Detail",
+    "submitApplication": "Kirim Lamaran",
+    "fullName": "Nama Lengkap",
+    "emailAddress": "Alamat Email",
+    "phoneNumber": "Nomor Telepon",
+    "linkedinUrl": "URL LinkedIn",
+    "coverLetter": "Surat Lamaran (Opsional)",
+    "uploadCv": "Unggah CV / Resume",
+    "uploading": "Mengunggah...",
+    "cvAttached": "CV Berhasil Dilampirkan",
+    "clickToReplace": "Klik untuk mengganti file",
+    "dropCv": "Letakkan CV di sini atau klik untuk mengunggah",
+    "pdfOnly": "Hanya PDF (Maks. 5MB)",
+    "uploadFailed": "Gagal mengunggah",
+    "uploadCvFirst": "Harap unggah CV Anda terlebih dahulu.",
+    "applicationSent": "Lamaran terkirim! Kami akan menghubungi Anda.",
+    "submissionFailed": "Pengiriman gagal",
+    "jobTypes": {
+      "FULL_TIME": "Penuh Waktu",
+      "PART_TIME": "Paruh Waktu",
+      "CONTRACT": "Kontrak",
+      "INTERNSHIP": "Magang"
+    },
+    "placeholders": {
+      "fullName": "Budi Santoso",
+      "email": "budi@contoh.com",
+      "phone": "+62 812...",
+      "linkedin": "https://linkedin.com/in/...",
+      "coverLetter": "Ceritakan mengapa Anda cocok untuk posisi ini..."
+    }
   }
 }

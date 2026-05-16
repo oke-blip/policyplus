@@ -17,7 +17,8 @@ import {
   Moon,
   Sun,
   Sparkles,
-  BriefcaseBusiness
+  BriefcaseBusiness,
+  UsersRound,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -27,6 +28,7 @@ const sidebarLinks = [
   { name: "Events", href: "/admin/events", icon: CalendarDays },
   { name: "Job Postings", href: "/admin/jobs", icon: BriefcaseBusiness },
   { name: "Partners & Reviews", href: "/admin/partners", icon: HeartHandshake },
+  { name: "Teams", href: "/admin/teams", icon: UsersRound },
   { name: "Setting Compro", href: "/admin/settings", icon: Settings },
 ];
 
@@ -37,9 +39,19 @@ export default function AdminLayout({
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [username, setUsername] = useState<string | null>(null);
 
   useEffect(() => {
     setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.username) setUsername(data.username);
+      })
+      .catch(() => {});
   }, []);
 
   const isActive = (href: string) => {
@@ -60,7 +72,7 @@ export default function AdminLayout({
             <Sparkles size={16} />
           </div>
           <span className="bg-clip-text text-transparent bg-gradient-to-r from-slate-800 to-slate-600 dark:from-white dark:to-slate-300">
-            PolicyPlus
+            Policy+
           </span>
         </div>
         <div className="flex items-center gap-2">
@@ -92,7 +104,7 @@ export default function AdminLayout({
             className={`
               fixed md:relative top-0 left-0 z-40 
               w-72 h-screen flex flex-col
-              ${isMobileMenuOpen ? 'block' : 'hidden md:flex'}
+              ${isMobileMenuOpen ? "block" : "hidden md:flex"}
             `}
           >
             <div className="h-full m-0 md:my-4 md:ml-4 bg-white/60 dark:bg-white/[0.02] backdrop-blur-2xl border-r md:border border-slate-200/50 dark:border-white/5 md:rounded-3xl flex flex-col shadow-2xl shadow-slate-500/5 dark:shadow-none overflow-hidden relative">
@@ -105,7 +117,7 @@ export default function AdminLayout({
                   <Sparkles size={20} />
                 </div>
                 <span className="bg-clip-text text-transparent bg-gradient-to-r from-slate-800 to-slate-500 dark:from-white dark:to-slate-400">
-                  PolicyPlus
+                  Policy+
                 </span>
               </div>
 
@@ -142,15 +154,11 @@ export default function AdminLayout({
               </nav>
 
               <div className="p-4 z-10 space-y-2">
-                <div className="flex items-center gap-3 px-4 py-3 bg-white/50 dark:bg-white/5 rounded-2xl border border-slate-200/50 dark:border-white/5 backdrop-blur-md">
-                  <div className="w-10 h-10 rounded-xl bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-slate-900 dark:text-white font-bold shadow-inner">
-                    A
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-slate-900 dark:text-white truncate">Admin User</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 truncate">admin@policy.com</p>
-                  </div>
-                </div>
+                {username && (
+                  <p className="px-4 py-2 text-sm font-bold text-slate-900 dark:text-white truncate">
+                    {username}
+                  </p>
+                )}
                 <button 
                   onClick={async () => {
                     await fetch("/api/auth/logout", { method: "POST" });
@@ -205,7 +213,7 @@ export default function AdminLayout({
         </header>
 
         {/* Page Content */}
-        <div className="flex-1 p-6 md:px-10 md:pb-10 overflow-y-auto custom-scrollbar">
+        <div className="flex-1 px-6 pb-6 md:px-10 md:pb-10 overflow-y-auto custom-scrollbar">
           {children}
         </div>
       </main>

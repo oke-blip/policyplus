@@ -82,7 +82,7 @@ export function ApproachSection({
           </p>
         </header>
 
-        <div className="mt-12 grid w-full grid-cols-1 gap-6 sm:grid-cols-2 lg:mt-16 lg:grid-cols-4">
+        <motion.div className="mt-12 flex w-full flex-wrap justify-center gap-6 lg:mt-16">
           {items.map((item, i) => (
             <motion.div
               key={`${item.id ?? item.title}-${i}`}
@@ -90,7 +90,7 @@ export function ApproachSection({
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1, duration: 0.5 }}
-              className="group relative flex min-h-[420px] flex-col overflow-hidden rounded-[2.5rem] border border-white/10 bg-gray-900/50 p-8 transition-all hover:border-yellow-500/30"
+              className="group relative flex w-full min-h-[420px] shrink-0 flex-col overflow-hidden rounded-[2.5rem] border border-white/10 bg-gray-900/50 p-8 transition-all hover:border-yellow-500/30 sm:w-[calc(50%-0.75rem)] sm:max-w-[calc(50%-0.75rem)] lg:w-[calc(25%-1.125rem)] lg:max-w-[calc(25%-1.125rem)]"
             >
               <div className="absolute inset-0 z-0">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -118,7 +118,7 @@ export function ApproachSection({
               </div>
             </motion.div>
           ))}
-        </div>
+        </motion.div>
       </motion.div>
     </section>
   );

@@ -1,12 +1,19 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { X } from "lucide-react";
+import { useTheme } from "next-themes";
 
 import { LanguageToggle } from "@/components/language-toggle";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useLanguage } from "@/contexts/LanguageContext";
+import {
+  hasNavbarBrandingSource,
+  resolveNavbarBranding,
+  type NavbarBranding,
+} from "@/lib/navbar-branding";
 import { cn } from "@/lib/utils";
 
 type NavLinkItem = {
@@ -14,11 +21,71 @@ type NavLinkItem = {
   href: string;
 };
 
-export function Navbar() {
-  const { t } = useLanguage();
+function TextLogo({ name }: { name: string }) {
+  const plusIndex = name.lastIndexOf("+");
+  if (plusIndex === -1) {
+    return <span className="font-semibold">{name}</span>;
+  }
+
+  const before = name.slice(0, plusIndex);
+  const after = name.slice(plusIndex + 1);
+
+  return (
+    <>
+      <span className="font-semibold">{before}</span>
+      <span className="font-bold text-yellow-500 transition-colors duration-300">+</span>
+      {after ? <span className="font-semibold">{after}</span> : null}
+    </>
+  );
+}
+
+export function Navbar({
+  initialSettings,
+}: {
+  initialSettings?: Record<string, unknown>;
+}) {
+  const { t, locale } = useLanguage();
+  const { resolvedTheme } = useTheme();
   const leftLinks = t<NavLinkItem[]>("navbar.left");
   const rightLinks = t<NavLinkItem[]>("navbar.right");
   const mobileLinks = [...leftLinks, ...rightLinks];
+
+  const [fetchedSettings, setFetchedSettings] = React.useState<Record<string, unknown> | null>(
+    null,
+  );
+  const [themeMounted, setThemeMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    const id = requestAnimationFrame(() => setThemeMounted(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
+
+  React.useEffect(() => {
+    if (initialSettings) return;
+
+    fetch("/api/settings", { cache: "no-store" })
+      .then((res) => res.json())
+      .then((payload) => {
+        if (!hasNavbarBrandingSource(payload as Record<string, unknown>)) return;
+        setFetchedSettings(payload as Record<string, unknown>);
+      })
+      .catch(() => {});
+  }, [initialSettings]);
+
+  const settingsSource = initialSettings ?? fetchedSettings;
+
+  const branding = React.useMemo((): NavbarBranding => {
+    if (!settingsSource) {
+      return { logoUrl: null, companyName: "policy+" };
+    }
+
+    const theme =
+      themeMounted && (resolvedTheme === "light" || resolvedTheme === "dark")
+        ? resolvedTheme
+        : undefined;
+
+    return resolveNavbarBranding(settingsSource, locale, theme);
+  }, [settingsSource, locale, themeMounted, resolvedTheme]);
 
   const [isNavDrawerOpen, setIsNavDrawerOpen] = React.useState(false);
 
@@ -62,6 +129,9 @@ export function Navbar() {
     "text-gray-200 hover:text-white"
   );
 
+  const logoUrl = branding.logoUrl;
+  const companyName = branding.companyName;
+
   return (
     <>
       <header
@@ -71,7 +141,7 @@ export function Navbar() {
         )}
       >
         <div className="relative mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-4">
-          <div className="hidden flex-1 items-center justify-start gap-6 xl:gap-8 lg:flex">
+            <div className="hidden flex-1 items-center justify-start gap-6 xl:gap-8 lg:flex">
             {leftLinks.map((item) => (
               <Link key={`${item.href}-${item.label}`} href={item.href} className={linkClass}>
                 {item.label}
@@ -81,10 +151,18 @@ export function Navbar() {
 
           <div className="absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2">
             <Link href="/" className={cn("font-semibold", logoClass)}>
-              <span className="font-semibold">policy</span>
-              <span className="font-bold text-yellow-500 transition-colors duration-300">
-                +
-              </span>
+              {logoUrl ? (
+                <Image
+                  src={logoUrl}
+                  alt={companyName}
+                  width={160}
+                  height={48}
+                  className="h-7 w-auto max-w-[10rem] object-contain lg:h-8 lg:max-w-[12rem]"
+                  priority
+                />
+              ) : (
+                <TextLogo name={companyName} />
+              )}
             </Link>
           </div>
 

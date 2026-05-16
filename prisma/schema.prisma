@@ -21,6 +21,7 @@ model Setting {
   id        String   @id @default(cuid())
   key       String   @unique
   value     Json
+  value_id  Json?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -42,74 +43,111 @@ enum JobType {
   INTERNSHIP
 }
 
-enum JobStatus {
-  OPEN
+enum JobPostingStatus {
+  DRAFT
+  ACTIVE
   CLOSED
 }
 
-enum ApplicationStatus {
+enum JobApplicationStatus {
   PENDING
-  REVIEWING
-  ACCEPTED
+  REVIEWED
   REJECTED
+  HIRED
 }
 
 model Post {
-  id          String            @id @default(cuid())
-  title       String
-  slug        String            @unique
-  content     String            @db.Text
-  image_url   String?
-  author_name String?
-  author_image String?
-  status      PostStatus        @default(DRAFT)
-  type        PostType          @default(INSIGHT)
-  category    String?
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
+  id              String     @id @default(cuid())
+  title           String
+  title_id        String?
+  slug            String     @unique
+  content         String     @db.Text
+  content_id      String?    @db.Text
+  image_url       String?
+  author_name     String?
+  author_name_id  String?
+  author_role     String?
+  author_role_id  String?
+  author_bio      String?    @db.Text
+  author_bio_id   String?    @db.Text
+  author_image    String?
+  tags            String?
+  tags_id         String?
+  status          PostStatus @default(DRAFT)
+  type            PostType   @default(INSIGHT)
+  category        String?
+  category_id     String?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
 }
 
 model KnowledgeCategory {
   id        String   @id @default(cuid())
   name      String   @unique
+  name_id   String?
   slug      String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model Job {
-  id           String        @id @default(cuid())
-  title        String
-  description  String        @db.Text
-  type         JobType
-  status       JobStatus     @default(OPEN)
-  applications Application[]
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+model JobPosting {
+  id               String           @id @default(cuid())
+  title            String
+  title_id         String?
+  department       String?
+  department_id    String?
+  location         String?
+  location_id      String?
+  type             JobType          @default(FULL_TIME)
+  salaryRange      String?
+  salaryRange_id   String?
+  description      String           @db.Text
+  description_id   String?          @db.Text
+  requirements     String?          @db.Text
+  requirements_id  String?          @db.Text
+  status           JobPostingStatus @default(DRAFT)
+  applicationDeadline DateTime?
+  applications     JobApplication[]
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
 }
 
-model Application {
-  id             String              @id @default(cuid())
-  jobId          String
-  job            Job                 @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  candidate_name String
-  email          String
-  phone          String?
-  cv_url         String?
-  status         ApplicationStatus   @default(PENDING)
-  createdAt      DateTime            @default(now())
-  updatedAt      DateTime            @updatedAt
+model JobApplication {
+  id           String               @id @default(cuid())
+  jobPostingId String?
+  jobPosting   JobPosting?          @relation(fields: [jobPostingId], references: [id], onDelete: SetNull)
+  fullName     String
+  email        String
+  phone        String?
+  linkedinUrl  String?
+  coverLetter  String?              @db.Text
+  cvFileUrl    String
+  status       JobApplicationStatus @default(PENDING)
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
 
-  @@index([jobId])
+  @@index([jobPostingId])
+}
+
+model EventCategory {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  name_id   String?
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Event {
   id          String   @id @default(cuid())
   title       String
+  title_id    String?
   date        String
   location    String
+  location_id String?
   image       String   @db.Text
   category    String?
+  category_id String?
   link        String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

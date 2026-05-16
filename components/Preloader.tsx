@@ -4,15 +4,72 @@ import * as React from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 
+import { resolvePreloaderContent } from "@/lib/preloader-settings";
+
 type Phase = "loading" | "quote" | "exit";
 
-export function Preloader() {
+type PreloaderProps = {
+  settings?: Record<string, unknown>;
+};
+
+function contentLocaleFromPathname(pathname: string | null): "en" | "id" {
+  return pathname?.split("/")[1] === "id" ? "id" : "en";
+}
+
+function BrandMark({ name }: { name: string }) {
+  const plusIndex = name.lastIndexOf("+");
+  if (plusIndex > 0 && plusIndex === name.length - 1) {
+    return (
+      <>
+        {name.slice(0, plusIndex)}
+        <span className="text-yellow-500">+</span>
+      </>
+    );
+  }
+  return <>{name}</>;
+}
+
+export function Preloader({ settings: initialSettings }: PreloaderProps) {
   const [progress, setProgress] = React.useState(0);
   const [phase, setPhase] = React.useState<Phase>("loading");
   const [removed, setRemoved] = React.useState(false);
   const pathname = usePathname();
   const phaseRef = React.useRef<Phase>(phase);
   phaseRef.current = phase;
+
+  const [source, setSource] = React.useState<Record<string, unknown>>(
+    () => initialSettings ?? {},
+  );
+
+  React.useEffect(() => {
+    if (initialSettings && Object.keys(initialSettings).length > 0) {
+      setSource(initialSettings);
+    }
+  }, [initialSettings]);
+
+  React.useEffect(() => {
+    if (initialSettings && Object.keys(initialSettings).length > 0) return;
+
+    let cancelled = false;
+    fetch("/api/settings", { cache: "no-store" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!cancelled && data && typeof data === "object" && !Array.isArray(data)) {
+          setSource(data as Record<string, unknown>);
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
+  }, [initialSettings]);
+
+  const locale = contentLocaleFromPathname(pathname);
+  const { companyName, quoteText, logoUrl } = React.useMemo(
+    () => resolvePreloaderContent(source, locale),
+    [source, locale],
+  );
 
   React.useEffect(() => {
     let raf = 0;
@@ -78,9 +135,17 @@ export function Preloader() {
             transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
           >
             <div className="mb-12 text-center">
-              <span className="text-4xl font-semibold tracking-tight sm:text-5xl">
-                Policy<span className="text-yellow-500">+</span>
-              </span>
+              {logoUrl ? (
+                <img
+                  src={logoUrl}
+                  alt={companyName}
+                  className="mx-auto h-16 w-auto max-w-xs object-contain sm:h-20"
+                />
+              ) : (
+                <span className="text-4xl font-semibold tracking-tight sm:text-5xl">
+                  <BrandMark name={companyName} />
+                </span>
+              )}
             </div>
 
             <div className="relative h-1 w-full max-w-xs overflow-hidden rounded-full bg-white/10">
@@ -101,7 +166,7 @@ export function Preloader() {
             exit={{ opacity: 0, y: 12 }}
             transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1], delay: 0.08 }}
           >
-            Turning Complex Challenges Into Meaningful Solutions.
+            {quoteText}
           </motion.p>
         )}
       </AnimatePresence>

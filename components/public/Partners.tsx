@@ -45,12 +45,28 @@ function PartnerMarqueeRow({
   rtl?: boolean;
   durationSec: number;
 }) {
-  const loop = [...partners, ...partners];
+  // 1. Jika data kosong, jangan render apa-apa biar tidak error
+  if (!partners || partners.length === 0) return null;
+
+  // 2. Tentukan minimal jumlah card untuk menutupi 1 layar penuh (sekitar 8-10 card)
+  const MIN_CARDS_TO_FILL_SCREEN = 10;
+  
+  // 3. Hitung berapa kali array asli harus diulang agar mencapai batas minimal
+  const repeatCount = Math.max(1, Math.ceil(MIN_CARDS_TO_FILL_SCREEN / partners.length));
+  
+  // 4. Buat array dasar yang sudah cukup panjang menutupi layar
+  const baseArray = Array(repeatCount).fill(partners).flat();
+
+  // 5. Duplikasi array dasar tersebut SATU KALI SAJA untuk efek transisi 50% marquee
+  const loop = [...baseArray, ...baseArray];
 
   return (
-    <div className="relative overflow-hidden py-4">
+    <div className="relative flex overflow-hidden py-4 w-full">
       <div
-        className={cn("partners-marquee-track", rtl && "partners-marquee-track-rtl")}
+        className={cn(
+          "flex w-max partners-marquee-track", // Tambahkan flex dan w-max agar tidak turun ke bawah (wrap)
+          rtl && "partners-marquee-track-rtl"
+        )}
         style={{ ["--partners-duration" as string]: `${durationSec}s` }}
       >
         {loop.map((p, i) => (
@@ -61,10 +77,15 @@ function PartnerMarqueeRow({
   );
 }
 
-export function Partners({ data }: { data?: any }) {
-  const { t } = useLanguage();
-  
-  const header = data?.partners_header || t("partners.header");
+export function Partners({ data }: { data?: Record<string, unknown> }) {
+  const { t, language } = useLanguage();
+  const isId = language === "ID";
+
+  const headerEn =
+    typeof data?.partners_header === "string" ? data.partners_header : "";
+  const headerId =
+    typeof data?.partners_header_id === "string" ? data.partners_header_id : "";
+  const header = (isId && headerId ? headerId : headerEn) || t("partners.header");
   const items = data?.partners && data.partners.length > 0 
     ? data.partners 
     : t<PartnerItem[]>("partners.items");
