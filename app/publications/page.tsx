@@ -1,6 +1,5 @@
-import { PublicationsDraftPage } from "@/components/public/menu-draft-pages";
+import { redirect } from "next/navigation";
 
 export default function PublicationsPage() {
-  return <PublicationsDraftPage />;
+  redirect("/insights");
 }
-

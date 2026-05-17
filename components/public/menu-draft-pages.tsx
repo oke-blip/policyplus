@@ -1,15 +1,29 @@
 "use client";
 
 import Link from "next/link";
+import { useMemo } from "react";
 
 import { Navbar } from "@/components/Navbar";
-import { SiteFooter } from "@/components/public/site-footer";
+import { CTAFooterSection } from "@/components/public/CTAFooterSection";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { pickLocalized, type ContentLocale } from "@/lib/content-locale";
+import type {
+  MenuDraftEventRecord,
+  MenuDraftJobRecord,
+  MenuDraftPostRecord,
+} from "@/lib/menu-draft-data";
+import {
+  resolveKnowledgeCenterHeader,
+  resolveLatestInsightsTitle,
+} from "@/lib/publications-section-settings";
+import { stripHtml } from "@/lib/strip-html";
+import { type ApproachItem, type ExpertiseItem } from "@/lib/settings-utils";
 
 type NavCard = {
   title: string;
   description: string;
   href: string;
+  category?: string;
 };
 
 const NAV_LINKS = [
@@ -17,11 +31,110 @@ const NAV_LINKS = [
   { label: "Expertise", href: "/expertise" },
   { label: "Our Work", href: "/work" },
   { label: "Knowledge Center", href: "/knowledge-center" },
-  { label: "Publications", href: "/publications" },
   { label: "Insights", href: "/insights" },
   { label: "Events", href: "/events" },
   { label: "Career", href: "/career" },
 ] as const;
+
+function pickSettingsField(
+  raw: Record<string, unknown> | undefined,
+  key: string,
+  locale: ContentLocale,
+  fallback: string,
+): string {
+  const en = typeof raw?.[key] === "string" ? raw[key] : undefined;
+  const id = typeof raw?.[`${key}_id`] === "string" ? raw[`${key}_id`] : undefined;
+  const picked = pickLocalized(locale, en as string | undefined, id as string | undefined);
+  return picked.trim() || fallback;
+}
+
+function localizeExpertiseItems(items: ExpertiseItem[], locale: ContentLocale): NavCard[] {
+  return items.map((item) => ({
+    title: pickLocalized(locale, item.title, item.title_id),
+    description: item.desc ? pickLocalized(locale, item.desc, item.desc_id) : "",
+    category: pickLocalized(locale, item.tag, item.tag_id),
+    href: "/work",
+  }));
+}
+
+function localizeApproachItems(items: ApproachItem[], locale: ContentLocale): NavCard[] {
+  return items.map((item) => ({
+    title: pickLocalized(locale, item.title, item.title_id),
+    description: pickLocalized(locale, item.desc, item.desc_id),
+    href: "/knowledge-center",
+  }));
+}
+
+function mapKnowledgePosts(posts: MenuDraftPostRecord[], locale: ContentLocale): NavCard[] {
+  return posts.map((post) => {
+    const title = pickLocalized(locale, post.title, post.title_id);
+    const content = pickLocalized(locale, post.content, post.content_id);
+    return {
+      title,
+      description: stripHtml(content),
+      href: `/knowledge-center/${encodeURIComponent(post.slug || post.id)}`,
+    };
+  });
+}
+
+function mapInsightPosts(posts: MenuDraftPostRecord[], locale: ContentLocale): NavCard[] {
+  return posts.map((post) => {
+    const title = pickLocalized(locale, post.title, post.title_id);
+    const content = pickLocalized(locale, post.content, post.content_id);
+    return {
+      title,
+      description: stripHtml(content),
+      href: `/insights/${encodeURIComponent(post.id)}`,
+    };
+  });
+}
+
+function mapEventRecords(events: MenuDraftEventRecord[], locale: ContentLocale): NavCard[] {
+  return events.map((event) => ({
+    title: pickLocalized(locale, event.title, event.title_id),
+    description: `${event.date} — ${pickLocalized(locale, event.location, event.location_id)}`,
+    href: event.link?.trim() || "/events",
+  }));
+}
+
+function mapJobRecords(jobs: MenuDraftJobRecord[], locale: ContentLocale): NavCard[] {
+  return jobs.map((job) => ({
+    title: pickLocalized(locale, job.title, job.title_id),
+    description: stripHtml(pickLocalized(locale, job.description, job.description_id)),
+    href: "/career",
+  }));
+}
+
+function ExpertiseCardsGrid({ cards }: { cards: NavCard[] }) {
+  return (
+    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
+      {cards.map((card) => (
+        <article
+          key={`${card.title}-${card.category ?? ""}`}
+          className="relative flex min-h-[220px] flex-col overflow-hidden rounded-[1.75rem] border border-white/[0.08] bg-gradient-to-b from-[#161616] to-[#0c0c0c] p-6 sm:p-7"
+        >
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-500/50 to-transparent"
+          />
+          {card.category?.trim() ? (
+            <p className="text-[10px] font-semibold tracking-[0.22em] text-yellow-500 uppercase sm:text-xs">
+              {card.category}
+            </p>
+          ) : null}
+          <h3
+            className={`text-lg font-bold leading-snug text-white sm:text-xl ${card.category?.trim() ? "mt-3" : ""}`}
+          >
+            {card.title}
+          </h3>
+          {card.description.trim() ? (
+            <p className="mt-3 text-sm leading-relaxed text-gray-400 line-clamp-4">{card.description}</p>
+          ) : null}
+        </article>
+      ))}
+    </div>
+  );
+}
 
 function DraftPageShell({
   eyebrow,
@@ -30,6 +143,8 @@ function DraftPageShell({
   cards,
   primaryCta,
   secondaryCta,
+  settings,
+  cardVariant = "default",
 }: {
   eyebrow: string;
   title: string;
@@ -37,6 +152,8 @@ function DraftPageShell({
   cards: NavCard[];
   primaryCta: { label: string; href: string };
   secondaryCta: { label: string; href: string };
+  settings?: Record<string, unknown>;
+  cardVariant?: "default" | "expertise";
 }) {
   return (
     <>
@@ -86,6 +203,9 @@ function DraftPageShell({
 
         <section className="relative px-4 py-16 sm:px-6 sm:py-20 lg:py-24">
           <div className="mx-auto w-full max-w-7xl">
+            {cardVariant === "expertise" ? (
+              <ExpertiseCardsGrid cards={cards} />
+            ) : (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {cards.map((card) => (
                 <article
@@ -103,136 +223,224 @@ function DraftPageShell({
                 </article>
               ))}
             </div>
+            )}
           </div>
         </section>
 
-        <section className="relative px-4 pb-8 pt-4 sm:px-6">
-          <SiteFooter />
-        </section>
+        <CTAFooterSection settings={settings} />
       </main>
     </>
   );
 }
 
-export function ExpertiseDraftPage() {
-  const { t } = useLanguage();
-  const cards = t<Array<{ title: string; desc: string }>>("expertise.items")
-    .slice(0, 6)
-    .map((item) => ({
-      title: item.title,
-      description: item.desc,
-      href: "/work",
-    }));
+export function ExpertiseDraftPage({
+  settings,
+  expertiseItems = [],
+}: {
+  settings?: Record<string, unknown>;
+  expertiseItems?: ExpertiseItem[];
+}) {
+  const { t, locale } = useLanguage();
+
+  const eyebrow = pickSettingsField(
+    settings,
+    "expertise_header",
+    locale,
+    String(t("expertise.header")),
+  );
+  const description = pickSettingsField(
+    settings,
+    "expertise_description",
+    locale,
+    String(t("expertise.description")),
+  );
+
+  const cards = useMemo(() => {
+    const fromDb = localizeExpertiseItems(expertiseItems.slice(0, 6), locale).filter(
+      (card) => card.title.trim(),
+    );
+    if (fromDb.length > 0) return fromDb;
+    return t<Array<{ tag: string; title: string; desc: string }>>("expertise.items")
+      .slice(0, 6)
+      .map((item) => ({
+        title: item.title,
+        description: item.desc,
+        category: item.tag,
+        href: "/work",
+      }));
+  }, [expertiseItems, locale, t]);
 
   return (
     <DraftPageShell
-      eyebrow={String(t("expertise.header"))}
+      eyebrow={eyebrow}
       title="Turning evidence and collaboration into policy outcomes that scale"
-      description={String(t("expertise.description"))}
+      description={description}
       cards={cards}
+      cardVariant="expertise"
       primaryCta={{ label: "See Our Work", href: "/work" }}
       secondaryCta={{ label: "Read Insights", href: "/insights" }}
+      settings={settings}
     />
   );
 }
 
-export function WorkDraftPage() {
-  const { t } = useLanguage();
-  const cards = t<Array<{ title: string; desc: string }>>("approach.items")
-    .slice(0, 4)
-    .map((item) => ({
-      title: item.title,
-      description: item.desc,
-      href: "/knowledge-center",
-    }));
+export function WorkDraftPage({
+  settings,
+  approachItems = [],
+}: {
+  settings?: Record<string, unknown>;
+  approachItems?: ApproachItem[];
+}) {
+  const { t, locale } = useLanguage();
+
+  const eyebrow = pickSettingsField(
+    settings,
+    "approach_line1",
+    locale,
+    String(t("approach.headerLine1")),
+  );
+  const title = pickSettingsField(
+    settings,
+    "approach_line2",
+    locale,
+    String(t("approach.headerLine2")),
+  );
+  const description = pickSettingsField(
+    settings,
+    "approach_description",
+    locale,
+    String(t("approach.description")),
+  );
+
+  const cards = useMemo(() => {
+    const fromDb = localizeApproachItems(approachItems.slice(0, 4), locale).filter(
+      (card) => card.title.trim(),
+    );
+    if (fromDb.length > 0) return fromDb;
+    return t<Array<{ title: string; desc: string }>>("approach.items")
+      .slice(0, 4)
+      .map((item) => ({
+        title: item.title,
+        description: item.desc,
+        href: "/knowledge-center",
+      }));
+  }, [approachItems, locale, t]);
 
   return (
     <DraftPageShell
-      eyebrow="OUR WORK"
-      title="Delivery-focused programs from strategic design to implementation support"
-      description={String(t("approach.description"))}
+      eyebrow={eyebrow}
+      title={title}
+      description={description}
       cards={cards}
       primaryCta={{ label: "Open Knowledge Center", href: "/knowledge-center" }}
       secondaryCta={{ label: "Browse Events", href: "/events" }}
+      settings={settings}
     />
   );
 }
 
-export function KnowledgeCenterDraftPage() {
-  const { t } = useLanguage();
-  const cards = t<Array<{ title: string; preview: string }>>("knowledge.items")
-    .slice(0, 6)
-    .map((item) => ({
-      title: item.title,
-      description: item.preview,
-      href: "/insights",
-    }));
+export function KnowledgeCenterDraftPage({
+  settings,
+  posts = [],
+}: {
+  settings?: Record<string, unknown>;
+  posts?: MenuDraftPostRecord[];
+}) {
+  const { t, locale } = useLanguage();
+
+  const header = useMemo(
+    () =>
+      resolveKnowledgeCenterHeader(settings, locale, {
+        title: String(t("knowledge.header")),
+        subtitle: String(t("knowledge.description")),
+      }),
+    [settings, locale, t],
+  );
+
+  const cards = useMemo(() => {
+    const fromDb = mapKnowledgePosts(posts, locale).filter((card) => card.title.trim());
+    if (fromDb.length > 0) return fromDb;
+    return t<Array<{ title: string; preview: string }>>("knowledge.items")
+      .slice(0, 6)
+      .map((item) => ({
+        title: item.title,
+        description: item.preview,
+        href: "/insights",
+      }));
+  }, [posts, locale, t]);
 
   return (
     <DraftPageShell
-      eyebrow={String(t("knowledge.header"))}
+      eyebrow={header.title}
       title="A curated hub of practical policy resources and field-ready evidence"
-      description={String(t("knowledge.description"))}
+      description={header.subtitle}
       cards={cards}
       primaryCta={{ label: "Read Latest Insights", href: "/insights" }}
-      secondaryCta={{ label: "See Publications", href: "/publications" }}
+      secondaryCta={{ label: "Explore Expertise", href: "/expertise" }}
+      settings={settings}
     />
   );
 }
 
-export function PublicationsDraftPage() {
-  const { t } = useLanguage();
-  const cards = t<Array<{ title: string; excerpt: string }>>("insights.items")
-    .slice(0, 3)
-    .map((item, index) => ({
-      title: `Publication Brief ${index + 1}: ${item.title}`,
-      description: item.excerpt,
-      href: "/insights",
-    }));
+export function InsightsDraftPage({
+  settings,
+  posts = [],
+}: {
+  settings?: Record<string, unknown>;
+  posts?: MenuDraftPostRecord[];
+}) {
+  const { t, locale } = useLanguage();
 
-  return (
-    <DraftPageShell
-      eyebrow="PUBLICATIONS"
-      title="Research notes, policy briefs, and implementation playbooks"
-      description="Draft publications page aligned with the landing narrative: rigorous evidence, practical translation, and implementation relevance."
-      cards={cards}
-      primaryCta={{ label: "Read Insights", href: "/insights" }}
-      secondaryCta={{ label: "View Expertise", href: "/expertise" }}
-    />
+  const eyebrow = useMemo(
+    () => resolveLatestInsightsTitle(settings, locale, String(t("insights.header"))),
+    [settings, locale, t],
   );
-}
 
-export function InsightsDraftPage() {
-  const { t } = useLanguage();
-  const cards = t<Array<{ title: string; excerpt: string }>>("insights.items")
-    .slice(0, 6)
-    .map((item) => ({
-      title: item.title,
-      description: item.excerpt,
-      href: "/insights",
-    }));
+  const cards = useMemo(() => {
+    const fromDb = mapInsightPosts(posts, locale).filter((card) => card.title.trim());
+    if (fromDb.length > 0) return fromDb;
+    return t<Array<{ title: string; excerpt: string }>>("insights.items")
+      .slice(0, 6)
+      .map((item) => ({
+        title: item.title,
+        description: item.excerpt,
+        href: "/insights",
+      }));
+  }, [posts, locale, t]);
 
   return (
     <DraftPageShell
-      eyebrow={String(t("insights.header"))}
+      eyebrow={eyebrow}
       title="Fresh analysis for policy leaders, practitioners, and delivery teams"
       description="Draft insights hub connected to events, publications, and expertise pages for smooth exploration."
       cards={cards}
       primaryCta={{ label: "See Upcoming Events", href: "/events" }}
       secondaryCta={{ label: "Open Knowledge Center", href: "/knowledge-center" }}
+      settings={settings}
     />
   );
 }
 
-export function EventsDraftPage() {
-  const { t } = useLanguage();
-  const cards = t<Array<{ title: string; date: string; location: string }>>("events.items")
-    .slice(0, 6)
-    .map((item) => ({
-      title: item.title,
-      description: `${item.date} — ${item.location}`,
-      href: "/events",
-    }));
+export function EventsDraftPage({
+  settings,
+  events = [],
+}: {
+  settings?: Record<string, unknown>;
+  events?: MenuDraftEventRecord[];
+}) {
+  const { t, locale } = useLanguage();
+
+  const cards = useMemo(() => {
+    const fromDb = mapEventRecords(events, locale).filter((card) => card.title.trim());
+    if (fromDb.length > 0) return fromDb;
+    return t<Array<{ title: string; date: string; location: string }>>("events.items")
+      .slice(0, 6)
+      .map((item) => ({
+        title: item.title,
+        description: `${item.date} — ${item.location}`,
+        href: "/events",
+      }));
+  }, [events, locale, t]);
 
   return (
     <DraftPageShell
@@ -242,31 +450,44 @@ export function EventsDraftPage() {
       cards={cards}
       primaryCta={{ label: "Read Related Insights", href: "/insights" }}
       secondaryCta={{ label: "View Our Work", href: "/work" }}
+      settings={settings}
     />
   );
 }
 
-export function CareerDraftPage() {
-  const cards: NavCard[] = [
-    {
-      title: "Policy Research Associate",
-      description:
-        "Support evidence synthesis, policy diagnostics, and brief development across governance programs.",
-      href: "/expertise",
-    },
-    {
-      title: "Stakeholder Engagement Lead",
-      description:
-        "Design and run multi-sector dialogues with public institutions, development partners, and civil society.",
-      href: "/work",
-    },
-    {
-      title: "Program Management Officer",
-      description:
-        "Coordinate delivery timelines, partner reporting, and internal quality loops for strategic projects.",
-      href: "/about",
-    },
-  ];
+export function CareerDraftPage({
+  settings,
+  jobs = [],
+}: {
+  settings?: Record<string, unknown>;
+  jobs?: MenuDraftJobRecord[];
+}) {
+  const { locale } = useLanguage();
+
+  const cards = useMemo(() => {
+    const fromDb = mapJobRecords(jobs, locale).filter((card) => card.title.trim());
+    if (fromDb.length > 0) return fromDb;
+    return [
+      {
+        title: "Policy Research Associate",
+        description:
+          "Support evidence synthesis, policy diagnostics, and brief development across governance programs.",
+        href: "/expertise",
+      },
+      {
+        title: "Stakeholder Engagement Lead",
+        description:
+          "Design and run multi-sector dialogues with public institutions, development partners, and civil society.",
+        href: "/work",
+      },
+      {
+        title: "Program Management Officer",
+        description:
+          "Coordinate delivery timelines, partner reporting, and internal quality loops for strategic projects.",
+        href: "/about",
+      },
+    ];
+  }, [jobs, locale]);
 
   return (
     <DraftPageShell
@@ -276,7 +497,7 @@ export function CareerDraftPage() {
       cards={cards}
       primaryCta={{ label: "Learn About Us", href: "/about" }}
       secondaryCta={{ label: "Explore Our Expertise", href: "/expertise" }}
+      settings={settings}
     />
   );
 }
-
