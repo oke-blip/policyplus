@@ -152,10 +152,30 @@ export function AboutFullPage({
     locale,
     String(t("about.description")),
   );
-  const valuesHeading = String(t("aboutPage.valuesHeading"));
-  const teamEyebrow = String(t("aboutPage.teamEyebrow"));
-  const teamHeading = String(t("aboutPage.teamHeading"));
-  const teamSub = String(t("aboutPage.teamSub"));
+  const valuesHeading = pickAboutBilingualField(
+    settingsSource,
+    "about_values_heading",
+    locale,
+    String(t("aboutPage.valuesHeading")),
+  );
+  const teamEyebrow = pickAboutBilingualField(
+    settingsSource,
+    "about_team_eyebrow",
+    locale,
+    String(t("aboutPage.teamEyebrow")),
+  );
+  const teamHeading = pickAboutBilingualField(
+    settingsSource,
+    "about_team_title",
+    locale,
+    String(t("aboutPage.teamHeading")),
+  );
+  const teamSub = pickAboutBilingualField(
+    settingsSource,
+    "about_team_subtitle",
+    locale,
+    String(t("aboutPage.teamSub")),
+  );
   const teamJoinCta = String(t("aboutPage.teamJoinCta"));
   const teamKeyboardHint = String(t("aboutPage.teamKeyboardHint"));
   const teamTouchHint = String(t("aboutPage.teamTouchHint"));

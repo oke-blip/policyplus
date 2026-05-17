@@ -56,7 +56,7 @@ export default async function PublicHomePage() {
 
         <MethodologySection data={settings} initialSteps={methodologySteps} />
 
-        <KnowledgeCenterSection />
+        <KnowledgeCenterSection data={settings} />
 
         <Testimonials data={settings} />
         <Partners data={settings} />

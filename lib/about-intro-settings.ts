@@ -16,6 +16,10 @@ export type AboutPageSettings = {
   about_mission_eyebrow?: string;
   about_mission_title?: string;
   about_mission_description?: string;
+  about_team_eyebrow?: string;
+  about_team_title?: string;
+  about_team_subtitle?: string;
+  about_values_heading?: string;
   about_value_items?: ReturnType<typeof parseAboutValueItems>;
 };
 
@@ -74,6 +78,10 @@ const ABOUT_PAGE_SCALAR_KEYS = [
   "about_mission_eyebrow",
   "about_mission_title",
   "about_mission_description",
+  "about_team_eyebrow",
+  "about_team_title",
+  "about_team_subtitle",
+  "about_values_heading",
 ] as const;
 
 /** True when settings include About page hero, mission, or value cards. */
@@ -111,6 +119,10 @@ export function pickAboutSettings(raw: Record<string, unknown>): AboutPageSettin
     about_mission_eyebrow: pickString(raw, "about_mission_eyebrow"),
     about_mission_title: pickString(raw, "about_mission_title"),
     about_mission_description: pickString(raw, "about_mission_description"),
+    about_team_eyebrow: pickString(raw, "about_team_eyebrow"),
+    about_team_title: pickString(raw, "about_team_title"),
+    about_team_subtitle: pickString(raw, "about_team_subtitle"),
+    about_values_heading: pickString(raw, "about_values_heading"),
     ...(valueItems.length > 0 ? { about_value_items: valueItems } : {}),
   };
 }

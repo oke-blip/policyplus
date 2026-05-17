@@ -4,6 +4,7 @@ import {
   preparePartnersForSave,
   prepareTestimonialsForSave,
 } from "@/lib/partners-testimonials";
+import { withSettingsLocaleIdKeys } from "@/lib/settings-locale-keys";
 import { isDataUrl } from "@/lib/supabase-storage";
 import type { AboutValueItem, ApproachItem, ExpertiseItem } from "@/lib/settings-utils";
 
@@ -87,11 +88,17 @@ export function sanitizeExpertiseItemsForSave(
       record.image,
       `Expertise card ${index + 1} image`,
     );
+    const tag_id = record.tag_id?.trim();
+    const title_id = record.title_id?.trim();
+    const desc_id = record.desc_id?.trim();
     return {
       ...record,
       tag: String(record.tag ?? ""),
+      ...(tag_id ? { tag_id } : {}),
       title: String(record.title ?? ""),
+      ...(title_id ? { title_id } : {}),
       desc: record.desc ? String(record.desc) : undefined,
+      ...(desc_id ? { desc_id } : {}),
       image: image ?? "",
     };
   });
@@ -111,11 +118,17 @@ export function sanitizeApproachItemsForSave(
       record.image,
       `Approach card ${index + 1} image`,
     );
+    const phase_id = record.phase_id?.trim();
+    const title_id = record.title_id?.trim();
+    const desc_id = record.desc_id?.trim();
     return {
       ...record,
       phase: record.phase ? String(record.phase) : undefined,
+      ...(phase_id ? { phase_id } : {}),
       title: String(record.title ?? ""),
+      ...(title_id ? { title_id } : {}),
       desc: String(record.desc ?? ""),
+      ...(desc_id ? { desc_id } : {}),
       image: image ?? "",
     };
   });
@@ -135,9 +148,11 @@ export function sanitizeAboutValueItemsForSave(
       record.image,
       `About value card ${index + 1} image`,
     );
+    const text_id = record.text_id?.trim();
     return {
       ...record,
       text: String(record.text ?? ""),
+      ...(text_id ? { text_id } : {}),
       icon: record.icon ? String(record.icon) : undefined,
       image: image ?? "",
     };
@@ -237,7 +252,8 @@ export type SettingsAdminTab =
   | "approach"
   | "methodology"
   | "about"
-  | "cta";
+  | "cta"
+  | "publications";
 
 export const SETTINGS_TAB_LABELS: Record<SettingsAdminTab, string> = {
   global: "Global & branding",
@@ -247,11 +263,12 @@ export const SETTINGS_TAB_LABELS: Record<SettingsAdminTab, string> = {
   methodology: "Methodology",
   about: "About",
   cta: "CTA & footer",
+  publications: "Publications",
 };
 
 /** Keys persisted when saving each admin settings tab. */
 export const SETTINGS_TAB_KEYS: Record<SettingsAdminTab, readonly string[]> = {
-  global: [
+  global: withSettingsLocaleIdKeys([
     "company_name",
     "company_logo",
     "favicon",
@@ -261,8 +278,8 @@ export const SETTINGS_TAB_KEYS: Record<SettingsAdminTab, readonly string[]> = {
     "phone_number",
     "office_address",
     "social_links",
-  ],
-  homepage: [
+  ]),
+  homepage: withSettingsLocaleIdKeys([
     "hero_line1_prefix",
     "hero_line1_accent",
     "hero_line2_prefix",
@@ -277,21 +294,25 @@ export const SETTINGS_TAB_KEYS: Record<SettingsAdminTab, readonly string[]> = {
     "intro_title",
     "intro_description",
     "intro_image_url",
-  ],
-  expertise: ["expertise_header", "expertise_description", "expertise_items"],
-  approach: [
+  ]),
+  expertise: withSettingsLocaleIdKeys([
+    "expertise_header",
+    "expertise_description",
+    "expertise_items",
+  ]),
+  approach: withSettingsLocaleIdKeys([
     "approach_line1",
     "approach_line2",
     "approach_description",
     "approach_items",
-  ],
-  methodology: [
+  ]),
+  methodology: withSettingsLocaleIdKeys([
     "methodology_tag",
     "methodology_header",
     "methodology_description",
     "methodology_items",
-  ],
-  about: [
+  ]),
+  about: withSettingsLocaleIdKeys([
     "about_hero_image",
     "about_hero_subtitle",
     "about_hero_title",
@@ -301,20 +322,26 @@ export const SETTINGS_TAB_KEYS: Record<SettingsAdminTab, readonly string[]> = {
     "about_mission_eyebrow",
     "about_mission_title",
     "about_mission_description",
+    "about_team_eyebrow",
+    "about_team_title",
+    "about_team_subtitle",
+    "about_values_heading",
     "about_value_items",
-  ],
-  cta: [
+  ]),
+  cta: withSettingsLocaleIdKeys([
     "cta_subtitle",
     "cta_title",
     "cta_button_text",
     "cta_button_link",
     "careers_hero_title",
-    "careers_hero_title_id",
     "careers_hero_title_accent",
-    "careers_hero_title_accent_id",
     "careers_hero_subtitle",
-    "careers_hero_subtitle_id",
-  ],
+  ]),
+  publications: withSettingsLocaleIdKeys([
+    "knowledge_center_title",
+    "knowledge_center_subtitle",
+    "latest_insights_title",
+  ]),
 };
 
 export function pickSettingsForTab(

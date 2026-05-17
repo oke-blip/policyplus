@@ -2,13 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { motion, type Variants } from "framer-motion";
-import { Globe, LayoutTemplate, Loader, Type, Camera, Plus, Trash2, Award, Target, Cpu, Users } from "lucide-react";
+import { Globe, LayoutTemplate, Loader, Type, Camera, Plus, Trash2, Award, Target, Cpu, Users, Library } from "lucide-react";
 
 import { ABOUT_VALUE_ICON_OPTIONS, getDefaultAboutValueIconId } from "@/lib/about-value-icons";
 import { METHODOLOGY_ICON_OPTIONS, getDefaultMethodologyIconId } from "@/lib/methodology-icons";
 import {
   getMethodologyEditorPoints,
-  getMethodologyPoints,
   type AboutValueItem,
   type ApproachItem,
   type ExpertiseItem,
@@ -18,7 +17,8 @@ import {
 import { ImageCropUpload } from "@/components/admin/ImageCropUpload";
 import {
   hasPendingSettingsImagesForTab,
-  prepareSettingsPayloadForTab,
+  pickSettingsForTab,
+  prepareSettingsPayloadForSave,
   SETTINGS_TAB_LABELS,
   type SettingsAdminTab,
 } from "@/lib/settings-images";
@@ -33,12 +33,29 @@ import {
 // IMPORT SaveAction YANG BARU DIBUAT
 import { SaveAction } from "@/components/admin/SaveAction";
 import { AdminLangTabs, type AdminLangTab } from "@/components/admin/AdminLangTabs";
-import { applySmartFallback, SMART_FALLBACK_CAREERS_HERO_PAIRS } from "@/lib/cms-smart-fallback";
+import {
+  applySmartFallback,
+  applySmartFallbackToArrayItems,
+  SMART_FALLBACK_ABOUT_VALUE_ITEM_PAIRS,
+  SMART_FALLBACK_APPROACH_ITEM_PAIRS,
+  SMART_FALLBACK_CTA_FIELD_PAIRS,
+  SMART_FALLBACK_EXPERTISE_ITEM_PAIRS,
+  SMART_FALLBACK_METHODOLOGY_ITEM_PAIRS,
+  SMART_FALLBACK_PUBLICATIONS_FIELD_PAIRS,
+} from "@/lib/cms-smart-fallback";
+import {
+  SETTINGS_STRING_LOCALE_KEYS,
+  type SettingsStringLocaleKey,
+} from "@/lib/settings-locale-keys";
 
 type HeroBannerForm = {
   src?: string;
   alt?: string;
   image?: string;
+};
+
+type LocaleIdFields = {
+  [K in SettingsStringLocaleKey as `${K}_id`]: string;
 };
 
 type SettingsFormState = {
@@ -77,17 +94,17 @@ type SettingsFormState = {
   cta_button_text: string;
   cta_button_link: string;
   careers_hero_title: string;
-  careers_hero_title_id: string;
   careers_hero_title_accent: string;
-  careers_hero_title_accent_id: string;
   careers_hero_subtitle: string;
-  careers_hero_subtitle_id: string;
   methodology_tag: string;
   methodology_header: string;
   methodology_description: string;
   methodology_items: MethodologyItem[];
   insights_header: string;
   insights_description: string;
+  knowledge_center_title: string;
+  knowledge_center_subtitle: string;
+  latest_insights_title: string;
   about_hero_image: string;
   about_hero_subtitle: string;
   about_hero_title: string;
@@ -97,8 +114,16 @@ type SettingsFormState = {
   about_mission_eyebrow: string;
   about_mission_title: string;
   about_mission_description: string;
+  about_team_eyebrow: string;
+  about_team_title: string;
+  about_team_subtitle: string;
+  about_values_heading: string;
   about_value_items: AboutValueItem[];
-};
+} & LocaleIdFields;
+
+const localeIdDefaults = Object.fromEntries(
+  SETTINGS_STRING_LOCALE_KEYS.map((key) => [`${key}_id`, ""]),
+) as LocaleIdFields;
 
 const inputClass =
   "w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-slate-500/50 transition-all";
@@ -145,10 +170,11 @@ const defaultSettings: SettingsFormState = {
   cta_button_text: "Get In Touch",
   cta_button_link: "#contact",
   careers_hero_title: "Join Our",
-  careers_hero_title_id: "Bergabung dengan",
   careers_hero_title_accent: "Mission",
-  careers_hero_title_accent_id: "Misi Kami",
   careers_hero_subtitle: "Help us shape the future of public policy across Southeast Asia.",
+  ...localeIdDefaults,
+  careers_hero_title_id: "Bergabung dengan",
+  careers_hero_title_accent_id: "Misi Kami",
   careers_hero_subtitle_id:
     "Bantu kami membentuk masa depan kebijakan publik di Asia Tenggara.",
   methodology_tag: "Our Process",
@@ -157,6 +183,14 @@ const defaultSettings: SettingsFormState = {
   methodology_items: [],
   insights_header: "Latest Insights",
   insights_description: "Explore our latest research and policy updates.",
+  knowledge_center_title: "KNOWLEDGE CENTER",
+  knowledge_center_subtitle:
+    "Explore our initiatives advancing knowledge, dialogue, and evidence-based policymaking.",
+  latest_insights_title: "Latest Insights",
+  knowledge_center_title_id: "PUSAT PENGETAHUAN",
+  knowledge_center_subtitle_id:
+    "Jelajahi inisiatif kami yang memajukan pengetahuan, dialog, dan kebijakan berbasis bukti.",
+  latest_insights_title_id: "Wawasan Terbaru",
   about_hero_image: "",
   about_hero_subtitle: "WHO WE ARE",
   about_hero_title: "Fostering Evidence-Based Policy in Indonesia",
@@ -168,12 +202,17 @@ const defaultSettings: SettingsFormState = {
   about_mission_title: "A trusted advisory firm providing solutions for dynamic governance.",
   about_mission_description:
     "Policy Plus is an independent knowledge hub dedicated to transforming complex data into actionable insights. We bridge the gap between rigorous research and practical governance to drive sustainable development.",
+  about_team_eyebrow: "OUR TEAM",
+  about_team_title: "Meet The Team",
+  about_team_subtitle:
+    "Strategists, researchers, and operators translating evidence into accountable change — one engagement at a time.",
+  about_values_heading: "What We Value",
   about_value_items: [],
 };
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<SettingsAdminTab>("global");
-  const [careersLangTab, setCareersLangTab] = useState<AdminLangTab>("id");
+  const [langTab, setLangTab] = useState<AdminLangTab>("id");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
@@ -228,11 +267,7 @@ export default function SettingsPage() {
 
   const handleSave = async () => {
     const tab = activeTab;
-    let formData = settings as unknown as Record<string, unknown>;
-
-    if (tab === "cta") {
-      formData = applySmartFallback({ ...formData }, SMART_FALLBACK_CAREERS_HERO_PAIRS);
-    }
+    const formData = settings as unknown as Record<string, unknown>;
 
     if (hasPendingSettingsImagesForTab(tab, formData)) {
       setMessage({
@@ -242,7 +277,53 @@ export default function SettingsPage() {
       return;
     }
 
-    const payload = prepareSettingsPayloadForTab(tab, formData);
+    let picked = pickSettingsForTab(tab, formData);
+    picked = applySmartFallback({ ...picked });
+
+    if (tab === "cta") {
+      picked = applySmartFallback(picked, SMART_FALLBACK_CTA_FIELD_PAIRS);
+    }
+    if (tab === "expertise" && Array.isArray(picked.expertise_items)) {
+      picked = {
+        ...picked,
+        expertise_items: applySmartFallbackToArrayItems(
+          picked.expertise_items as Record<string, unknown>[],
+          SMART_FALLBACK_EXPERTISE_ITEM_PAIRS,
+        ),
+      };
+    }
+    if (tab === "approach" && Array.isArray(picked.approach_items)) {
+      picked = {
+        ...picked,
+        approach_items: applySmartFallbackToArrayItems(
+          picked.approach_items as Record<string, unknown>[],
+          SMART_FALLBACK_APPROACH_ITEM_PAIRS,
+        ),
+      };
+    }
+    if (tab === "methodology" && Array.isArray(picked.methodology_items)) {
+      picked = {
+        ...picked,
+        methodology_items: applySmartFallbackToArrayItems(
+          picked.methodology_items as Record<string, unknown>[],
+          SMART_FALLBACK_METHODOLOGY_ITEM_PAIRS,
+        ),
+      };
+    }
+    if (tab === "about" && Array.isArray(picked.about_value_items)) {
+      picked = {
+        ...picked,
+        about_value_items: applySmartFallbackToArrayItems(
+          picked.about_value_items as Record<string, unknown>[],
+          SMART_FALLBACK_ABOUT_VALUE_ITEM_PAIRS,
+        ),
+      };
+    }
+    if (tab === "publications") {
+      picked = applySmartFallback(picked, SMART_FALLBACK_PUBLICATIONS_FIELD_PAIRS);
+    }
+
+    const payload = prepareSettingsPayloadForSave(picked);
 
     try {
       setSaving(true);
@@ -278,10 +359,42 @@ export default function SettingsPage() {
     setSettings((prev) => ({ ...prev, [key]: value }));
   };
 
+  const localeFieldKey = (base: SettingsStringLocaleKey): keyof SettingsFormState =>
+    langTab === "id" ? (`${base}_id` as keyof SettingsFormState) : base;
+
+  const getLocaleString = (base: SettingsStringLocaleKey): string =>
+    String(settings[localeFieldKey(base)] ?? "");
+
+  const setLocaleString = (base: SettingsStringLocaleKey, value: string) => {
+    updateSetting(localeFieldKey(base), value);
+  };
+
+  const getMethodologyEditorPointsForLang = (item: MethodologyItem): string[] => {
+    if (langTab === "id") {
+      const idPoints = item.points_id;
+      if (Array.isArray(idPoints) && idPoints.length > 0) {
+        return idPoints.map((p) => String(p));
+      }
+      const enPoints = getMethodologyEditorPoints(item);
+      return enPoints.length > 0 ? enPoints.map(() => "") : [""];
+    }
+    return getMethodologyEditorPoints(item);
+  };
+
+  const setMethodologyPointsForLang = (index: number, points: string[]) => {
+    if (langTab === "id") {
+      updateMethodologyItem(index, {
+        points_id: points,
+      });
+      return;
+    }
+    setMethodologyPoints(index, points);
+  };
+
   const addExpertiseItem = () => {
     updateSetting("expertise_items", [
       ...(settings.expertise_items || []),
-      { id: Date.now(), tag: "", title: "", desc: "", image: "" },
+      { id: Date.now(), tag: "", tag_id: "", title: "", title_id: "", desc: "", desc_id: "", image: "" },
     ]);
   };
 
@@ -299,8 +412,11 @@ export default function SettingsPage() {
         id: now,
         createdAt: now,
         phase: `PHASE_0${(settings.approach_items?.length ?? 0) + 1}`,
+        phase_id: "",
         title: "",
+        title_id: "",
         desc: "",
+        desc_id: "",
         image: "",
       },
     ]);
@@ -319,8 +435,10 @@ export default function SettingsPage() {
       {
         id: Date.now(),
         title: "",
+        title_id: "",
         icon: getDefaultMethodologyIconId(nextOrder),
         points: [""],
+        points_id: [""],
         order: nextOrder,
       },
     ]);
@@ -377,6 +495,7 @@ export default function SettingsPage() {
       {
         id: Date.now(),
         text: "",
+        text_id: "",
         icon: getDefaultAboutValueIconId(nextIndex),
         image: "",
       },
@@ -542,6 +661,7 @@ export default function SettingsPage() {
               { id: "methodology" as const, icon: Cpu, label: "Methodology", shortLabel: "Method" },
               { id: "about" as const, icon: Users, label: "About", shortLabel: "About" },
               { id: "cta" as const, icon: Type, label: "CTA & Footer", shortLabel: "CTA" },
+              { id: "publications" as const, icon: Library, label: "Publications", shortLabel: "Pubs" },
             ] as const
           ).map((tab) => (
             <button
@@ -564,6 +684,9 @@ export default function SettingsPage() {
 
       {/* Konten Utama */}
       <motion.div variants={itemVariants} className="bg-white/60 dark:bg-white/[0.02] backdrop-blur-xl border border-slate-200/50 dark:border-white/5 rounded-3xl p-6 md:p-8 shadow-sm min-w-0">
+        <motion.div className="mb-6 flex justify-end">
+          <AdminLangTabs value={langTab} onChange={setLangTab} />
+        </motion.div>
 
         {/* TAB 1: GLOBAL */}
         {activeTab === "global" && (
@@ -580,8 +703,8 @@ export default function SettingsPage() {
                 <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Company Name</label>
                 <input
                   type="text"
-                  value={settings.company_name}
-                  onChange={(e) => updateSetting("company_name", e.target.value)}
+                  value={getLocaleString("company_name")}
+                  onChange={(e) => setLocaleString("company_name", e.target.value)}
                   className={inputClass}
                 />
               </div>
@@ -619,8 +742,8 @@ export default function SettingsPage() {
                   <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Preloader Text</label>
                   <input
                     type="text"
-                    value={settings.preloader_text}
-                    onChange={(e) => updateSetting("preloader_text", e.target.value)}
+                    value={getLocaleString("preloader_text")}
+                    onChange={(e) => setLocaleString("preloader_text", e.target.value)}
                     className={inputClass}
                     placeholder="Empowering Policies for the Future..."
                   />
@@ -652,8 +775,8 @@ export default function SettingsPage() {
                   <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Email Address</label>
                   <input
                     type="email"
-                    value={settings.email_address}
-                    onChange={(e) => updateSetting("email_address", e.target.value)}
+                    value={getLocaleString("email_address")}
+                    onChange={(e) => setLocaleString("email_address", e.target.value)}
                     className={inputClass}
                   />
                 </div>
@@ -661,8 +784,8 @@ export default function SettingsPage() {
                   <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Phone Number</label>
                   <input
                     type="text"
-                    value={settings.phone_number}
-                    onChange={(e) => updateSetting("phone_number", e.target.value)}
+                    value={getLocaleString("phone_number")}
+                    onChange={(e) => setLocaleString("phone_number", e.target.value)}
                     className={inputClass}
                   />
                 </div>
@@ -672,8 +795,8 @@ export default function SettingsPage() {
                 <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Office Address</label>
                 <textarea
                   rows={2}
-                  value={settings.office_address}
-                  onChange={(e) => updateSetting("office_address", e.target.value)}
+                  value={getLocaleString("office_address")}
+                  onChange={(e) => setLocaleString("office_address", e.target.value)}
                   className={inputClass + " resize-none"}
                 />
               </div>
@@ -759,30 +882,30 @@ export default function SettingsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Hero Line 1 (White)</label>
-                    <input type="text" value={settings.hero_line1_prefix} onChange={(e) => updateSetting("hero_line1_prefix", e.target.value)} className={`${inputClass} font-bold`} />
+                    <input type="text" value={getLocaleString("hero_line1_prefix")} onChange={(e) => setLocaleString("hero_line1_prefix", e.target.value)} className={`${inputClass} font-bold`} />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-yellow-600">Hero Line 1 (Yellow Accent)</label>
-                    <input type="text" value={settings.hero_line1_accent} onChange={(e) => updateSetting("hero_line1_accent", e.target.value)} className={`${inputClass} font-bold text-yellow-600 dark:text-yellow-500`} />
+                    <input type="text" value={getLocaleString("hero_line1_accent")} onChange={(e) => setLocaleString("hero_line1_accent", e.target.value)} className={`${inputClass} font-bold text-yellow-600 dark:text-yellow-500`} />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Hero Line 2 (White)</label>
-                    <input type="text" value={settings.hero_line2_prefix} onChange={(e) => updateSetting("hero_line2_prefix", e.target.value)} className={`${inputClass} font-bold`} />
+                    <input type="text" value={getLocaleString("hero_line2_prefix")} onChange={(e) => setLocaleString("hero_line2_prefix", e.target.value)} className={`${inputClass} font-bold`} />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-yellow-600">Hero Line 2 (Yellow Accent)</label>
-                    <input type="text" value={settings.hero_line2_accent} onChange={(e) => updateSetting("hero_line2_accent", e.target.value)} className={`${inputClass} font-bold text-yellow-600 dark:text-yellow-500`} />
+                    <input type="text" value={getLocaleString("hero_line2_accent")} onChange={(e) => setLocaleString("hero_line2_accent", e.target.value)} className={`${inputClass} font-bold text-yellow-600 dark:text-yellow-500`} />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Hero Subheadline</label>
-                  <textarea rows={2} value={settings.hero_description} onChange={(e) => updateSetting("hero_description", e.target.value)} className={`${inputClass} resize-none`} />
+                  <textarea rows={2} value={getLocaleString("hero_description")} onChange={(e) => setLocaleString("hero_description", e.target.value)} className={`${inputClass} resize-none`} />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-slate-200 dark:border-slate-800 pt-6">
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Primary Button Text</label>
-                    <input type="text" value={settings.hero_cta_text} onChange={(e) => updateSetting("hero_cta_text", e.target.value)} className={inputClass} />
+                    <input type="text" value={getLocaleString("hero_cta_text")} onChange={(e) => setLocaleString("hero_cta_text", e.target.value)} className={inputClass} />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Primary Button Link</label>
@@ -790,7 +913,7 @@ export default function SettingsPage() {
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Secondary Button Text</label>
-                    <input type="text" value={settings.hero_secondary_text} onChange={(e) => updateSetting("hero_secondary_text", e.target.value)} className={inputClass} />
+                    <input type="text" value={getLocaleString("hero_secondary_text")} onChange={(e) => setLocaleString("hero_secondary_text", e.target.value)} className={inputClass} />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Secondary Button Link</label>
@@ -843,11 +966,11 @@ export default function SettingsPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Section Header</label>
-                  <input type="text" value={settings.expertise_header} onChange={(e) => updateSetting("expertise_header", e.target.value)} className={inputClass} />
+                  <input type="text" value={getLocaleString("expertise_header")} onChange={(e) => setLocaleString("expertise_header", e.target.value)} className={inputClass} />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Description</label>
-                  <textarea rows={1} value={settings.expertise_description} onChange={(e) => updateSetting("expertise_description", e.target.value)} className={`${inputClass} resize-none min-h-[48px]`} />
+                  <textarea rows={1} value={getLocaleString("expertise_description")} onChange={(e) => setLocaleString("expertise_description", e.target.value)} className={`${inputClass} resize-none min-h-[48px]`} />
                 </div>
               </div>
 
@@ -889,17 +1012,19 @@ export default function SettingsPage() {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div className="space-y-2">
                             <label className="text-xs font-bold text-slate-500">Tag (e.g. Research)</label>
-                            <input type="text" value={item.tag} onChange={(e) => {
+                            <input type="text" value={langTab === "id" ? (item.tag_id ?? "") : item.tag} onChange={(e) => {
                               const newList = [...settings.expertise_items];
-                              newList[index].tag = e.target.value;
+                              if (langTab === "id") newList[index] = { ...newList[index], tag_id: e.target.value };
+                              else newList[index].tag = e.target.value;
                               updateSetting("expertise_items", newList);
                             }} className={inputClass} />
                           </div>
                           <div className="space-y-2">
                             <label className="text-xs font-bold text-slate-500">Title</label>
-                            <input type="text" value={item.title} onChange={(e) => {
+                            <input type="text" value={langTab === "id" ? (item.title_id ?? "") : item.title} onChange={(e) => {
                               const newList = [...settings.expertise_items];
-                              newList[index].title = e.target.value;
+                              if (langTab === "id") newList[index] = { ...newList[index], title_id: e.target.value };
+                              else newList[index].title = e.target.value;
                               updateSetting("expertise_items", newList);
                             }} className={`${inputClass} font-bold`} />
                           </div>
@@ -909,10 +1034,11 @@ export default function SettingsPage() {
                           <label className="text-xs font-bold text-slate-500">Description</label>
                           <textarea
                             rows={3}
-                            value={item.desc || ""}
+                            value={langTab === "id" ? (item.desc_id ?? "") : (item.desc || "")}
                             onChange={(e) => {
                               const newList = [...settings.expertise_items];
-                              newList[index].desc = e.target.value;
+                              if (langTab === "id") newList[index] = { ...newList[index], desc_id: e.target.value };
+                              else newList[index].desc = e.target.value;
                               updateSetting("expertise_items", newList);
                             }}
                             className={`${inputClass} resize-none`}
@@ -957,15 +1083,15 @@ export default function SettingsPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Header Line 1 (White)</label>
-                  <input type="text" value={settings.approach_line1} onChange={(e) => updateSetting("approach_line1", e.target.value)} className={`${inputClass} font-bold`} />
+                  <input type="text" value={getLocaleString("approach_line1")} onChange={(e) => setLocaleString("approach_line1", e.target.value)} className={`${inputClass} font-bold`} />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-bold text-yellow-600">Header Line 2 (Yellow Accent)</label>
-                  <input type="text" value={settings.approach_line2} onChange={(e) => updateSetting("approach_line2", e.target.value)} className={`${inputClass} font-bold text-yellow-600 dark:text-yellow-500`} />
+                  <input type="text" value={getLocaleString("approach_line2")} onChange={(e) => setLocaleString("approach_line2", e.target.value)} className={`${inputClass} font-bold text-yellow-600 dark:text-yellow-500`} />
                 </div>
                 <div className="space-y-2 md:col-span-2">
                   <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Description</label>
-                  <textarea rows={2} value={settings.approach_description} onChange={(e) => updateSetting("approach_description", e.target.value)} className={`${inputClass} resize-none`} />
+                  <textarea rows={2} value={getLocaleString("approach_description")} onChange={(e) => setLocaleString("approach_description", e.target.value)} className={`${inputClass} resize-none`} />
                 </div>
               </div>
 
@@ -1010,26 +1136,29 @@ export default function SettingsPage() {
                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="space-y-2">
                               <label className="text-xs font-bold text-yellow-600">Phase Label</label>
-                              <input type="text" value={item.phase || `PHASE_0${index + 1}`} onChange={(e) => {
+                              <input type="text" value={langTab === "id" ? (item.phase_id ?? "") : (item.phase || `PHASE_0${index + 1}`)} onChange={(e) => {
                                 const newList = [...settings.approach_items];
-                                newList[index].phase = e.target.value;
+                                if (langTab === "id") newList[index] = { ...newList[index], phase_id: e.target.value };
+                                else newList[index].phase = e.target.value;
                                 updateSetting("approach_items", newList);
                               }} className={`${inputClass} text-xs font-semibold uppercase tracking-[0.18em] text-yellow-600 dark:text-yellow-400`} />
                             </div>
                             <div className="space-y-2">
                               <label className="text-xs font-bold text-slate-500">Title</label>
-                              <input type="text" value={item.title} onChange={(e) => {
+                              <input type="text" value={langTab === "id" ? (item.title_id ?? "") : item.title} onChange={(e) => {
                                 const newList = [...settings.approach_items];
-                                newList[index].title = e.target.value;
+                                if (langTab === "id") newList[index] = { ...newList[index], title_id: e.target.value };
+                                else newList[index].title = e.target.value;
                                 updateSetting("approach_items", newList);
                               }} className={`${inputClass} font-bold`} />
                             </div>
                          </div>
                          <div className="space-y-2">
                             <label className="text-xs font-bold text-slate-500">Description</label>
-                            <textarea rows={3} value={item.desc} onChange={(e) => {
+                            <textarea rows={3} value={langTab === "id" ? (item.desc_id ?? "") : item.desc} onChange={(e) => {
                               const newList = [...settings.approach_items];
-                              newList[index].desc = e.target.value;
+                              if (langTab === "id") newList[index] = { ...newList[index], desc_id: e.target.value };
+                              else newList[index].desc = e.target.value;
                               updateSetting("approach_items", newList);
                             }} className={`${inputClass} resize-none`} />
                          </div>
@@ -1072,15 +1201,15 @@ export default function SettingsPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Tag (Label above header)</label>
-                  <input type="text" value={settings.methodology_tag} onChange={(e) => updateSetting("methodology_tag", e.target.value)} className={inputClass} />
+                  <input type="text" value={getLocaleString("methodology_tag")} onChange={(e) => setLocaleString("methodology_tag", e.target.value)} className={inputClass} />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Section Header</label>
-                  <input type="text" value={settings.methodology_header} onChange={(e) => updateSetting("methodology_header", e.target.value)} className={inputClass} />
+                  <input type="text" value={getLocaleString("methodology_header")} onChange={(e) => setLocaleString("methodology_header", e.target.value)} className={inputClass} />
                 </div>
                 <div className="space-y-2 md:col-span-2">
                   <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Description</label>
-                  <textarea rows={2} value={settings.methodology_description} onChange={(e) => updateSetting("methodology_description", e.target.value)} className={`${inputClass} resize-none`} />
+                  <textarea rows={2} value={getLocaleString("methodology_description")} onChange={(e) => setLocaleString("methodology_description", e.target.value)} className={`${inputClass} resize-none`} />
                 </div>
               </div>
 
@@ -1152,8 +1281,15 @@ export default function SettingsPage() {
                             <label className="text-xs font-bold text-slate-500">Step Title</label>
                             <input
                               type="text"
-                              value={item.title}
-                              onChange={(e) => updateMethodologyItem(index, { title: e.target.value })}
+                              value={langTab === "id" ? (item.title_id ?? "") : item.title}
+                              onChange={(e) =>
+                                updateMethodologyItem(
+                                  index,
+                                  langTab === "id"
+                                    ? { title_id: e.target.value }
+                                    : { title: e.target.value },
+                                )
+                              }
                               className={`${inputClass} font-bold`}
                               placeholder="e.g. IDEATION"
                             />
@@ -1166,8 +1302,8 @@ export default function SettingsPage() {
                             <button
                               type="button"
                               onClick={() => {
-                                const points = getMethodologyEditorPoints(item);
-                                setMethodologyPoints(index, [...points, ""]);
+                                const points = getMethodologyEditorPointsForLang(item);
+                                setMethodologyPointsForLang(index, [...points, ""]);
                               }}
                               className="flex items-center gap-1 text-xs font-bold text-yellow-600 hover:text-yellow-500 bg-yellow-500/10 px-2.5 py-1.5 rounded-md transition-colors"
                             >
@@ -1176,16 +1312,16 @@ export default function SettingsPage() {
                           </div>
                           
                           <div className="space-y-2">
-                            {getMethodologyEditorPoints(item).map((point: string, pointIndex: number) => (
+                            {getMethodologyEditorPointsForLang(item).map((point: string, pointIndex: number) => (
                               <div key={pointIndex} className="flex items-center gap-2">
                                 <span className="text-yellow-500 shrink-0">•</span>
                                 <input
                                   type="text"
                                   value={point}
                                   onChange={(e) => {
-                                    const next = [...getMethodologyEditorPoints(item)];
+                                    const next = [...getMethodologyEditorPointsForLang(item)];
                                     next[pointIndex] = e.target.value;
-                                    setMethodologyPoints(index, next);
+                                    setMethodologyPointsForLang(index, next);
                                   }}
                                   className="min-w-0 flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-slate-900 outline-none focus:border-slate-400 transition-colors"
                                   placeholder="Type point description..."
@@ -1193,8 +1329,8 @@ export default function SettingsPage() {
                                 <button
                                   type="button"
                                   onClick={() => {
-                                    const next = getMethodologyEditorPoints(item).filter((_, i) => i !== pointIndex);
-                                    setMethodologyPoints(index, next.length > 0 ? next : [""]);
+                                    const next = getMethodologyEditorPointsForLang(item).filter((_, i) => i !== pointIndex);
+                                    setMethodologyPointsForLang(index, next.length > 0 ? next : [""]);
                                   }}
                                   className="shrink-0 rounded-lg p-2 text-slate-400 hover:bg-rose-50 hover:text-rose-500 transition-colors"
                                 >
@@ -1247,8 +1383,8 @@ export default function SettingsPage() {
                   <label className="text-sm font-bold text-yellow-600">Subtitle (yellow caps)</label>
                   <input
                     type="text"
-                    value={settings.about_hero_subtitle}
-                    onChange={(e) => updateSetting("about_hero_subtitle", e.target.value)}
+                    value={getLocaleString("about_hero_subtitle")}
+                    onChange={(e) => setLocaleString("about_hero_subtitle", e.target.value)}
                     className={`${inputClass} font-bold text-yellow-600`}
                     placeholder="WHO WE ARE"
                   />
@@ -1257,8 +1393,8 @@ export default function SettingsPage() {
                   <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Title</label>
                   <input
                     type="text"
-                    value={settings.about_hero_title}
-                    onChange={(e) => updateSetting("about_hero_title", e.target.value)}
+                    value={getLocaleString("about_hero_title")}
+                    onChange={(e) => setLocaleString("about_hero_title", e.target.value)}
                     className={`${inputClass} font-bold text-lg`}
                   />
                 </motion.div>
@@ -1266,8 +1402,8 @@ export default function SettingsPage() {
                   <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Description</label>
                   <textarea
                     rows={4}
-                    value={settings.about_hero_description}
-                    onChange={(e) => updateSetting("about_hero_description", e.target.value)}
+                    value={getLocaleString("about_hero_description")}
+                    onChange={(e) => setLocaleString("about_hero_description", e.target.value)}
                     className={`${inputClass} resize-none`}
                   />
                 </motion.div>
@@ -1275,8 +1411,8 @@ export default function SettingsPage() {
                   <label className="text-sm font-bold text-slate-700 dark:text-slate-300">CTA Text (optional)</label>
                   <input
                     type="text"
-                    value={settings.about_hero_cta_text}
-                    onChange={(e) => updateSetting("about_hero_cta_text", e.target.value)}
+                    value={getLocaleString("about_hero_cta_text")}
+                    onChange={(e) => setLocaleString("about_hero_cta_text", e.target.value)}
                     className={inputClass}
                     placeholder="Read our story"
                   />
@@ -1307,8 +1443,8 @@ export default function SettingsPage() {
                   <label className="text-sm font-bold text-yellow-600">Mission Eyebrow</label>
                   <input
                     type="text"
-                    value={settings.about_mission_eyebrow}
-                    onChange={(e) => updateSetting("about_mission_eyebrow", e.target.value)}
+                    value={getLocaleString("about_mission_eyebrow")}
+                    onChange={(e) => setLocaleString("about_mission_eyebrow", e.target.value)}
                     className={`${inputClass} font-bold text-yellow-600`}
                     placeholder="OUR MISSION"
                   />
@@ -1317,8 +1453,8 @@ export default function SettingsPage() {
                   <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Mission Title</label>
                   <textarea
                     rows={2}
-                    value={settings.about_mission_title}
-                    onChange={(e) => updateSetting("about_mission_title", e.target.value)}
+                    value={getLocaleString("about_mission_title")}
+                    onChange={(e) => setLocaleString("about_mission_title", e.target.value)}
                     className={`${inputClass} resize-none font-bold text-lg`}
                   />
                 </motion.div>
@@ -1326,9 +1462,51 @@ export default function SettingsPage() {
                   <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Mission Description</label>
                   <textarea
                     rows={4}
-                    value={settings.about_mission_description}
-                    onChange={(e) => updateSetting("about_mission_description", e.target.value)}
+                    value={getLocaleString("about_mission_description")}
+                    onChange={(e) => setLocaleString("about_mission_description", e.target.value)}
                     className={`${inputClass} resize-none`}
+                  />
+                </motion.div>
+              </motion.div>
+            </section>
+
+            <section className="space-y-6">
+              <motion.div className="border-b border-slate-200 dark:border-slate-800 pb-4">
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white">Meet The Team</h2>
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                  Section header above the team carousel (eyebrow, title, and description).
+                </p>
+              </motion.div>
+
+              <motion.div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <motion.div className="space-y-2">
+                  <label className="text-sm font-bold text-yellow-600">Team Eyebrow</label>
+                  <input
+                    type="text"
+                    value={getLocaleString("about_team_eyebrow")}
+                    onChange={(e) => setLocaleString("about_team_eyebrow", e.target.value)}
+                    className={`${inputClass} font-bold text-yellow-600`}
+                    placeholder="OUR TEAM"
+                  />
+                </motion.div>
+                <motion.div className="space-y-2 md:col-span-2">
+                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Team Title</label>
+                  <input
+                    type="text"
+                    value={getLocaleString("about_team_title")}
+                    onChange={(e) => setLocaleString("about_team_title", e.target.value)}
+                    className={`${inputClass} font-bold text-lg`}
+                    placeholder="Meet The Team"
+                  />
+                </motion.div>
+                <motion.div className="space-y-2 md:col-span-2">
+                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Team Description</label>
+                  <textarea
+                    rows={3}
+                    value={getLocaleString("about_team_subtitle")}
+                    onChange={(e) => setLocaleString("about_team_subtitle", e.target.value)}
+                    className={`${inputClass} resize-none`}
+                    placeholder="Strategists, researchers, and operators…"
                   />
                 </motion.div>
               </motion.div>
@@ -1338,8 +1516,19 @@ export default function SettingsPage() {
               <motion.div className="border-b border-slate-200 dark:border-slate-800 pb-4">
                 <h2 className="text-lg font-bold text-slate-900 dark:text-white">What We Value</h2>
                 <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                  Dynamic value cards shown in a grid on the About page. Section heading uses locale copy.
+                  Section heading and dynamic value cards shown in a grid on the About page.
                 </p>
+              </motion.div>
+
+              <motion.div className="space-y-2">
+                <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Section Heading</label>
+                <input
+                  type="text"
+                  value={getLocaleString("about_values_heading")}
+                  onChange={(e) => setLocaleString("about_values_heading", e.target.value)}
+                  className={`${inputClass} font-bold text-lg`}
+                  placeholder="What We Value"
+                />
               </motion.div>
 
               <motion.div className="space-y-6 border-t border-slate-200 dark:border-slate-800 pt-8">
@@ -1426,8 +1615,15 @@ export default function SettingsPage() {
                           <label className="text-xs font-bold text-slate-500">Short Text</label>
                           <textarea
                             rows={3}
-                            value={item.text}
-                            onChange={(e) => updateAboutValueItem(index, { text: e.target.value })}
+                            value={langTab === "id" ? (item.text_id ?? "") : item.text}
+                            onChange={(e) =>
+                              updateAboutValueItem(
+                                index,
+                                langTab === "id"
+                                  ? { text_id: e.target.value }
+                                  : { text: e.target.value },
+                              )
+                            }
                             className={`${inputClass} resize-none`}
                             placeholder="Value statement..."
                           />
@@ -1459,18 +1655,18 @@ export default function SettingsPage() {
                     <label className="text-sm font-bold text-yellow-600">CTA Subtitle (Small Label)</label>
                     <input
                       type="text"
-                      value={settings.cta_subtitle}
-                      onChange={(e) => updateSetting("cta_subtitle", e.target.value)}
+                      value={getLocaleString("cta_subtitle")}
+                      onChange={(e) => setLocaleString("cta_subtitle", e.target.value)}
                       className={`${inputClass} text-xs font-semibold uppercase tracking-[0.18em] text-yellow-600 dark:text-yellow-400`}
                     />
                   </div>
                   <div className="space-y-2 md:col-span-2">
                     <label className="text-sm font-bold text-slate-700 dark:text-slate-300">CTA Title</label>
-                    <input type="text" value={settings.cta_title} onChange={(e) => updateSetting("cta_title", e.target.value)} className={`${inputClass} font-bold text-lg`} />
+                    <input type="text" value={getLocaleString("cta_title")} onChange={(e) => setLocaleString("cta_title", e.target.value)} className={`${inputClass} font-bold text-lg`} />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-slate-700 dark:text-slate-300">CTA Button Text</label>
-                    <input type="text" value={settings.cta_button_text} onChange={(e) => updateSetting("cta_button_text", e.target.value)} className={inputClass} />
+                    <input type="text" value={getLocaleString("cta_button_text")} onChange={(e) => setLocaleString("cta_button_text", e.target.value)} className={inputClass} />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-slate-700 dark:text-slate-300">CTA Button Link</label>
@@ -1481,14 +1677,11 @@ export default function SettingsPage() {
             </section>
 
             <section className="space-y-6">
-              <motion.div className="border-b border-slate-200 dark:border-slate-800 pb-4 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
-                <div>
-                  <h2 className="text-lg font-bold text-slate-900 dark:text-white">Careers page hero</h2>
-                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                    Headline on the public careers page (<code className="text-xs">/career</code>).
-                  </p>
-                </div>
-                <AdminLangTabs value={careersLangTab} onChange={setCareersLangTab} />
+              <motion.div className="border-b border-slate-200 dark:border-slate-800 pb-4">
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white">Careers page hero</h2>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                  Headline on the public careers page (<code className="text-xs">/career</code>).
+                </p>
               </motion.div>
               <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1496,70 +1689,102 @@ export default function SettingsPage() {
                     <label className="text-sm font-bold text-slate-700 dark:text-slate-300">
                       Hero title (before accent)
                     </label>
-                    {careersLangTab === "en" ? (
-                      <input
-                        type="text"
-                        value={settings.careers_hero_title}
-                        onChange={(e) => updateSetting("careers_hero_title", e.target.value)}
-                        className={`${inputClass} font-bold text-lg`}
-                        placeholder="Join Our"
-                      />
-                    ) : (
-                      <input
-                        type="text"
-                        value={settings.careers_hero_title_id}
-                        onChange={(e) => updateSetting("careers_hero_title_id", e.target.value)}
-                        className={`${inputClass} font-bold text-lg`}
-                        placeholder="Bergabung dengan"
-                      />
-                    )}
+                    <input
+                      type="text"
+                      value={getLocaleString("careers_hero_title")}
+                      onChange={(e) => setLocaleString("careers_hero_title", e.target.value)}
+                      className={`${inputClass} font-bold text-lg`}
+                      placeholder={langTab === "en" ? "Join Our" : "Bergabung dengan"}
+                    />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-yellow-600 dark:text-yellow-500">
                       Hero title accent (yellow)
                     </label>
-                    {careersLangTab === "en" ? (
-                      <input
-                        type="text"
-                        value={settings.careers_hero_title_accent}
-                        onChange={(e) => updateSetting("careers_hero_title_accent", e.target.value)}
-                        className={`${inputClass} font-bold text-yellow-600 dark:text-yellow-500`}
-                        placeholder="Mission"
-                      />
-                    ) : (
-                      <input
-                        type="text"
-                        value={settings.careers_hero_title_accent_id}
-                        onChange={(e) => updateSetting("careers_hero_title_accent_id", e.target.value)}
-                        className={`${inputClass} font-bold text-yellow-600 dark:text-yellow-500`}
-                        placeholder="Misi Kami"
-                      />
-                    )}
+                    <input
+                      type="text"
+                      value={getLocaleString("careers_hero_title_accent")}
+                      onChange={(e) => setLocaleString("careers_hero_title_accent", e.target.value)}
+                      className={`${inputClass} font-bold text-yellow-600 dark:text-yellow-500`}
+                      placeholder={langTab === "en" ? "Mission" : "Misi Kami"}
+                    />
                   </div>
                   <div className="space-y-2 md:col-span-2">
                     <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Hero subtitle</label>
-                    {careersLangTab === "en" ? (
-                      <input
-                        type="text"
-                        value={settings.careers_hero_subtitle}
-                        onChange={(e) => updateSetting("careers_hero_subtitle", e.target.value)}
-                        className={inputClass}
-                        placeholder="Help us shape the future of public policy across Southeast Asia."
-                      />
-                    ) : (
-                      <input
-                        type="text"
-                        value={settings.careers_hero_subtitle_id}
-                        onChange={(e) => updateSetting("careers_hero_subtitle_id", e.target.value)}
-                        className={inputClass}
-                        placeholder="Bantu kami membentuk masa depan kebijakan publik di Asia Tenggara."
-                      />
-                    )}
+                    <input
+                      type="text"
+                      value={getLocaleString("careers_hero_subtitle")}
+                      onChange={(e) => setLocaleString("careers_hero_subtitle", e.target.value)}
+                      className={inputClass}
+                      placeholder={
+                        langTab === "en"
+                          ? "Help us shape the future of public policy across Southeast Asia."
+                          : "Bantu kami membentuk masa depan kebijakan publik di Asia Tenggara."
+                      }
+                    />
                   </div>
                 </div>
               </div>
             </section>
           </div>
+        )}
+
+        {activeTab === "publications" && (
+          <motion.div className="space-y-10">
+            <section className="space-y-6">
+              <motion.div className="border-b border-slate-200 dark:border-slate-800 pb-4">
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white">Knowledge Center</h2>
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                  Section title and subtitle on the homepage Knowledge Center block.
+                </p>
+              </motion.div>
+              <div className="grid grid-cols-1 gap-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Section title</label>
+                  <input
+                    type="text"
+                    value={getLocaleString("knowledge_center_title")}
+                    onChange={(e) => setLocaleString("knowledge_center_title", e.target.value)}
+                    className={`${inputClass} font-bold text-lg uppercase tracking-wide`}
+                    placeholder={langTab === "en" ? "KNOWLEDGE CENTER" : "PUSAT PENGETAHUAN"}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Section subtitle</label>
+                  <textarea
+                    rows={3}
+                    value={getLocaleString("knowledge_center_subtitle")}
+                    onChange={(e) => setLocaleString("knowledge_center_subtitle", e.target.value)}
+                    className={inputClass}
+                    placeholder={
+                      langTab === "en"
+                        ? "Explore our initiatives advancing knowledge, dialogue, and evidence-based policymaking."
+                        : "Jelajahi inisiatif kami yang memajukan pengetahuan, dialog, dan kebijakan berbasis bukti."
+                    }
+                  />
+                </div>
+              </div>
+            </section>
+
+            <section className="space-y-6">
+              <motion.div className="border-b border-slate-200 dark:border-slate-800 pb-4">
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white">Latest Insights</h2>
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                  Section title on the homepage Latest Insights block.
+                </p>
+              </motion.div>
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Section title</label>
+                <input
+                  type="text"
+                  value={getLocaleString("latest_insights_title")}
+                  onChange={(e) => setLocaleString("latest_insights_title", e.target.value)}
+                  className={`${inputClass} font-bold text-lg`}
+                  placeholder={langTab === "en" ? "Latest Insights" : "Wawasan Terbaru"}
+                />
+              </div>
+            </section>
+          </motion.div>
         )}
 
       </motion.div>

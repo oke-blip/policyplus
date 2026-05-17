@@ -88,9 +88,9 @@ export function CTAFooterSection({ settings }: { settings?: Record<string, unkno
               </h2>
               <Link
                 href={pickBilingualString(source, "cta_button_link", "#", locale)}
-                className="mt-8 block w-full md:w-fit"
+                className="mt-8 block w-full max-w-none"
               >
-                <Button className="h-auto min-h-[3.5rem] w-full rounded-full bg-yellow-500 px-10 py-4 text-lg font-bold tracking-wide text-black shadow-[0_12px_40px_rgba(234,179,8,0.45)] transition-all duration-300 hover:scale-[1.01] hover:bg-yellow-400 hover:shadow-[0_16px_48px_rgba(234,179,8,0.55)] sm:min-h-[4rem] sm:py-5 sm:text-xl md:min-h-[4.5rem] md:py-6 md:text-2xl">
+                <Button className="flex h-auto min-h-[3.5rem] w-full max-w-none justify-center rounded-full bg-yellow-500 px-10 py-4 text-lg font-bold tracking-wide text-black shadow-[0_12px_40px_rgba(234,179,8,0.45)] transition-all duration-300 hover:scale-[1.01] hover:bg-yellow-400 hover:shadow-[0_16px_48px_rgba(234,179,8,0.55)] sm:min-h-[4rem] sm:py-5 sm:text-xl md:min-h-[4.5rem] md:py-6 md:text-2xl">
                   {pickBilingualString(source, "cta_button_text", "Get In Touch", locale)}
                 </Button>
               </Link>

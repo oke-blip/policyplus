@@ -34,6 +34,12 @@ export const SMART_FALLBACK_PARTNERS_HEADER_PAIRS: SmartFallbackFieldPair[] = [
   ["testimonials_header", "testimonials_header_id"],
 ];
 
+export const SMART_FALLBACK_PUBLICATIONS_FIELD_PAIRS: SmartFallbackFieldPair[] = [
+  ["knowledge_center_title", "knowledge_center_title_id"],
+  ["knowledge_center_subtitle", "knowledge_center_subtitle_id"],
+  ["latest_insights_title", "latest_insights_title_id"],
+];
+
 export const SMART_FALLBACK_CAREERS_HERO_PAIRS: SmartFallbackFieldPair[] = [
   ["careers_hero_title", "careers_hero_title_id"],
   ["careers_hero_title_accent", "careers_hero_title_accent_id"],
@@ -50,6 +56,33 @@ export const SMART_FALLBACK_TEAM_MEMBER_FIELD_PAIRS: SmartFallbackFieldPair[] = 
   ["name", "name_id"],
   ["role", "role_id"],
   ["focus", "focus_id"],
+];
+
+export const SMART_FALLBACK_EXPERTISE_ITEM_PAIRS: SmartFallbackFieldPair[] = [
+  ["tag", "tag_id"],
+  ["title", "title_id"],
+  ["desc", "desc_id"],
+];
+
+export const SMART_FALLBACK_APPROACH_ITEM_PAIRS: SmartFallbackFieldPair[] = [
+  ["phase", "phase_id"],
+  ["title", "title_id"],
+  ["desc", "desc_id"],
+];
+
+export const SMART_FALLBACK_METHODOLOGY_ITEM_PAIRS: SmartFallbackFieldPair[] = [
+  ["title", "title_id"],
+];
+
+export const SMART_FALLBACK_ABOUT_VALUE_ITEM_PAIRS: SmartFallbackFieldPair[] = [
+  ["text", "text_id"],
+];
+
+export const SMART_FALLBACK_CTA_FIELD_PAIRS: SmartFallbackFieldPair[] = [
+  ["cta_subtitle", "cta_subtitle_id"],
+  ["cta_title", "cta_title_id"],
+  ["cta_button_text", "cta_button_text_id"],
+  ...SMART_FALLBACK_CAREERS_HERO_PAIRS,
 ];
 
 /** EN header text, or Indonesian when EN is blank (partners / testimonials section titles). */

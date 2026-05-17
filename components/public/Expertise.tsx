@@ -5,8 +5,30 @@ import { motion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowUpRight } from "lucide-react"; // <-- Import icon panah
 import { useLanguage } from "@/contexts/LanguageContext";
+import { pickLocalized, type ContentLocale } from "@/lib/content-locale";
 import { parseExpertiseItems, type ExpertiseItem } from "@/lib/settings-utils";
 import { cn } from "@/lib/utils";
+
+function pickSettingsField(
+  raw: Record<string, unknown> | undefined,
+  key: string,
+  locale: ContentLocale,
+  fallback: string,
+): string {
+  const en = typeof raw?.[key] === "string" ? raw[key] : undefined;
+  const id = typeof raw?.[`${key}_id`] === "string" ? raw[`${key}_id`] : undefined;
+  const picked = pickLocalized(locale, en as string | undefined, id as string | undefined);
+  return picked.trim() || fallback;
+}
+
+function localizeExpertiseItems(items: ExpertiseItem[], locale: ContentLocale): ExpertiseItem[] {
+  return items.map((item) => ({
+    ...item,
+    tag: pickLocalized(locale, item.tag, item.tag_id),
+    title: pickLocalized(locale, item.title, item.title_id),
+    desc: item.desc ? pickLocalized(locale, item.desc, item.desc_id) : undefined,
+  }));
+}
 
 const FALLBACK_IMAGES = [
   "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1200",
@@ -65,11 +87,16 @@ export function ExpertiseSection({
   data?: Record<string, unknown>;
   initialItems?: ExpertiseItem[];
 }) {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const [fetchedItems, setFetchedItems] = useState<ExpertiseItem[]>([]);
 
-  const header = String(data?.expertise_header || t("expertise.header"));
-  const description = String(data?.expertise_description || t("expertise.description"));
+  const header = pickSettingsField(data, "expertise_header", locale, String(t("expertise.header")));
+  const description = pickSettingsField(
+    data,
+    "expertise_description",
+    locale,
+    String(t("expertise.description")),
+  );
 
   const cmsItems = useMemo(() => {
     if (initialItems?.length) return initialItems;
@@ -89,8 +116,13 @@ export function ExpertiseSection({
   }, [cmsItems.length]);
 
   const fallbackItems = t<ExpertiseItem[]>("expertise.items");
-  const items =
-    cmsItems.length > 0 ? cmsItems : fetchedItems.length > 0 ? fetchedItems : fallbackItems;
+  const rawItems =
+    cmsItems.length > 0 ? cmsItems : fetchedItems.length > 0 ? fetchedItems : null;
+  const items = useMemo(
+    () =>
+      rawItems ? localizeExpertiseItems(rawItems, locale) : fallbackItems,
+    [rawItems, locale, fallbackItems],
+  );
   const count = items.length;
 
   return (

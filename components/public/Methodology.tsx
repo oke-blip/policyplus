@@ -4,9 +4,43 @@ import type { ComponentType } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { pickLocalized, type ContentLocale } from "@/lib/content-locale";
 import { getMethodologyIcon, getDefaultMethodologyIconId } from "@/lib/methodology-icons";
-import { toMethodologySteps, type MethodologyStep } from "@/lib/settings-utils";
+import {
+  getMethodologyPoints,
+  parseMethodologyItems,
+  type MethodologyStep,
+} from "@/lib/settings-utils";
 import { cn } from "@/lib/utils";
+
+function pickSettingsField(
+  raw: Record<string, unknown> | undefined,
+  key: string,
+  locale: ContentLocale,
+  fallback: string,
+): string {
+  const en = typeof raw?.[key] === "string" ? raw[key] : undefined;
+  const id = typeof raw?.[`${key}_id`] === "string" ? raw[`${key}_id`] : undefined;
+  const picked = pickLocalized(locale, en as string | undefined, id as string | undefined);
+  return picked.trim() || fallback;
+}
+
+function toLocalizedMethodologySteps(raw: unknown, locale: ContentLocale): MethodologyStep[] {
+  return parseMethodologyItems(raw).map((item, index) => {
+    const pointsEn = getMethodologyPoints(item);
+    const pointsId = item.points_id?.map((p) => p.trim()).filter(Boolean);
+    const points =
+      locale === "id" && pointsId && pointsId.length > 0 ? pointsId : pointsEn;
+    const stepNum = String(index + 1).padStart(2, "0");
+
+    return {
+      id: stepNum,
+      title: pickLocalized(locale, item.title, item.title_id) || `STEP ${stepNum}`,
+      points,
+      icon: item.icon,
+    };
+  });
+}
 
 function StepCardContent({
   step,
@@ -48,19 +82,30 @@ export function MethodologySection({
   data?: Record<string, unknown>;
   initialSteps?: MethodologyStep[];
 }) {
-  const { t } = useLanguage();
-  const [fetchedSteps, setFetchedSteps] = useState<MethodologyStep[]>([]);
+  const { t, locale } = useLanguage();
+  const [fetchedMethodologyRaw, setFetchedMethodologyRaw] = useState<unknown>(null);
 
-  const tag = String(data?.methodology_tag || t("methodology.tag"));
-  const header = String(data?.methodology_header || t("methodology.header"));
-  const description = String(
-    data?.methodology_description || t("methodology.description")
+  const tag = pickSettingsField(data, "methodology_tag", locale, String(t("methodology.tag")));
+  const header = pickSettingsField(
+    data,
+    "methodology_header",
+    locale,
+    String(t("methodology.header")),
+  );
+  const description = pickSettingsField(
+    data,
+    "methodology_description",
+    locale,
+    String(t("methodology.description")),
   );
 
   const cmsSteps = useMemo(() => {
+    if (data?.methodology_items != null) {
+      return toLocalizedMethodologySteps(data.methodology_items, locale);
+    }
     if (initialSteps?.length) return initialSteps;
-    return toMethodologySteps(data?.methodology_items);
-  }, [initialSteps, data?.methodology_items]);
+    return [] as MethodologyStep[];
+  }, [data?.methodology_items, initialSteps, locale]);
 
   useEffect(() => {
     if (cmsSteps.length > 0) return;
@@ -68,11 +113,20 @@ export function MethodologySection({
     fetch("/api/settings", { cache: "no-store" })
       .then((res) => res.json())
       .then((settings) => {
-        const fromApi = toMethodologySteps(settings.methodology_items);
-        if (fromApi.length > 0) setFetchedSteps(fromApi);
+        if (settings.methodology_items != null) {
+          setFetchedMethodologyRaw(settings.methodology_items);
+        }
       })
       .catch(() => {});
   }, [cmsSteps.length]);
+
+  const fetchedSteps = useMemo(
+    () =>
+      fetchedMethodologyRaw != null
+        ? toLocalizedMethodologySteps(fetchedMethodologyRaw, locale)
+        : [],
+    [fetchedMethodologyRaw, locale],
+  );
 
   const fallbackSteps = t<MethodologyStep[]>("methodology.steps");
   const steps =

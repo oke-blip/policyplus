@@ -3,10 +3,32 @@
 import { motion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { pickLocalized, type ContentLocale } from "@/lib/content-locale";
 import {
   getLatestApproachItems,
   type ApproachItem,
 } from "@/lib/settings-utils";
+
+function pickSettingsField(
+  raw: Record<string, unknown> | undefined,
+  key: string,
+  locale: ContentLocale,
+  fallback: string,
+): string {
+  const en = typeof raw?.[key] === "string" ? raw[key] : undefined;
+  const id = typeof raw?.[`${key}_id`] === "string" ? raw[`${key}_id`] : undefined;
+  const picked = pickLocalized(locale, en as string | undefined, id as string | undefined);
+  return picked.trim() || fallback;
+}
+
+function localizeApproachItems(items: ApproachItem[], locale: ContentLocale): ApproachItem[] {
+  return items.map((item) => ({
+    ...item,
+    phase: item.phase ? pickLocalized(locale, item.phase, item.phase_id) : undefined,
+    title: pickLocalized(locale, item.title, item.title_id),
+    desc: pickLocalized(locale, item.desc, item.desc_id),
+  }));
+}
 
 const FALLBACK_IMAGES = [
   "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1500",
@@ -24,14 +46,16 @@ export function ApproachSection({
   data?: Record<string, unknown>;
   initialItems?: ApproachItem[];
 }) {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const [fetchedItems, setFetchedItems] = useState<ApproachItem[]>([]);
 
-  const line1 = String(data?.approach_line1 || "WHAT MAKES");
-  const line2 = String(data?.approach_line2 || "OUR APPROACH DIFFERENT?");
-  const description = String(
-    data?.approach_description ||
-      "Our work connects research, stakeholders, and communication to move policy ideas from discussion to implementation."
+  const line1 = pickSettingsField(data, "approach_line1", locale, "WHAT MAKES");
+  const line2 = pickSettingsField(data, "approach_line2", locale, "OUR APPROACH DIFFERENT?");
+  const description = pickSettingsField(
+    data,
+    "approach_description",
+    locale,
+    "Our work connects research, stakeholders, and communication to move policy ideas from discussion to implementation.",
   );
 
   const cmsItems = useMemo(() => {
@@ -52,12 +76,13 @@ export function ApproachSection({
   }, [cmsItems.length]);
 
   const fallbackItems = t<ApproachItem[]>("approach.items").slice(0, LANDING_LIMIT);
-  const items =
-    cmsItems.length > 0
-      ? cmsItems
-      : fetchedItems.length > 0
-        ? fetchedItems
-        : fallbackItems;
+  const rawItems =
+    cmsItems.length > 0 ? cmsItems : fetchedItems.length > 0 ? fetchedItems : null;
+  const items = useMemo(
+    () =>
+      rawItems ? localizeApproachItems(rawItems, locale) : fallbackItems,
+    [rawItems, locale, fallbackItems],
+  );
 
   return (
     <section className="relative flex min-h-svh w-full snap-start scroll-mt-24 flex-col overflow-x-hidden bg-gray-950 pb-20 text-white lg:scroll-mt-32 lg:pb-20">

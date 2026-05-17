@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Newspaper, AlertCircle } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { resolveLatestInsightsTitle } from "@/lib/publications-section-settings";
 import { stripHtml } from "@/lib/strip-html";
 
 type InsightPost = {
@@ -82,10 +83,11 @@ function normalizePost(
 export function LatestInsights({ data }: { data?: Record<string, unknown> }) {
   const { t, locale } = useLanguage();
 
-  const header =
-    (data?.insights_header as string) ||
-    t("insights.header") ||
-    "Latest Insights";
+  const header = useMemo(
+    () =>
+      resolveLatestInsightsTitle(data, locale, String(t("insights.header")) || "Latest Insights"),
+    [data, locale, t],
+  );
 
   const [posts, setPosts] = useState<InsightPost[]>([]);
   const [loading, setLoading] = useState(true);

@@ -7,6 +7,7 @@ import { AlertCircle, Library } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { pickLocalized } from "@/lib/content-locale";
+import { resolveKnowledgeCenterHeader } from "@/lib/publications-section-settings";
 import { stripHtml } from "@/lib/strip-html";
 
 export interface KnowledgeArticle {
@@ -48,8 +49,17 @@ function mapPostToArticle(
   };
 }
 
-export function KnowledgeCenterSection({ data }: { data?: any }) {
+export function KnowledgeCenterSection({ data }: { data?: Record<string, unknown> }) {
   const { t, locale } = useLanguage();
+
+  const sectionHeader = React.useMemo(
+    () =>
+      resolveKnowledgeCenterHeader(data, locale, {
+        title: String(t("knowledge.header")),
+        subtitle: String(t("knowledge.description")),
+      }),
+    [data, locale, t],
+  );
   const [rawPosts, setRawPosts] = React.useState<Parameters<typeof mapPostToArticle>[0][]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState(false);
@@ -99,10 +109,10 @@ export function KnowledgeCenterSection({ data }: { data?: any }) {
       <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col px-4">
         <header className="mx-auto max-w-3xl shrink-0 text-center">
           <h2 className="font-sans text-xl font-bold uppercase tracking-wide text-white sm:text-2xl md:text-3xl">
-            {t("knowledge.header")}
+            {sectionHeader.title}
           </h2>
           <p className="mt-3 text-sm leading-relaxed text-gray-400 sm:mt-4 sm:text-base">
-            {t("knowledge.description")}
+            {sectionHeader.subtitle}
           </p>
         </header>
 

@@ -20,8 +20,11 @@ export function parseSettingValue(value: unknown): unknown {
 export type ExpertiseItem = {
   id?: number | string;
   tag: string;
+  tag_id?: string;
   title: string;
+  title_id?: string;
   desc?: string;
+  desc_id?: string;
   image?: string;
 };
 
@@ -29,28 +32,38 @@ export function parseExpertiseItems(raw: unknown): ExpertiseItem[] {
   const value = parseSettingValue(raw);
   if (!Array.isArray(value)) return [];
 
-  return value
-    .map((item, index) => {
-      if (!item || typeof item !== "object") return null;
-      const tag = String(item.tag ?? "").trim();
-      const title = String(item.title ?? "").trim();
-      if (!tag && !title) return null;
-      return {
-        id: item.id ?? index,
-        tag,
-        title,
-        desc: item.desc ? String(item.desc) : undefined,
-        image: item.image ? String(item.image) : undefined,
-      };
-    })
-    .filter((item): item is ExpertiseItem => item !== null);
+  const items: ExpertiseItem[] = [];
+  for (let index = 0; index < value.length; index++) {
+    const item = value[index];
+    if (!item || typeof item !== "object") continue;
+    const tag = String(item.tag ?? "").trim();
+    const title = String(item.title ?? "").trim();
+    const tag_id = item.tag_id ? String(item.tag_id).trim() : undefined;
+    const title_id = item.title_id ? String(item.title_id).trim() : undefined;
+    const desc_id = item.desc_id ? String(item.desc_id).trim() : undefined;
+    if (!tag && !title && !tag_id && !title_id) continue;
+    items.push({
+      id: item.id ?? index,
+      tag,
+      ...(tag_id ? { tag_id } : {}),
+      title,
+      ...(title_id ? { title_id } : {}),
+      desc: item.desc ? String(item.desc) : undefined,
+      ...(desc_id ? { desc_id } : {}),
+      image: item.image ? String(item.image) : undefined,
+    });
+  }
+  return items;
 }
 
 export type ApproachItem = {
   id?: number | string;
   phase?: string;
+  phase_id?: string;
   title: string;
+  title_id?: string;
   desc: string;
+  desc_id?: string;
   image?: string;
   createdAt?: number;
 };
@@ -59,27 +72,34 @@ export function parseApproachItems(raw: unknown): ApproachItem[] {
   const value = parseSettingValue(raw);
   if (!Array.isArray(value)) return [];
 
-  return value
-    .map((item, index) => {
-      if (!item || typeof item !== "object") return null;
-      const title = String(item.title ?? "").trim();
-      const desc = String(item.desc ?? "").trim();
-      if (!title && !desc) return null;
-      return {
-        id: item.id ?? index,
-        phase: item.phase ? String(item.phase) : undefined,
-        title,
-        desc,
-        image: item.image ? String(item.image) : undefined,
-        createdAt:
-          typeof item.createdAt === "number"
-            ? item.createdAt
-            : typeof item.id === "number" && item.id > 1_000_000_000_000
-              ? item.id
-              : index,
-      };
-    })
-    .filter((item): item is ApproachItem => item !== null);
+  const items: ApproachItem[] = [];
+  for (let index = 0; index < value.length; index++) {
+    const item = value[index];
+    if (!item || typeof item !== "object") continue;
+    const title = String(item.title ?? "").trim();
+    const desc = String(item.desc ?? "").trim();
+    const title_id = item.title_id ? String(item.title_id).trim() : undefined;
+    const desc_id = item.desc_id ? String(item.desc_id).trim() : undefined;
+    const phase_id = item.phase_id ? String(item.phase_id).trim() : undefined;
+    if (!title && !desc && !title_id && !desc_id) continue;
+    items.push({
+      id: item.id ?? index,
+      phase: item.phase ? String(item.phase) : undefined,
+      ...(phase_id ? { phase_id } : {}),
+      title,
+      ...(title_id ? { title_id } : {}),
+      desc,
+      ...(desc_id ? { desc_id } : {}),
+      image: item.image ? String(item.image) : undefined,
+      createdAt:
+        typeof item.createdAt === "number"
+          ? item.createdAt
+          : typeof item.id === "number" && item.id > 1_000_000_000_000
+            ? item.id
+            : index,
+    });
+  }
+  return items;
 }
 
 /** Return the newest approach cards for the landing page (default: 4). */
@@ -92,8 +112,10 @@ export function getLatestApproachItems(raw: unknown, limit = 4): ApproachItem[] 
 export type MethodologyItem = {
   id?: number | string;
   title: string;
+  title_id?: string;
   desc?: string;
   points?: string[];
+  points_id?: string[];
   icon?: string;
   order?: number;
 };
@@ -143,24 +165,30 @@ export function parseMethodologyItems(raw: unknown): MethodologyItem[] {
   const value = parseSettingValue(raw);
   if (!Array.isArray(value)) return [];
 
-  return value
-    .map((item, index) => {
-      if (!item || typeof item !== "object") return null;
-      const title = String(item.title ?? "").trim();
-      const desc = item.desc ? String(item.desc) : undefined;
-      const points = getMethodologyPoints(item);
-      if (!title && points.length === 0 && !desc) return null;
-      return {
-        id: item.id ?? index,
-        title,
-        desc: points.length > 0 ? points.join("\n") : desc,
-        points,
-        icon: item.icon ? String(item.icon) : undefined,
-        order: typeof item.order === "number" ? item.order : index,
-      };
-    })
-    .filter((item): item is MethodologyItem => item !== null)
-    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  const items: MethodologyItem[] = [];
+  for (let index = 0; index < value.length; index++) {
+    const item = value[index];
+    if (!item || typeof item !== "object") continue;
+    const title = String(item.title ?? "").trim();
+    const title_id = item.title_id ? String(item.title_id).trim() : undefined;
+    const desc = item.desc ? String(item.desc) : undefined;
+    const points = getMethodologyPoints(item);
+    const points_id = Array.isArray(item.points_id)
+      ? item.points_id.map((p: unknown) => String(p))
+      : undefined;
+    if (!title && !title_id && points.length === 0 && !desc) continue;
+    items.push({
+      id: item.id ?? index,
+      title,
+      ...(title_id ? { title_id } : {}),
+      desc: points.length > 0 ? points.join("\n") : desc,
+      points,
+      ...(points_id && points_id.some((p: string) => p.trim()) ? { points_id } : {}),
+      icon: item.icon ? String(item.icon) : undefined,
+      order: typeof item.order === "number" ? item.order : index,
+    });
+  }
+  return items.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 }
 
 export function toMethodologySteps(raw: unknown): MethodologyStep[] {

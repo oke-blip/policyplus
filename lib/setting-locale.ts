@@ -6,13 +6,13 @@ import {
 } from "@/lib/partners-testimonials";
 import { parseSettingValue } from "@/lib/settings-utils";
 
-import { CAREERS_HERO_SETTING_KEYS } from "@/lib/careers-hero-settings";
+import { SETTINGS_STRING_LOCALE_KEYS } from "@/lib/settings-locale-keys";
 
 /** Setting keys that store Indonesian copy as a plain string in `value_id`. */
 export const STRING_LOCALE_SETTING_KEYS = [
   "partners_header",
   "testimonials_header",
-  ...CAREERS_HERO_SETTING_KEYS,
+  ...SETTINGS_STRING_LOCALE_KEYS,
 ] as const;
 
 export type StringLocaleSettingKey = (typeof STRING_LOCALE_SETTING_KEYS)[number];
