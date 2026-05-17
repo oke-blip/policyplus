@@ -124,13 +124,11 @@ export default function AdminLayout({
               <nav className="flex-1 px-4 py-2 space-y-2 overflow-y-auto z-10 custom-scrollbar">
                 <div className="text-xs font-bold text-slate-400/80 dark:text-slate-500 uppercase tracking-widest mb-6 px-4 mt-4 md:mt-0">Overview</div>
                 {sidebarLinks.map((link) => {
-                  const currentLocale = pathname.split('/')[1] || 'en';
-                  const localizedHref = `/${currentLocale}${link.href}`;
                   const active = isActive(link.href);
                   return (
                     <Link
                       key={link.name}
-                      href={localizedHref}
+                      href={link.href}
                       onClick={() => setIsMobileMenuOpen(false)}
                       className="relative flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all duration-300 group"
                     >
@@ -162,8 +160,7 @@ export default function AdminLayout({
                 <button 
                   onClick={async () => {
                     await fetch("/api/auth/logout", { method: "POST" });
-                    const currentLocale = pathname.split('/')[1] || 'en';
-                    window.location.href = `/${currentLocale}/login`;
+                    window.location.href = "/login";
                   }}
                   className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/20 rounded-2xl font-bold transition-all"
                 >

@@ -4,6 +4,8 @@ import * as React from "react";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { pickAboutBilingualField } from "@/lib/about-intro-settings";
+import { pickLocalized, type ContentLocale } from "@/lib/content-locale";
 import { parseHeroBanners, type HeroBanner } from "@/lib/settings-utils";
 
 const HERO_IMAGES = [
@@ -24,6 +26,39 @@ const HERO_IMAGES = [
 const HERO_NOISE_DATA_URI =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256'%3E%3Cfilter id='n' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E";
 
+const HERO_TEXT_KEYS = [
+  "hero_line1_prefix",
+  "hero_line1_accent",
+  "hero_line2_prefix",
+  "hero_line2_accent",
+  "hero_description",
+  "hero_cta_text",
+  "hero_secondary_text",
+] as const;
+
+function hasHeroSource(raw: Record<string, unknown> | undefined): boolean {
+  if (!raw) return false;
+  if (
+    HERO_TEXT_KEYS.some((key) => {
+      const value = raw[key];
+      return typeof value === "string" && value.trim().length > 0;
+    })
+  ) {
+    return true;
+  }
+  return parseHeroBanners(raw.hero_banners).length > 0;
+}
+
+function resolveHeroBannerAlt(banner: HeroBanner, locale: ContentLocale): string {
+  const fromAlt = pickLocalized(locale, banner.alt, banner.alt_id).trim();
+  if (fromAlt) return fromAlt;
+  const fromTitle = pickLocalized(locale, banner.title, banner.title_id).trim();
+  if (fromTitle) return fromTitle;
+  const fromDesc = pickLocalized(locale, banner.description, banner.desc_id).trim();
+  if (fromDesc) return fromDesc;
+  return banner.alt;
+}
+
 export function PublicHeroSection({
   data,
   initialBanners,
@@ -33,41 +68,115 @@ export function PublicHeroSection({
 }) {
   const reduceMotion = useReducedMotion();
   const [imageIndex, setImageIndex] = React.useState(0);
-  const [bannerImages, setBannerImages] = React.useState<HeroBanner[]>(
-    initialBanners?.length ? initialBanners : []
+  const [rawBanners, setRawBanners] = React.useState<HeroBanner[]>(
+    initialBanners?.length ? initialBanners : [],
   );
-  const { t } = useLanguage();
+  const [fetchedSettings, setFetchedSettings] = React.useState<Record<string, unknown> | null>(
+    null,
+  );
+  const { locale, t } = useLanguage();
+
+  const settingsSource = React.useMemo(
+    () => data ?? fetchedSettings ?? {},
+    [data, fetchedSettings],
+  );
 
   /** Plain strings for motion children (avoids Framer Motion vs. generic `t()` type clash). */
-  const hero = {
-    headlineLine1Prefix: data?.hero_line1_prefix || String(t("hero.headlineLine1Prefix")),
-    headlineLine1Accent: data?.hero_line1_accent || String(t("hero.headlineLine1Accent")),
-    headlineLine2Prefix: data?.hero_line2_prefix || String(t("hero.headlineLine2Prefix")),
-    headlineLine2Accent: data?.hero_line2_accent || String(t("hero.headlineLine2Accent")),
-    subheadline: data?.hero_description || String(t("hero.subheadline")),
-    primaryButton: data?.hero_cta_text || String(t("hero.primaryButton")),
-    secondaryButton: data?.hero_secondary_text || String(t("hero.secondaryButton")),
-  };
+  const hero = React.useMemo(
+    () => ({
+      headlineLine1Prefix: pickAboutBilingualField(
+        settingsSource,
+        "hero_line1_prefix",
+        locale,
+        String(t("hero.headlineLine1Prefix")),
+      ),
+      headlineLine1Accent: pickAboutBilingualField(
+        settingsSource,
+        "hero_line1_accent",
+        locale,
+        String(t("hero.headlineLine1Accent")),
+      ),
+      headlineLine2Prefix: pickAboutBilingualField(
+        settingsSource,
+        "hero_line2_prefix",
+        locale,
+        String(t("hero.headlineLine2Prefix")),
+      ),
+      headlineLine2Accent: pickAboutBilingualField(
+        settingsSource,
+        "hero_line2_accent",
+        locale,
+        String(t("hero.headlineLine2Accent")),
+      ),
+      subheadline: pickAboutBilingualField(
+        settingsSource,
+        "hero_description",
+        locale,
+        String(t("hero.subheadline")),
+      ),
+      primaryButton: pickAboutBilingualField(
+        settingsSource,
+        "hero_cta_text",
+        locale,
+        String(t("hero.primaryButton")),
+      ),
+      secondaryButton: pickAboutBilingualField(
+        settingsSource,
+        "hero_secondary_text",
+        locale,
+        String(t("hero.secondaryButton")),
+      ),
+    }),
+    [settingsSource, locale, t],
+  );
+
+  const heroCtaLink =
+    typeof settingsSource.hero_cta_link === "string" && settingsSource.hero_cta_link.trim()
+      ? settingsSource.hero_cta_link.trim()
+      : "#expertise";
+  const heroSecondaryLink =
+    typeof settingsSource.hero_secondary_link === "string" &&
+    settingsSource.hero_secondary_link.trim()
+      ? settingsSource.hero_secondary_link.trim()
+      : "/blog";
+
+  const images = React.useMemo(() => {
+    if (rawBanners.length > 0) {
+      return rawBanners.map((banner) => ({
+        src: banner.src,
+        alt: resolveHeroBannerAlt(banner, locale),
+      }));
+    }
+    return [...HERO_IMAGES];
+  }, [rawBanners, locale]);
 
   React.useEffect(() => {
-    if (bannerImages.length > 0) return;
-
-    const fromData = parseHeroBanners(data?.hero_banners);
-    if (fromData.length > 0) {
-      setBannerImages(fromData);
-      return;
-    }
+    if (hasHeroSource(data)) return;
 
     fetch("/api/settings", { cache: "no-store" })
       .then((res) => res.json())
       .then((settings) => {
-        const fromApi = parseHeroBanners(settings.hero_banners);
-        if (fromApi.length > 0) setBannerImages(fromApi);
+        const raw = settings as Record<string, unknown>;
+        if (hasHeroSource(raw)) {
+          setFetchedSettings(raw);
+        }
+        if (rawBanners.length === 0) {
+          const fromApi = parseHeroBanners(raw.hero_banners);
+          if (fromApi.length > 0) setRawBanners(fromApi);
+        }
       })
       .catch(() => {});
-  }, [bannerImages.length, data?.hero_banners]);
+  }, [data, rawBanners.length]);
 
-  const images = bannerImages.length > 0 ? bannerImages : HERO_IMAGES;
+  React.useEffect(() => {
+    if (rawBanners.length > 0) return;
+
+    const fromData = parseHeroBanners(settingsSource.hero_banners);
+    if (fromData.length > 0) {
+      setRawBanners(fromData);
+    }
+  }, [rawBanners.length, settingsSource.hero_banners]);
+
   const imagesCount = images.length;
 
   React.useEffect(() => {
@@ -190,7 +299,7 @@ export function PublicHeroSection({
             animate="visible"
             className="mx-auto mt-6 max-w-md text-center font-sans text-sm leading-relaxed text-gray-400 lg:mt-8 lg:max-w-lg lg:text-base"
           >
-            {data?.hero_description || hero.subheadline}
+            {hero.subheadline}
           </motion.p>
 
           <motion.div
@@ -200,13 +309,13 @@ export function PublicHeroSection({
             className="mt-8 flex w-full flex-col items-center justify-center gap-4 px-4 sm:w-auto sm:flex-row"
           >
             <Link
-              href={data?.hero_cta_link || "#expertise"}
+              href={heroCtaLink}
               className="inline-flex min-h-[3rem] w-full items-center justify-center rounded-full bg-yellow-500 px-8 py-3 text-center text-sm font-semibold tracking-wide text-white transition-colors duration-200 hover:bg-yellow-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-300 sm:w-auto"
             >
-              {data?.hero_cta_text || hero.primaryButton}
+              {hero.primaryButton}
             </Link>
             <Link
-              href={String(data?.hero_secondary_link || "/blog")}
+              href={heroSecondaryLink}
               className="inline-flex min-h-[3rem] w-full items-center justify-center rounded-full border border-yellow-500 bg-transparent px-8 py-3 text-center text-sm font-semibold tracking-wide text-white transition-colors duration-200 hover:border-yellow-400 hover:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-400 sm:w-auto"
             >
               {hero.secondaryButton}
@@ -217,3 +326,7 @@ export function PublicHeroSection({
     </section>
   );
 }
+
+
+
+

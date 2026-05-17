@@ -1,37 +1,19 @@
 import { prisma } from "@/lib/prisma";
+import {
+  parsePartners,
+  parseTestimonials,
+} from "@/lib/partners-testimonials";
 import { getAllSettings } from "@/lib/settings";
+import type {
+  AdminDashboardData,
+  AdminDashboardReview,
+} from "@/lib/admin-dashboard-types";
 
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 
 function thirtyDaysAgo(): Date {
   return new Date(Date.now() - THIRTY_DAYS_MS);
 }
-
-export type AdminDashboardStat = {
-  label: string;
-  value: number;
-  recentCount?: number;
-};
-
-export type AdminDashboardEvent = {
-  id: string;
-  title: string;
-  date: string;
-  location: string;
-};
-
-export type AdminDashboardReview = {
-  id: string | number;
-  name: string;
-  role: string;
-  quote: string;
-};
-
-export type AdminDashboardData = {
-  stats: AdminDashboardStat[];
-  upcomingEvents: AdminDashboardEvent[];
-  recentReviews: AdminDashboardReview[];
-};
 
 export async function getAdminDashboardData(): Promise<AdminDashboardData> {
   const since = thirtyDaysAgo();
@@ -43,10 +25,8 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     settings = {};
   }
 
-  const partners = Array.isArray(settings.partners) ? settings.partners : [];
-  const testimonials = Array.isArray(settings.testimonials)
-    ? settings.testimonials
-    : [];
+  const partners = parsePartners(settings.partners);
+  const testimonials = parseTestimonials(settings.testimonials);
 
   const [
     totalPosts,
@@ -68,15 +48,12 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
 
   const recentReviews: AdminDashboardReview[] = testimonials
     .slice(0, 3)
-    .map((item, index) => {
-      const t = item as Record<string, unknown>;
-      return {
-        id: (t.id as string | number) ?? index,
-        name: typeof t.author === "string" ? t.author : "Anonymous",
-        role: typeof t.role === "string" ? t.role : "",
-        quote: typeof t.quote === "string" ? t.quote : "",
-      };
-    });
+    .map((item) => ({
+      id: item.id,
+      name: item.author.trim() || "Anonymous",
+      role: item.role,
+      quote: item.quote,
+    }));
 
   return {
     stats: [

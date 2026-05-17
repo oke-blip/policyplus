@@ -1,7 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { motion, type Variants } from "framer-motion";
 import {
   FileText,
@@ -12,9 +12,13 @@ import {
   MapPin,
   Briefcase,
   UsersRound,
+  Loader,
 } from "lucide-react";
 
-import type { AdminDashboardData } from "@/lib/admin-dashboard";
+import {
+  EMPTY_ADMIN_DASHBOARD,
+  type AdminDashboardData,
+} from "@/lib/admin-dashboard-types";
 
 const statIcons = [FileText, CalendarDays, HeartHandshake, MessageSquareQuote] as const;
 
@@ -33,12 +37,37 @@ const statShadows = [
 ] as const;
 
 type AdminDashboardProps = {
-  data: AdminDashboardData;
+  data?: AdminDashboardData;
 };
 
-export function AdminDashboard({ data }: AdminDashboardProps) {
-  const pathname = usePathname();
-  const currentLocale = pathname.split("/")[1] || "en";
+export function AdminDashboard({ data: initialData }: AdminDashboardProps = {}) {
+  const [data, setData] = useState<AdminDashboardData>(
+    initialData ?? EMPTY_ADMIN_DASHBOARD,
+  );
+  const [loading, setLoading] = useState(!initialData);
+
+  useEffect(() => {
+    if (initialData) return;
+
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const res = await fetch("/api/admin/dashboard");
+        if (!res.ok) throw new Error("Dashboard fetch failed");
+        const json = (await res.json()) as AdminDashboardData;
+        if (!cancelled) setData(json);
+      } catch {
+        if (!cancelled) setData(EMPTY_ADMIN_DASHBOARD);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [initialData]);
 
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
@@ -56,6 +85,20 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
       transition: { type: "spring", stiffness: 300, damping: 24 },
     },
   };
+
+  if (loading) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="flex min-h-[320px] items-center justify-center"
+        aria-busy="true"
+        aria-label="Loading dashboard"
+      >
+        <Loader className="size-8 animate-spin text-slate-400 dark:text-slate-500" />
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div
@@ -129,7 +172,7 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
         className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
       >
         <Link
-          href={`/${currentLocale}/admin/teams`}
+          href="/admin/teams"
           className="group flex items-center gap-4 rounded-2xl border border-slate-200/50 bg-white/60 p-5 shadow-sm backdrop-blur-xl transition hover:shadow-md dark:border-white/5 dark:bg-white/[0.02]"
         >
           <div className="flex size-12 items-center justify-center rounded-xl bg-slate-900 text-white shadow-md dark:bg-white dark:text-slate-900">

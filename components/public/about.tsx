@@ -17,7 +17,7 @@ export type AboutSectionProps = {
 };
 
 export function AboutSection({ data }: AboutSectionProps) {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const [fetchedSettings, setFetchedSettings] = useState<Record<string, unknown> | null>(null);
 
   const source = useMemo(
@@ -27,13 +27,13 @@ export function AboutSection({ data }: AboutSectionProps) {
 
   const intro = useMemo(
     () =>
-      resolveAboutIntroContent(source, {
+      resolveAboutIntroContent(source, locale, {
         eyebrow: String(t("about.eyebrow")),
         title: String(t("about.title")),
         description: String(t("about.description")),
         link: String(t("about.link")),
       }),
-    [source, t],
+    [source, locale, t],
   );
 
   useEffect(() => {

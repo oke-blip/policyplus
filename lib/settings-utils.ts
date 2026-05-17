@@ -1,4 +1,12 @@
-export type HeroBanner = { src: string; alt: string };
+export type HeroBanner = {
+  src: string;
+  alt: string;
+  alt_id?: string;
+  title?: string;
+  title_id?: string;
+  description?: string;
+  desc_id?: string;
+};
 
 /** Parse Prisma Json / stringified JSON into a usable value. */
 export function parseSettingValue(value: unknown): unknown {
@@ -246,12 +254,35 @@ export function parseHeroBanners(raw: unknown): HeroBanner[] {
           ? item
           : (item?.image ?? item?.src ?? "");
       if (!src || typeof src !== "string") return null;
+
+      const defaultAlt = `Hero banner ${index + 1}`;
+      if (typeof item !== "object" || item === null) {
+        return { src, alt: defaultAlt };
+      }
+
+      const alt = item.alt ? String(item.alt).trim() : defaultAlt;
+      const alt_id = item.alt_id ? String(item.alt_id).trim() : undefined;
+      const title = item.title ? String(item.title).trim() : undefined;
+      const title_id = item.title_id ? String(item.title_id).trim() : undefined;
+      const description = item.description
+        ? String(item.description).trim()
+        : item.desc
+          ? String(item.desc).trim()
+          : undefined;
+      const desc_id = item.desc_id
+        ? String(item.desc_id).trim()
+        : item.description_id
+          ? String(item.description_id).trim()
+          : undefined;
+
       return {
         src,
-        alt:
-          typeof item === "object" && item?.alt
-            ? String(item.alt)
-            : `Hero banner ${index + 1}`,
+        alt,
+        ...(alt_id ? { alt_id } : {}),
+        ...(title ? { title } : {}),
+        ...(title_id ? { title_id } : {}),
+        ...(description ? { description } : {}),
+        ...(desc_id ? { desc_id } : {}),
       };
     })
     .filter((b): b is HeroBanner => b !== null);

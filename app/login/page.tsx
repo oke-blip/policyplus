@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, useParams } from "next/navigation";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Lock, User, Sparkles, ArrowRight, Loader2 } from "lucide-react";
 
@@ -11,8 +12,6 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
-  const params = useParams();
-  const locale = params.locale || "en";
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,11 +28,11 @@ export default function LoginPage() {
       const data = await res.json();
 
       if (res.ok) {
-        router.push(`/${locale}/admin`);
+        router.push("/admin");
       } else {
         setError(data.message || "Login failed");
       }
-    } catch (err) {
+    } catch {
       setError("An unexpected error occurred");
     } finally {
       setLoading(false);
@@ -150,18 +149,5 @@ export default function LoginPage() {
         </p>
       </motion.div>
     </div>
-  );
-}
-
-// Simple Link wrapper since we can't easily import from next-intl here without knowing the config
-function Link({ href, children, className }: { href: string, children: React.ReactNode, className?: string }) {
-  const params = useParams();
-  const locale = params.locale || "en";
-  const localizedHref = href.startsWith("/") ? `/${locale}${href}` : href;
-  
-  return (
-    <a href={localizedHref} className={className}>
-      {children}
-    </a>
   );
 }

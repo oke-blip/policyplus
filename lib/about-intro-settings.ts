@@ -1,4 +1,8 @@
 import { pickLocalized, type ContentLocale } from "@/lib/content-locale";
+import {
+  isSettingsStringLocaleKey,
+  settingsLocaleIdFieldKey,
+} from "@/lib/settings-locale-keys";
 import { parseAboutValueItems } from "@/lib/settings-utils";
 
 export const DEFAULT_ABOUT_INTRO_IMAGE =
@@ -106,6 +110,32 @@ function firstTrimmed(...values: (string | undefined)[]): string | undefined {
   return undefined;
 }
 
+function hasNonEmptySettingString(raw: Record<string, unknown>, key: string): boolean {
+  const value = raw[key];
+  return typeof value === "string" && value.trim().length > 0;
+}
+
+function hasIntroOrHeroSetting(raw: Record<string, unknown>, key: string): boolean {
+  if (hasNonEmptySettingString(raw, key)) return true;
+  if (isSettingsStringLocaleKey(key)) {
+    return hasNonEmptySettingString(raw, settingsLocaleIdFieldKey(key));
+  }
+  return false;
+}
+
+/** Prefer `intro_*` bilingual copy; fall back to `about_hero_*` when intro is empty. */
+function pickIntroOrHeroField(
+  raw: Record<string, unknown>,
+  introKey: string,
+  heroKey: string,
+  locale: ContentLocale,
+  fallback: string,
+): string {
+  const intro = pickAboutBilingualField(raw, introKey, locale, "");
+  const hero = pickAboutBilingualField(raw, heroKey, locale, "");
+  return firstTrimmed(intro, hero) || fallback;
+}
+
 /** Extract About page hero/mission fields from raw settings (shared with full About page). */
 export function pickAboutSettings(raw: Record<string, unknown>): AboutPageSettings {
   const valueItems = parseAboutValueItems(raw.about_value_items);
@@ -130,10 +160,7 @@ export function pickAboutSettings(raw: Record<string, unknown>): AboutPageSettin
 /** True when raw settings include any homepage intro or About hero copy/image. */
 export function hasAboutIntroSource(raw: Record<string, unknown> | undefined): boolean {
   if (!raw) return false;
-  return [...INTRO_KEYS, ...HERO_KEYS].some((key) => {
-    const value = raw[key];
-    return typeof value === "string" && value.trim().length > 0;
-  });
+  return [...INTRO_KEYS, ...HERO_KEYS].some((key) => hasIntroOrHeroSetting(raw, key));
 }
 
 /**
@@ -142,24 +169,32 @@ export function hasAboutIntroSource(raw: Record<string, unknown> | undefined): b
  */
 export function resolveAboutIntroContent(
   raw: Record<string, unknown> | undefined,
+  locale: ContentLocale,
   fallbacks: AboutIntroLocaleFallbacks,
 ): AboutIntroResolved {
   const settings = raw ?? {};
   const hero = pickAboutSettings(settings);
 
   return {
-    subtitle:
-      firstTrimmed(pickString(settings, "intro_subtitle"), hero.about_hero_subtitle) ??
+    subtitle: pickIntroOrHeroField(
+      settings,
+      "intro_subtitle",
+      "about_hero_subtitle",
+      locale,
       fallbacks.eyebrow,
-    title:
-      firstTrimmed(pickString(settings, "intro_title"), hero.about_hero_title) ?? fallbacks.title,
-    description:
-      firstTrimmed(pickString(settings, "intro_description"), hero.about_hero_description) ??
+    ),
+    title: pickIntroOrHeroField(settings, "intro_title", "about_hero_title", locale, fallbacks.title),
+    description: pickIntroOrHeroField(
+      settings,
+      "intro_description",
+      "about_hero_description",
+      locale,
       fallbacks.description,
+    ),
     imageUrl:
       firstTrimmed(pickString(settings, "intro_image_url"), hero.about_hero_image) ??
       DEFAULT_ABOUT_INTRO_IMAGE,
-    ctaText: firstTrimmed(hero.about_hero_cta_text) ?? fallbacks.link,
+    ctaText: pickAboutBilingualField(settings, "about_hero_cta_text", locale, fallbacks.link),
     ctaLink: firstTrimmed(hero.about_hero_cta_link) ?? DEFAULT_ABOUT_CTA_LINK,
   };
 }
