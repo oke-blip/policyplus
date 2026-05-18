@@ -9,6 +9,7 @@ import {
   sanitizeTestimonialsForSave,
 } from "@/lib/settings-images";
 import { parseTeamMembers, prepareTeamMembersForSave } from "@/lib/team-members";
+import { deleteOrphanedSettingImages } from "@/lib/settings-storage-cleanup";
 
 function normalizeSettingValue(key: string, value: unknown): unknown {
   if (key === "partners") return sanitizePartnersForSave(value);
@@ -69,10 +70,13 @@ export async function POST(request: Request) {
       normalizeSettingValue(key, value),
     ] as const);
 
+    const normalizedIncoming = Object.fromEntries(entries) as Record<string, unknown>;
+    await deleteOrphanedSettingImages(normalizedIncoming);
+
     // One connection: parallel upserts exhaust Supabase session mode (pool_size ~15).
     await prisma.$transaction(
       async (tx) => {
-        for (const [key, value] of entries) {
+        for (const [key, value] of Object.entries(normalizedIncoming)) {
           const valueId = idByKey[key];
           await tx.setting.upsert({
             where: { key },

@@ -7,7 +7,11 @@ import {
   schemaOutOfDateMessage,
   updatePost,
 } from "@/lib/post-db-compat";
-import { isDataUrl } from "@/lib/supabase-storage";
+import {
+  collectPostImageUrls,
+  deleteStorageObjectsByUrls,
+  isDataUrl,
+} from "@/lib/supabase-storage";
 import type { PostStatus, PostType } from "@/app/generated/prisma";
 
 function slugify(text: string) {
@@ -135,7 +139,19 @@ export async function PUT(request: Request) {
       return NextResponse.json({ message: imageError }, { status: 400 });
     }
 
-    const post = await updatePost(id, buildPostData(data));
+    const existing = await prisma.post.findUnique({ where: { id } });
+    const postData = buildPostData(data);
+    if (existing) {
+      const replaced: string[] = [];
+      const nextUrls = collectPostImageUrls(postData);
+      const nextSet = new Set(nextUrls);
+      for (const url of collectPostImageUrls(existing)) {
+        if (!nextSet.has(url)) replaced.push(url);
+      }
+      await deleteStorageObjectsByUrls(replaced);
+    }
+
+    const post = await updatePost(id, postData);
     return NextResponse.json(post);
   } catch (error: unknown) {
     console.error("Failed to update post:", error);
@@ -152,6 +168,11 @@ export async function DELETE(request: Request) {
     const id = searchParams.get("id");
     if (!id) {
       return NextResponse.json({ message: "ID required" }, { status: 400 });
+    }
+
+    const existing = await prisma.post.findUnique({ where: { id } });
+    if (existing) {
+      await deleteStorageObjectsByUrls(collectPostImageUrls(existing));
     }
 
     await prisma.post.delete({

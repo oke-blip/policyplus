@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import {
+  collectEventImageUrls,
+  deleteStorageObjectsByUrls,
+} from "@/lib/supabase-storage";
 
 function rejectBase64Image(image: unknown): string | null {
   if (typeof image === "string" && image.startsWith("data:")) {
@@ -55,6 +59,15 @@ export async function PUT(request: Request) {
     if (imageError) {
       return NextResponse.json({ message: imageError }, { status: 400 });
     }
+
+    const existing = await prisma.event.findUnique({ where: { id } });
+    if (existing && typeof updateData.image === "string") {
+      const nextImage = updateData.image.trim();
+      if (nextImage !== existing.image.trim()) {
+        await deleteStorageObjectsByUrls(collectEventImageUrls(existing));
+      }
+    }
+
     const event = await prisma.event.update({
       where: { id },
       data: updateData,
@@ -71,6 +84,11 @@ export async function DELETE(request: Request) {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
     if (!id) return NextResponse.json({ message: "ID required" }, { status: 400 });
+
+    const existing = await prisma.event.findUnique({ where: { id } });
+    if (existing) {
+      await deleteStorageObjectsByUrls(collectEventImageUrls(existing));
+    }
 
     await prisma.event.delete({
       where: { id },

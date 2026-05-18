@@ -172,3 +172,75 @@ export function resolvePublicationUploadFolder(
   if (type) return publicationFolderFromType(type);
   return null;
 }
+
+/** Parsed object path from a Supabase public object URL, or null if not our storage. */
+export function parseSupabaseStoragePublicUrl(
+  url: string,
+): { bucket: string; path: string } | null {
+  const trimmed = url.trim();
+  if (!trimmed) return null;
+  try {
+    const { pathname } = new URL(trimmed);
+    const match = pathname.match(/\/storage\/v1\/object\/public\/([^/]+)\/(.+)$/);
+    if (!match?.[1] || !match[2]) return null;
+    return {
+      bucket: decodeURIComponent(match[1]),
+      path: decodeURIComponent(match[2]),
+    };
+  } catch {
+    return null;
+  }
+}
+
+export function isSupabaseStoragePublicUrl(url: string): boolean {
+  return parseSupabaseStoragePublicUrl(url) !== null;
+}
+
+/** Deletes one object by public URL. Skips external URLs and logs (does not throw) on failure. */
+export async function deleteStorageObjectByUrl(
+  url: string | null | undefined,
+): Promise<void> {
+  const parsed = parseSupabaseStoragePublicUrl(url ?? "");
+  if (!parsed) return;
+
+  const supabase = getSupabaseAdmin();
+  const { error } = await supabase.storage
+    .from(parsed.bucket)
+    .remove([parsed.path]);
+
+  if (error) {
+    console.warn(
+      `[storage] Failed to delete ${parsed.bucket}/${parsed.path}:`,
+      error.message,
+    );
+  }
+}
+
+/** Deletes unique Supabase storage objects; skips non-Supabase URLs. */
+export async function deleteStorageObjectsByUrls(
+  urls: Iterable<string>,
+): Promise<void> {
+  const unique = [
+    ...new Set(
+      [...urls]
+        .map((u) => u.trim())
+        .filter((u) => u.length > 0 && isSupabaseStoragePublicUrl(u)),
+    ),
+  ];
+  await Promise.all(unique.map((url) => deleteStorageObjectByUrl(url)));
+}
+
+export function collectPostImageUrls(post: {
+  image_url?: string | null;
+  author_image?: string | null;
+}): string[] {
+  const urls: string[] = [];
+  if (post.image_url?.trim()) urls.push(post.image_url.trim());
+  if (post.author_image?.trim()) urls.push(post.author_image.trim());
+  return urls;
+}
+
+export function collectEventImageUrls(event: { image?: string | null }): string[] {
+  const image = event.image?.trim();
+  return image ? [image] : [];
+}
