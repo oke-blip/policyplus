@@ -21,6 +21,16 @@ type NavLinkItem = {
   href: string;
 };
 
+/** Canonical primary nav (6 items). */
+const MEGA_MENU_ITEMS: readonly { href: string; labelEn: string; labelId: string }[] = [
+  { href: "/about", labelEn: "About Us", labelId: "Tentang Kami" },
+  { href: "/expertise", labelEn: "Our Expertise", labelId: "Keahlian Kami" },
+  { href: "/knowledge-center", labelEn: "Knowledge Center", labelId: "Pusat Pengetahuan" },
+  { href: "/insights", labelEn: "Insights", labelId: "Wawasan" },
+  { href: "/events", labelEn: "Events", labelId: "Acara" },
+  { href: "/career", labelEn: "Careers", labelId: "Karir" },
+];
+
 function TextLogo({ name }: { name: string }) {
   const plusIndex = name.lastIndexOf("+");
   if (plusIndex === -1) {
@@ -44,11 +54,18 @@ export function Navbar({
 }: {
   initialSettings?: Record<string, unknown>;
 }) {
-  const { t, locale } = useLanguage();
+  const { locale } = useLanguage();
   const { resolvedTheme } = useTheme();
-  const leftLinks = t<NavLinkItem[]>("navbar.left");
-  const rightLinks = t<NavLinkItem[]>("navbar.right");
-  const mobileLinks = [...leftLinks, ...rightLinks];
+
+  const megaMenuLinks = React.useMemo((): NavLinkItem[] => {
+    const isId = locale === "id";
+    return MEGA_MENU_ITEMS.map(({ href, labelEn, labelId }) => ({
+      href,
+      label: isId ? labelId : labelEn,
+    }));
+  }, [locale]);
+
+  const mobileLinks = megaMenuLinks;
 
   const [fetchedSettings, setFetchedSettings] = React.useState<Record<string, unknown> | null>(
     null,
@@ -120,8 +137,9 @@ export function Navbar({
 
   const headerSurface = "border-b border-white/5 bg-black/60 backdrop-blur-xl";
 
+  // Perbesar ukuran font teks logo (jika tidak ada gambar)
   const logoClass = cn(
-    "text-xl tracking-tight text-white transition-colors duration-300 lg:text-2xl"
+    "text-2xl tracking-tight text-white transition-colors duration-300 lg:text-3xl"
   );
 
   const linkClass = cn(
@@ -140,24 +158,18 @@ export function Navbar({
           headerSurface
         )}
       >
-        <div className="relative mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-4">
-            <div className="hidden flex-1 items-center justify-start gap-6 xl:gap-8 lg:flex">
-            {leftLinks.map((item) => (
-              <Link key={`${item.href}-${item.label}`} href={item.href} className={linkClass}>
-                {item.label}
-              </Link>
-            ))}
-          </div>
-
-          <div className="absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2">
+        <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-4">
+          
+          {/* BAGIAN KIRI: LOGO (DIBESARKAN) */}
+          <div className="flex shrink-0 items-center justify-start">
             <Link href="/" className={cn("font-semibold", logoClass)}>
               {logoUrl ? (
                 <Image
                   src={logoUrl}
                   alt={companyName}
-                  width={160}
-                  height={48}
-                  className="h-7 w-auto max-w-[10rem] object-contain lg:h-8 lg:max-w-[12rem]"
+                  width={200}
+                  height={62}
+                  className="h-9 w-auto max-w-[13rem] object-contain lg:h-11 lg:max-w-[15rem]"
                   priority
                 />
               ) : (
@@ -166,17 +178,21 @@ export function Navbar({
             </Link>
           </div>
 
+          {/* BAGIAN KANAN: SEMUA MENU & TOGGLE */}
           <div className="hidden flex-1 items-center justify-end gap-6 xl:gap-8 lg:flex">
-            {rightLinks.map((item) => (
+            {megaMenuLinks.map((item) => (
               <Link key={`${item.href}-${item.label}`} href={item.href} className={linkClass}>
                 {item.label}
               </Link>
             ))}
-            <LanguageToggle overDark />
-            <ThemeToggle variant="overDark" />
+            <div className="flex items-center gap-4 border-l border-white/10 pl-6 xl:pl-8">
+              <LanguageToggle overDark />
+              <ThemeToggle variant="overDark" />
+            </div>
           </div>
 
-          <div className="z-20 flex flex-1 lg:hidden" aria-hidden="true" />
+          {/* Placeholder untuk tombol mobile menu jika ditekan dari luar */}
+          <div className="z-20 flex shrink-0 lg:hidden" aria-hidden="true" />
         </div>
       </header>
 

@@ -33,7 +33,7 @@ export default async function PublicHomePage() {
   const methodologySteps = toMethodologySteps(settings.methodology_items);
 
   return (
-    <div className="relative h-svh w-full overflow-hidden bg-white text-slate-900">
+    <div className="relative w-full bg-white text-slate-900">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 -z-20 bg-gradient-to-br from-zinc-50 via-white to-zinc-100"
@@ -44,8 +44,7 @@ export default async function PublicHomePage() {
       />
 
       <main
-        className="h-full w-full overflow-x-hidden overflow-y-auto overscroll-y-contain scroll-smooth hide-scrollbar snap-y snap-proximity"
-        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        className="w-full overflow-x-hidden"
       >
         <PublicHeroSection data={settings} initialBanners={heroBanners} />
         <AboutSection data={settings} />

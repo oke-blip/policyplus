@@ -2,7 +2,7 @@
 
 import type { ComponentType } from "react";
 import { useEffect, useMemo, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { pickLocalized, type ContentLocale } from "@/lib/content-locale";
 import { getMethodologyIcon, getDefaultMethodologyIconId } from "@/lib/methodology-icons";
@@ -12,6 +12,7 @@ import {
   type MethodologyStep,
 } from "@/lib/settings-utils";
 import { cn } from "@/lib/utils";
+import { MoveRight } from "lucide-react";
 
 function pickSettingsField(
   raw: Record<string, unknown> | undefined,
@@ -53,19 +54,24 @@ function StepCardContent({
 }) {
   return (
     <>
-      <span className="mb-1.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-yellow-500/15 text-yellow-500 lg:mb-2 lg:h-9 lg:w-9">
-        <Icon className="h-4 w-4 lg:h-[18px] lg:w-[18px]" strokeWidth={2} aria-hidden />
+      {/* Icon - Diperbesar sedikit */}
+      <span className="mb-4 inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 group-hover:scale-110 group-hover:bg-yellow-500/20 transition-all duration-300">
+        <Icon className="h-6 w-6" strokeWidth={1.5} aria-hidden />
       </span>
+
+      {/* Title - Lebih Besar */}
       <h3
         className={cn(
-          "mb-1.5 text-center text-[11px] font-bold uppercase tracking-wider text-white lg:mb-2 lg:text-xs",
+          "mb-3 text-center text-sm font-bold uppercase tracking-[0.15em] text-white lg:text-base transition-colors group-hover:text-yellow-500",
           titleClassName
         )}
       >
         {step.title}
       </h3>
+
+      {/* Points - Lebih Besar & Mudah Dibaca */}
       {step.points.length > 0 ? (
-        <ul className="list-disc space-y-0.5 pl-3 text-left text-[11px] leading-snug text-gray-400 marker:text-yellow-500 lg:space-y-1 lg:pl-3.5 lg:text-xs">
+        <ul className="list-disc space-y-1.5 pl-4 text-left text-xs leading-relaxed text-gray-300 marker:text-yellow-500 lg:space-y-2 lg:text-[13px]">
           {step.points.map((point, pointIndex) => (
             <li key={`${point}-${pointIndex}`}>{point}</li>
           ))}
@@ -136,92 +142,142 @@ export function MethodologySection({
         ? fetchedSteps
         : fallbackSteps;
 
+  const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.2 },
+    },
+  };
+
+  const cardVariants: Variants = {
+    hidden: { opacity: 0, y: 30, scale: 0.95 },
+    show: { 
+      opacity: 1, 
+      y: 0, 
+      scale: 1,
+      transition: { type: "spring", stiffness: 100, damping: 20 } 
+    },
+  };
+
+  const lineVariants: Variants = {
+    hidden: { scaleX: 0 },
+    show: { 
+      scaleX: 1,
+      transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] }
+    }
+  };
+
   if (steps.length === 0) return null;
 
   return (
-    <section className="relative isolate flex min-h-svh w-full snap-start flex-col bg-black pt-28 pb-12 text-white lg:pt-32 lg:pb-16">
+    <section className="relative isolate flex min-h-svh w-full snap-start flex-col bg-black pt-32 pb-16 text-white lg:pt-36 lg:pb-24 overflow-hidden">
+      {/* Ambient Glow - DNA Policy+ */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute bottom-0 left-[-10%] -z-10 h-[50vh] w-[50vw] rounded-full bg-white/5 blur-[120px]"
+        className="pointer-events-none absolute bottom-[-10%] right-[-10%] -z-10 h-[60vh] w-[60vw] rounded-full bg-yellow-500/[0.03] blur-[140px]"
       />
 
-      <div className="relative z-10 flex w-full flex-1 flex-col">
-        <div className="flex w-full flex-1 flex-col justify-start py-2 xl:justify-center">
-          <div className="mx-auto flex w-full min-w-0 max-w-7xl flex-col px-4 sm:px-6">
-            <header className="mx-auto mb-6 max-w-3xl shrink-0 text-center lg:mb-8">
-              <span className="inline-block rounded-full border border-gray-700 bg-[#111] px-3 py-1 text-[10px] font-semibold tracking-wide text-yellow-500 uppercase sm:px-4 sm:py-1.5 sm:text-xs">
-                {tag}
-              </span>
-              <h2 className="mt-3 break-words font-sans text-3xl font-bold leading-tight tracking-tight text-white hyphens-auto lg:text-4xl xl:text-5xl">
-                {header}
-              </h2>
-              <p className="mt-2 text-sm leading-snug text-gray-400 sm:text-base">
-                {description}
-              </p>
-            </header>
+      <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col px-4 sm:px-6 lg:px-8">
+        
+        {/* HEADER - Teks Lebih Besar */}
+        <motion.header 
+          className="mx-auto mb-16 max-w-4xl shrink-0 text-center lg:mb-24"
+          initial={{ opacity: 0, y: -20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+        >
+          <span className="inline-block rounded-full border border-gray-800 bg-[#0a0a0a] px-5 py-2 text-xs font-bold tracking-[0.2em] text-yellow-500 uppercase shadow-lg">
+            {tag}
+          </span>
+          <h2 className="mt-6 break-words font-sans text-4xl font-extrabold leading-tight tracking-tight text-white hyphens-auto sm:text-5xl lg:text-6xl">
+            {header}
+          </h2>
+          <p className="mt-4 max-w-2xl mx-auto text-base leading-relaxed text-gray-400 sm:text-lg lg:text-xl">
+            {description}
+          </p>
+        </motion.header>
 
-            <div className="relative mt-5 block min-h-0">
-              <div className="relative pr-1 [-webkit-overflow-scrolling:touch]">
-                <motion.div
-                  className="absolute bottom-0 left-6 top-0 w-0.5 origin-top bg-gradient-to-b from-yellow-500 to-gray-600"
-                  initial={{ scaleY: 0 }}
-                  whileInView={{ scaleY: 1 }}
-                  viewport={{ once: true, margin: "-40px" }}
-                  transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
-                  style={{ transformOrigin: "top" }}
-                />
+        {/* STEPS CONTAINER */}
+        <motion.div 
+          className="relative flex flex-1 flex-col lg:flex-row lg:items-start lg:justify-center gap-12 lg:gap-6"
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-100px" }}
+        >
+          {steps.map((step, index) => {
+            const Icon = getMethodologyIcon(
+              step.icon || getDefaultMethodologyIconId(index)
+            );
+            const isLast = index === steps.length - 1;
 
-                {steps.map((step, index) => {
-                  const Icon = getMethodologyIcon(
-                    step.icon || getDefaultMethodologyIconId(index)
-                  );
-                  return (
-                    <div
-                      key={`m-${step.id}-${step.title}-${index}`}
-                      className={cn(
-                        "relative flex gap-4",
-                        index < steps.length - 1 ? "mb-6" : ""
-                      )}
+            return (
+              <div key={`m-${step.id}-${index}`} className="relative flex-1 flex flex-col items-center lg:items-start group">
+                
+                {/* Horizontal Connector Line & Arrow (Desktop Only) */}
+                {!isLast && (
+                  <div className="hidden lg:block absolute top-7 left-[calc(50%+2rem)] w-[calc(100%-4rem)] h-px z-0">
+                    <motion.div 
+                      className="w-full h-full bg-gray-800 origin-left"
+                      variants={lineVariants}
+                    />
+                    <motion.div
+                      className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-700"
+                      initial={{ opacity: 0, x: -10 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: 0.6 + index * 0.2 }}
                     >
-                      <div className="pointer-events-none relative z-10 w-12 shrink-0">
-                        <motion.div
-                          className="absolute left-6 top-0 flex h-11 w-11 -translate-x-1/2 items-center justify-center rounded-full border-4 border-yellow-500 bg-[#111] text-xs font-bold text-yellow-400 shadow-[0_0_15px_rgba(234,179,8,0.35)]"
-                          animate={{
-                            scale: [1, 1.06, 1],
-                            boxShadow: [
-                              "0 0 15px rgba(234,179,8,0.35)",
-                              "0 0 22px rgba(234,179,8,0.55)",
-                              "0 0 15px rgba(234,179,8,0.35)",
-                            ],
-                          }}
-                          transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-                        >
-                          {step.id}
-                        </motion.div>
-                      </div>
+                      <MoveRight size={16} strokeWidth={1}/>
+                    </motion.div>
+                  </div>
+                )}
 
-                      <motion.div
-                        className="min-w-0 flex-1 overflow-hidden rounded-2xl border border-gray-800 bg-[#111] p-4 shadow-lg sm:p-5"
-                        initial={{ opacity: 0, x: 50 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true, margin: "-32px" }}
-                        transition={{
-                          duration: 0.5,
-                          ease: [0.22, 1, 0.36, 1],
-                          delay: index * 0.05,
-                        }}
-                      >
-                        <div className="flex flex-col items-center">
-                          <StepCardContent step={step} Icon={Icon} />
-                        </div>
-                      </motion.div>
-                    </div>
-                  );
-                })}
+                {/* Vertical Connector Line (Mobile Only) */}
+                {!isLast && (
+                  <div className="absolute left-7 top-14 w-px h-[calc(100%+3rem)] bg-gray-800 lg:hidden z-0" />
+                )}
+
+                {/* Number Circle - Animated Popping */}
+                <div className="relative z-10 flex items-center justify-center mb-6 lg:mb-10 lg:w-full lg:justify-center">
+                  <motion.div
+                    className="flex h-14 w-14 items-center justify-center rounded-full border-4 border-yellow-500 bg-[#0a0a0a] text-lg font-black text-yellow-400 shadow-[0_0_20px_rgba(234,179,8,0.3)] shrink-0"
+                    initial={{ scale: 0, opacity: 0 }}
+                    variants={{
+                      show: { 
+                        scale: 1, 
+                        opacity: 1,
+                        transition: { type: "spring", stiffness: 200, damping: 15, delay: index * 0.1 }
+                      }
+                    }}
+                    animate={{
+                      boxShadow: [
+                        "0 0 20px rgba(234,179,8,0.3)",
+                        "0 0 30px rgba(234,179,8,0.5)",
+                        "0 0 20px rgba(234,179,8,0.3)",
+                      ],
+                    }}
+                    transition={{
+                      boxShadow: { duration: 2, repeat: Infinity, ease: "easeInOut" }
+                    }}
+                  >
+                    {step.id}
+                  </motion.div>
+                </div>
+
+                {/* Card - Animated popping & Hover effect */}
+                <motion.div
+                  className="relative z-10 w-full min-w-0 overflow-hidden rounded-3xl border border-gray-800/50 bg-[#0a0a0a] p-6 shadow-xl transition-all duration-300 ease-out group-hover:-translate-y-2 group-hover:border-yellow-500/40 group-hover:shadow-yellow-500/10 sm:p-8 flex flex-col items-center"
+                  variants={cardVariants}
+                >
+                  <StepCardContent step={step} Icon={Icon} />
+                </motion.div>
               </div>
-            </div>
-          </div>
-        </div>
+            );
+          })}
+        </motion.div>
       </div>
     </section>
   );

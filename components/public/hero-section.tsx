@@ -297,7 +297,7 @@ export function PublicHeroSection({
             variants={fadeUpDelayed(0.28)}
             initial="hidden"
             animate="visible"
-            className="mx-auto mt-6 max-w-md text-center font-sans text-sm leading-relaxed text-gray-400 lg:mt-8 lg:max-w-lg lg:text-base"
+            className="mx-auto mt-6 max-w-md text-center font-sans text-sm font-bold leading-relaxed text-gray-400 lg:mt-8 lg:max-w-lg lg:text-base"
           >
             {hero.subheadline}
           </motion.p>

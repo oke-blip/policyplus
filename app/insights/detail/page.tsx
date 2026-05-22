@@ -1,11 +1,13 @@
-import { Navbar } from "@/components/Navbar";
-import { InsightDetailPage } from "@/components/public/InsightDetailPage";
+import { redirect } from "next/navigation";
 
-export default function InsightDetailRoute() {
-  return (
-    <>
-      <Navbar />
-      <InsightDetailPage />
-    </>
-  );
+export default async function InsightDetailLegacyRoute({
+  searchParams,
+}: {
+  searchParams: Promise<{ id?: string }>;
+}) {
+  const { id } = await searchParams;
+  if (!id) {
+    redirect("/insights");
+  }
+  redirect(`/insights/${encodeURIComponent(id)}`);
 }

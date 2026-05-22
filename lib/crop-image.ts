@@ -10,7 +10,21 @@ function createImage(url: string): Promise<HTMLImageElement> {
   });
 }
 
-/** Crop a region from `imageSrc` and return a JPEG data URL, optionally downscaled. */
+const ALPHA_SOURCE_RE = /^data:image\/(png|webp|gif)/i;
+
+function croppedRegionHasTransparency(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+): boolean {
+  const { data } = ctx.getImageData(0, 0, width, height);
+  for (let i = 3; i < data.length; i += 4) {
+    if (data[i]! < 255) return true;
+  }
+  return false;
+}
+
+/** Crop a region from `imageSrc` and return a data URL (PNG if alpha, else JPEG), optionally downscaled. */
 export async function getCroppedImageDataUrl(
   imageSrc: string,
   pixelCrop: Area,
@@ -30,7 +44,7 @@ export async function getCroppedImageDataUrl(
 
   canvas.width = width;
   canvas.height = height;
-  const ctx = canvas.getContext("2d");
+  const ctx = canvas.getContext("2d", { willReadFrequently: true });
   if (!ctx) throw new Error("Could not get canvas context");
 
   ctx.drawImage(
@@ -45,5 +59,9 @@ export async function getCroppedImageDataUrl(
     height,
   );
 
-  return canvas.toDataURL("image/jpeg", quality);
+  const preserveAlpha =
+    ALPHA_SOURCE_RE.test(imageSrc) && croppedRegionHasTransparency(ctx, width, height);
+  return preserveAlpha
+    ? canvas.toDataURL("image/png")
+    : canvas.toDataURL("image/jpeg", quality);
 }

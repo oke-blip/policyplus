@@ -31,8 +31,14 @@ export const SMART_FALLBACK_POST_FIELD_PAIRS: SmartFallbackFieldPair[] = [
 
 export const SMART_FALLBACK_PARTNERS_HEADER_PAIRS: SmartFallbackFieldPair[] = [
   ["partners_header", "partners_header_id"],
+  ["partners_description", "partners_description_id"],
+  ["media_coverage_header", "media_coverage_header_id"],
+  ["media_coverage_description", "media_coverage_description_id"],
   ["testimonials_header", "testimonials_header_id"],
 ];
+
+export const SMART_FALLBACK_MEDIA_COVERAGE_ITEM_PAIRS: SmartFallbackFieldPair[] =
+  [["name", "name_id"]];
 
 export const SMART_FALLBACK_PUBLICATIONS_FIELD_PAIRS: SmartFallbackFieldPair[] = [
   ["knowledge_center_title", "knowledge_center_title_id"],
@@ -97,6 +103,13 @@ export function applyPartnersTestimonialsSmartFallback<T extends Record<string, 
   items: T[],
 ): T[] {
   return applySmartFallbackToArrayItems(items, SMART_FALLBACK_TESTIMONIAL_ITEM_PAIRS);
+}
+
+/** Copy `name_id` into EN `name` when EN is empty (media coverage logos). */
+export function applyMediaCoverageSmartFallback<T extends Record<string, unknown>>(
+  items: T[],
+): T[] {
+  return applySmartFallbackToArrayItems(items, SMART_FALLBACK_MEDIA_COVERAGE_ITEM_PAIRS);
 }
 
 export function isEmptyCmsValue(value: unknown): boolean {

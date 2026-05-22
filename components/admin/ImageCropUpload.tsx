@@ -6,7 +6,11 @@ import Cropper, { type Area } from "react-easy-crop";
 import { Camera, Loader, X, ZoomIn } from "lucide-react";
 import { getCroppedImageDataUrl } from "@/lib/crop-image";
 import type { SettingsSubfolder } from "@/lib/supabase-storage";
-import { dataUrlToFile, uploadSettingsImage } from "@/lib/upload-settings-image";
+import {
+  dataUrlToFile,
+  dataUrlToUploadFileName,
+  uploadSettingsImage,
+} from "@/lib/upload-settings-image";
 
 type ImageCropUploadProps = {
   label: string;
@@ -92,7 +96,7 @@ export function ImageCropUpload({
       setApplying(true);
       const dataUrl = await getCroppedImageDataUrl(imageSrc, croppedAreaPixels, outputMaxWidth);
       if (uploadSubfolder) {
-        const file = dataUrlToFile(dataUrl, "cropped.jpg");
+        const file = dataUrlToFile(dataUrl, dataUrlToUploadFileName(dataUrl));
         const url = await uploadSettingsImage(file, uploadSubfolder, file.name);
         onChange(url);
       } else {
@@ -132,7 +136,7 @@ export function ImageCropUpload({
             </button>
           </div>
 
-          <div className="relative h-[min(50vh,320px)] w-full shrink-0 bg-black">
+          <div className="relative h-[min(50vh,320px)] w-full shrink-0 bg-checkerboard">
             <Cropper
               image={imageSrc}
               crop={crop}
@@ -188,7 +192,7 @@ export function ImageCropUpload({
       {hint ? <p className="text-xs text-slate-500 dark:text-slate-400">{hint}</p> : null}
 
       <div
-        className={`relative w-full overflow-hidden rounded-xl border-2 border-dashed border-slate-200 bg-slate-50/80 dark:border-white/10 dark:bg-white/[0.03] ${previewClassName ?? ""}`}
+        className={`relative w-full overflow-hidden rounded-xl border-2 border-dashed border-slate-200 bg-checkerboard dark:border-white/10 ${previewClassName ?? ""}`}
         style={hasFixedPreviewHeight ? undefined : { aspectRatio: boxAspect }}
       >
         {value ? (

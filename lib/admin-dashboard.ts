@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import {
-  parsePartners,
-  parseTestimonials,
+  loadLogoItemsFromSettings,
+  splitLogoItemsByType,
 } from "@/lib/partners-testimonials";
 import { getAllSettings } from "@/lib/settings";
 import { parseHeroBanners } from "@/lib/settings-utils";
@@ -30,8 +30,9 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     settings = {};
   }
 
-  const partners = parsePartners(settings.partners);
-  const testimonials = parseTestimonials(settings.testimonials);
+  const { partners, mediaCoverage } = splitLogoItemsByType(
+    loadLogoItemsFromSettings(settings),
+  );
   const heroBanners = parseHeroBanners(settings.hero_banners);
   const companyName = readString(settings.company_name) || "Policy+";
   const hasLogo = readString(settings.company_logo).length > 0;
@@ -60,13 +61,13 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     }),
   ]);
 
-  const recentReviews: AdminDashboardReview[] = testimonials
+  const recentReviews: AdminDashboardReview[] = mediaCoverage
     .slice(0, 3)
     .map((item) => ({
       id: item.id,
-      name: item.author.trim() || "Anonymous",
-      role: item.role,
-      quote: item.quote,
+      name: item.name.trim() || "Media outlet",
+      role: "",
+      quote: item.description?.trim() ?? "",
     }));
 
   return {
@@ -92,7 +93,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
       hasLogo,
       heroBannerCount: heroBanners.length,
       partnerCount: partners.length,
-      testimonialCount: testimonials.length,
+      testimonialCount: mediaCoverage.length,
     },
   };
 }

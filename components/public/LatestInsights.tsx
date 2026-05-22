@@ -182,9 +182,10 @@ export function LatestInsights({ data }: { data?: Record<string, unknown> }) {
         ) : (
           <div className="mt-10 grid w-full grid-cols-1 gap-6 sm:mt-12 md:grid-cols-2 lg:grid-cols-3 lg:gap-8">
             {displayPosts.map((post) => (
-              <article
+              <Link
                 key={post.id}
-                className="group relative flex h-full flex-col overflow-hidden rounded-[2rem] border border-white/10 bg-[#111] transition-all duration-300 hover:-translate-y-2 hover:border-yellow-500/30 hover:shadow-2xl hover:shadow-yellow-500/5"
+                href={post.href}
+                className="group relative flex h-full flex-col overflow-hidden rounded-[2rem] border border-white/10 bg-[#111] transition-all duration-300 hover:-translate-y-2 hover:border-yellow-500/30 hover:shadow-2xl hover:shadow-yellow-500/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-500"
               >
                 <div className="relative aspect-video w-full shrink-0 overflow-hidden bg-slate-800">
                   <Image
@@ -234,19 +235,16 @@ export function LatestInsights({ data }: { data?: Record<string, unknown> }) {
                   )}
 
                   <div className="mt-auto pt-2">
-                    <Link
-                      href={post.href}
-                      className="inline-flex items-center text-sm font-bold text-yellow-500 underline decoration-2 underline-offset-4 transition-colors hover:text-yellow-400"
-                    >
+                    <span className="inline-flex items-center text-sm font-bold text-yellow-500 underline decoration-2 underline-offset-4 transition-colors group-hover:text-yellow-400">
                       {readMoreLabel}
                       <ArrowRight
                         className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
                         aria-hidden
                       />
-                    </Link>
+                    </span>
                   </div>
                 </div>
-              </article>
+              </Link>
             ))}
           </div>
         )}

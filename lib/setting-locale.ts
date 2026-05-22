@@ -11,6 +11,9 @@ import { SETTINGS_STRING_LOCALE_KEYS } from "@/lib/settings-locale-keys";
 /** Setting keys that store Indonesian copy as a plain string in `value_id`. */
 export const STRING_LOCALE_SETTING_KEYS = [
   "partners_header",
+  "partners_description",
+  "media_coverage_header",
+  "media_coverage_description",
   "testimonials_header",
   ...SETTINGS_STRING_LOCALE_KEYS,
 ] as const;

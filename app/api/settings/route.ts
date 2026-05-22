@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { Prisma } from "@/app/generated/prisma";
 import { prisma } from "@/lib/prisma";
 import { applySettingLocaleFields, splitSettingsSavePayload } from "@/lib/setting-locale";
 import { parseSettingValue } from "@/lib/settings";
@@ -6,12 +7,14 @@ import { isDataUrl } from "@/lib/supabase-storage";
 import {
   prepareSettingsPayloadForSave,
   sanitizePartnersForSave,
+  sanitizePartnersItemsForSave,
   sanitizeTestimonialsForSave,
 } from "@/lib/settings-images";
 import { parseTeamMembers, prepareTeamMembersForSave } from "@/lib/team-members";
 import { deleteOrphanedSettingImages } from "@/lib/settings-storage-cleanup";
 
 function normalizeSettingValue(key: string, value: unknown): unknown {
+  if (key === "partners_items") return sanitizePartnersItemsForSave(value);
   if (key === "partners") return sanitizePartnersForSave(value);
   if (key === "testimonials") return sanitizeTestimonialsForSave(value);
 
@@ -88,7 +91,7 @@ export async function POST(request: Request) {
                       valueId === undefined ||
                       valueId === null ||
                       valueId === ""
-                        ? null
+                        ? Prisma.DbNull
                         : (valueId as object),
                   }
                 : {}),

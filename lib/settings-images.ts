@@ -1,8 +1,10 @@
 import {
   parsePartners,
   parseTestimonials,
+  parseUnifiedLogoItems,
   preparePartnersForSave,
   prepareTestimonialsForSave,
+  prepareUnifiedLogoItemsForSave,
 } from "@/lib/partners-testimonials";
 import { withSettingsLocaleIdKeys } from "@/lib/settings-locale-keys";
 import { isDataUrl } from "@/lib/supabase-storage";
@@ -190,6 +192,9 @@ export function prepareSettingsPayloadForSave(
   if ("about_value_items" in out) {
     out.about_value_items = sanitizeAboutValueItemsForSave(out.about_value_items);
   }
+  if ("partners_items" in out) {
+    out.partners_items = sanitizePartnersItemsForSave(out.partners_items);
+  }
   if ("partners" in out) {
     out.partners = sanitizePartnersForSave(out.partners);
   }
@@ -198,6 +203,24 @@ export function prepareSettingsPayloadForSave(
   }
 
   return out;
+}
+
+export function sanitizePartnersItemsForSave(value: unknown) {
+  if (!Array.isArray(value)) {
+    throw new Error("partners_items must be an array.");
+  }
+
+  for (const item of value) {
+    if (!item || typeof item !== "object") continue;
+    const image = (item as { image?: unknown }).image;
+    if (typeof image === "string" && isDataUrl(image)) {
+      throw new Error(
+        "Partner and media logos must be uploaded to storage, not embedded as base64.",
+      );
+    }
+  }
+
+  return prepareUnifiedLogoItemsForSave(parseUnifiedLogoItems(value));
 }
 
 export function sanitizePartnersForSave(value: unknown) {

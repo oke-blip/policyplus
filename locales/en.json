@@ -211,6 +211,9 @@
     ],
     "cta": "Explore our work"
   },
+  "mediaCoverage": {
+    "header": "AS COVERED BY"
+  },
   "testimonials": {
     "header": "Trusted by Changemakers",
     "items": [

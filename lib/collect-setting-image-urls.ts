@@ -1,4 +1,8 @@
-import { parsePartners, parseTestimonials } from "@/lib/partners-testimonials";
+import {
+  parsePartners,
+  parseTestimonials,
+  parseUnifiedLogoItems,
+} from "@/lib/partners-testimonials";
 import { parseTeamMembers } from "@/lib/team-members";
 import type { AboutValueItem, ApproachItem, ExpertiseItem } from "@/lib/settings-utils";
 import type { HeroBannerRecord } from "@/lib/settings-images";
@@ -59,6 +63,9 @@ export function collectSettingImageUrls(key: string, value: unknown): string[] {
       break;
     case "about_value_items":
       collectFromImageRecords(urls, value, (item) => (item as AboutValueItem).image);
+      break;
+    case "partners_items":
+      for (const item of parseUnifiedLogoItems(value)) pushUrl(urls, item.image);
       break;
     case "partners":
       for (const p of parsePartners(value)) pushUrl(urls, p.image);

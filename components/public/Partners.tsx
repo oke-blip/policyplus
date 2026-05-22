@@ -3,6 +3,11 @@
 import Image from "next/image";
 
 import { useLanguage } from "@/contexts/LanguageContext";
+import { pickLocalized } from "@/lib/content-locale";
+import {
+  loadLogoItemsFromSettings,
+  splitLogoItemsByType,
+} from "@/lib/partners-testimonials";
 import { cn } from "@/lib/utils";
 
 type PartnerItem = {
@@ -28,8 +33,10 @@ function PartnerCard({ partner }: { partner: PartnerItem }) {
             className="object-cover opacity-90 transition-opacity duration-300 group-hover:opacity-40"
           />
         </div>
-        <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-black/90 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-          <span className="px-3 text-center text-base font-bold text-yellow-400 lg:text-lg">{partner.name}</span>
+        <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-black/90 px-3 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+          <span className="block text-center text-base font-bold text-yellow-400 lg:text-lg">
+            {partner.name}
+          </span>
         </div>
       </div>
     </div>
@@ -78,17 +85,39 @@ function PartnerMarqueeRow({
 }
 
 export function Partners({ data }: { data?: Record<string, unknown> }) {
-  const { t, language } = useLanguage();
-  const isId = language === "ID";
+  const { t, locale } = useLanguage();
 
   const headerEn =
     typeof data?.partners_header === "string" ? data.partners_header : "";
   const headerId =
     typeof data?.partners_header_id === "string" ? data.partners_header_id : "";
-  const header = (isId && headerId ? headerId : headerEn) || t("partners.header");
-  const items = data?.partners && data.partners.length > 0 
-    ? data.partners 
-    : t<PartnerItem[]>("partners.items");
+  const header = pickLocalized(locale, headerEn, headerId) || t("partners.header");
+  const descriptionEn =
+    typeof data?.partners_description === "string" ? data.partners_description : "";
+  const descriptionId =
+    typeof data?.partners_description_id === "string" ? data.partners_description_id : "";
+  const sectionDescription = pickLocalized(locale, descriptionEn, descriptionId).trim();
+  const { partners: partnerRows, mediaCoverage } = splitLogoItemsByType(
+    loadLogoItemsFromSettings(data ?? {}),
+  );
+  const items: PartnerItem[] =
+    partnerRows.length > 0
+      ? partnerRows
+          .filter((p) => (p.image ?? "").trim())
+          .map((p) => ({
+            name: p.name,
+            image: p.image ?? "",
+          }))
+      : t<PartnerItem[]>("partners.items");
+
+  const mediaItems: PartnerItem[] = mediaCoverage
+    .filter((m) => (m.image ?? "").trim())
+    .map((m) => {
+      const nameEn = m.name.trim();
+      const nameId = m.name_id?.trim() ?? "";
+      const name = pickLocalized(locale, nameEn, nameId) || nameEn || nameId;
+      return { name, image: m.image ?? "" };
+    });
 
   return (
     <section className="relative isolate flex min-h-svh w-full snap-start flex-col bg-black pt-28 pb-12 lg:pt-32 lg:pb-16">
@@ -96,15 +125,26 @@ export function Partners({ data }: { data?: Record<string, unknown> }) {
         aria-hidden="true"
         className="pointer-events-none absolute top-[-6%] right-[-8%] -z-10 h-[52vh] w-[46vw] rounded-full bg-white/5 blur-[120px]"
       />
-      <header className="relative z-10 mx-auto w-full max-w-7xl shrink-0 px-4 text-center">
+      <header className="relative z-10 mx-auto w-full max-w-3xl shrink-0 px-4 text-center">
         <h2 className="font-sans text-xl font-bold uppercase tracking-wide text-white sm:text-2xl md:text-3xl">
           {header}
         </h2>
+        {sectionDescription ? (
+          <p className="mt-4 text-base leading-relaxed text-gray-400">
+            {sectionDescription}
+          </p>
+        ) : null}
       </header>
 
       <div className="relative z-10 mx-auto mt-10 flex w-full min-h-0 max-w-[100vw] flex-1 flex-col justify-center gap-2 lg:mt-12 lg:gap-4">
         <PartnerMarqueeRow partners={items} durationSec={46} />
         <PartnerMarqueeRow partners={items} rtl durationSec={52} />
+        {mediaItems.length > 0 ? (
+          <>
+            <PartnerMarqueeRow partners={mediaItems} durationSec={48} />
+            <PartnerMarqueeRow partners={mediaItems} rtl durationSec={54} />
+          </>
+        ) : null}
       </div>
     </section>
   );

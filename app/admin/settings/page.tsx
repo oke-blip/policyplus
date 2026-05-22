@@ -925,7 +925,7 @@ export default function SettingsPage() {
                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Hero Banners (Slideshow Images)</label>
                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                       {settings.hero_banners?.map((banner: HeroBannerForm, index: number) => (
-                        <div key={index} className="relative aspect-video overflow-hidden rounded-xl border border-slate-200 group dark:border-white/10 shadow-sm">
+                        <div key={index} className="relative aspect-video overflow-hidden rounded-xl border border-slate-200 bg-checkerboard group dark:border-white/10 shadow-sm">
                           <img src={banner.image ?? banner.src ?? ""} alt={banner.alt ?? ""} className="w-full h-full object-cover" />
                           <button 
                             onClick={() => {
@@ -1047,7 +1047,7 @@ export default function SettingsPage() {
 
                         <div className="space-y-2 border-t border-slate-200 dark:border-white/10 pt-4 mt-auto">
                           <label className="text-xs font-bold text-slate-500">Cover Image (16:9)</label>
-                          <div className="relative h-40 w-full cursor-pointer overflow-hidden rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-900/50 hover:border-slate-400 transition-colors">
+                          <div className="relative h-40 w-full cursor-pointer overflow-hidden rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-700 bg-checkerboard hover:border-slate-400 transition-colors">
                             <input type="file" accept="image/*" onChange={(e) => handleExpertiseImageUpload(index, e)} className="absolute inset-0 opacity-0 z-10 cursor-pointer" />
                             {item.image ? (
                               <img src={item.image} className="w-full h-full object-cover" />
@@ -1165,7 +1165,7 @@ export default function SettingsPage() {
 
                          <div className="space-y-2 border-t border-slate-200 dark:border-white/10 pt-4 mt-auto">
                           <label className="text-xs font-bold text-slate-500">Background Image (Cover)</label>
-                          <div className="relative h-40 w-full cursor-pointer overflow-hidden rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-900/50 hover:border-slate-400 transition-colors">
+                          <div className="relative h-40 w-full cursor-pointer overflow-hidden rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-700 bg-checkerboard hover:border-slate-400 transition-colors">
                             <input type="file" accept="image/*" onChange={(e) => handleApproachImageUpload(index, e)} className="absolute inset-0 opacity-0 z-10 cursor-pointer" />
                             {item.image ? (
                               <img src={item.image} className="w-full h-full object-cover" />
@@ -1593,7 +1593,7 @@ export default function SettingsPage() {
 
                         <motion.div className="space-y-2">
                           <label className="text-xs font-bold text-slate-500">Custom Icon Image (optional)</label>
-                          <motion.div className="relative h-20 w-20 cursor-pointer overflow-hidden rounded-xl border-2 border-dashed border-slate-300 bg-slate-100 transition-colors hover:border-slate-400 dark:border-slate-700 dark:bg-slate-900/50">
+                          <motion.div className="relative h-20 w-20 cursor-pointer overflow-hidden rounded-xl border-2 border-dashed border-slate-300 bg-checkerboard transition-colors hover:border-slate-400 dark:border-slate-700">
                             <input
                               type="file"
                               accept="image/*"

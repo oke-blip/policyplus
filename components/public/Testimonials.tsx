@@ -1,237 +1,132 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useEffect, useCallback, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Quote, ChevronLeft, ChevronRight } from "lucide-react";
+import { useRef, useCallback } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { useLanguage } from "@/contexts/LanguageContext";
-import { parseTestimonials } from "@/lib/partners-testimonials";
+import {
+  getMediaCoverageDisplayLogos,
+  resolveMediaCoverageSectionCopy,
+} from "@/lib/partners-testimonials";
 import { cn } from "@/lib/utils";
 
-type TestimonialItem = {
-  quote: string;
-  author: string;
-  role: string;
+type MediaLogoItem = {
+  id: number;
+  name: string;
   image: string;
-  quote_id?: string;
-  role_id?: string;
 };
 
-const FALLBACK_AVATARS = [
-  "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=256&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=256&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=256&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=256&auto=format&fit=crop",
-];
+function MediaLogoCard({ logo }: { logo: MediaLogoItem }) {
+  const showName = logo.name.trim().length > 0;
 
-function toDisplayItems(
-  raw: ReturnType<typeof parseTestimonials>,
-  isId: boolean,
-): TestimonialItem[] {
-  return raw
-    .filter((item) => {
-      const quote = isId && item.quote_id?.trim() ? item.quote_id : item.quote;
-      return quote.trim();
-    })
-    .map((item, i) => {
-      const quote =
-        isId && item.quote_id?.trim() ? item.quote_id.trim() : item.quote.trim();
-      const role =
-        isId && item.role_id?.trim() ? item.role_id.trim() : item.role.trim();
-      const author =
-        isId && item.author_id?.trim()
-          ? item.author_id.trim()
-          : item.author.trim() || "Client";
-      return {
-        quote,
-        author,
-        role,
-        image:
-          item.image?.trim() ||
-          FALLBACK_AVATARS[i % FALLBACK_AVATARS.length],
-        quote_id: item.quote_id,
-        role_id: item.role_id,
-      };
-    });
+  return (
+    <div
+      className={cn(
+        "group relative flex h-20 w-36 shrink-0 items-center justify-center sm:h-24 sm:w-44 md:h-28 md:w-52 lg:h-32 lg:w-56",
+        showName && "cursor-default",
+      )}
+      title={showName ? logo.name : undefined}
+    >
+      <div className="relative h-full w-full px-4">
+        <Image
+          src={logo.image}
+          alt={showName ? logo.name : "Media outlet logo"}
+          fill
+          sizes="(max-width: 768px) 144px, 224px"
+          className="object-contain object-center"
+        />
+      </div>
+      {showName ? (
+        <span className="pointer-events-none absolute -bottom-8 left-1/2 z-10 max-w-[12rem] -translate-x-1/2 truncate rounded-md bg-slate-900/90 px-2.5 py-1 text-center text-[10px] font-semibold tracking-wide text-white opacity-0 shadow-lg transition-opacity duration-200 group-hover:opacity-100">
+          {logo.name}
+        </span>
+      ) : null}
+    </div>
+  );
 }
 
 export function Testimonials({ data }: { data?: Record<string, unknown> }) {
-  const { t, language } = useLanguage();
-  const sectionRef = useRef<HTMLElement>(null);
-  const isId = language === "ID";
+  const { t, locale } = useLanguage();
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-  const items = toDisplayItems(parseTestimonials(data?.testimonials), isId);
-
-  const fromCmsEn =
-    typeof data?.testimonials_header === "string"
-      ? data.testimonials_header.trim()
-      : "";
-  const fromCmsId =
-    typeof data?.testimonials_header_id === "string"
-      ? data.testimonials_header_id.trim()
-      : "";
-  const fromCms = isId && fromCmsId ? fromCmsId : fromCmsEn;
-  const header =
-    fromCms || t("testimonials.header") || "WHAT OUR CLIENTS SAY";
-
-  const [active, setActive] = useState(0);
-  const [isHovered, setIsHovered] = useState(false);
-  const [keyboardNavEnabled, setKeyboardNavEnabled] = useState(false);
-
-  const count = items.length;
-  const safeActive = count ? Math.min(active, count - 1) : 0;
-
-  const paginate = useCallback(
-    (dir: number) => {
-      if (!count) return;
-      setActive((prev) => (prev + dir + count) % count);
-    },
-    [count],
+  const copy = resolveMediaCoverageSectionCopy(
+    data,
+    locale,
+    String(t("mediaCoverage.header") || "AS COVERED BY"),
   );
 
-  useEffect(() => {
-    if (isHovered || !count) return;
-    const timer = setInterval(() => paginate(1), 6000);
-    return () => clearInterval(timer);
-  }, [isHovered, count, paginate]);
+  const logos: MediaLogoItem[] = getMediaCoverageDisplayLogos(data, locale);
 
-  useEffect(() => {
-    const root = sectionRef.current;
-    if (!root) return;
-    const io = new IntersectionObserver(
-      ([entry]) =>
-        setKeyboardNavEnabled(
-          entry.isIntersecting && entry.intersectionRatio >= 0.3,
-        ),
-      { threshold: [0, 0.3, 0.5] },
-    );
-    io.observe(root);
-    return () => io.disconnect();
+  const scroll = useCallback((direction: "left" | "right") => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const amount = Math.max(el.clientWidth * 0.65, 280);
+    el.scrollBy({
+      left: direction === "left" ? -amount : amount,
+      behavior: "smooth",
+    });
   }, []);
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (!keyboardNavEnabled) return;
-      if (e.key === "ArrowRight") {
-        e.preventDefault();
-        paginate(1);
-      } else if (e.key === "ArrowLeft") {
-        e.preventDefault();
-        paginate(-1);
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [paginate, keyboardNavEnabled]);
+  if (!logos.length) return null;
 
-  if (!count) return null;
-
-  const current = items[safeActive];
+  const showArrows = logos.length > 3;
 
   return (
     <section
-      ref={sectionRef}
-      id="testimonials"
-      className="relative isolate flex min-h-svh w-full snap-start flex-col justify-center overflow-hidden bg-black py-20 lg:py-24"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      id="media-coverage"
+      className="relative isolate flex w-full snap-start flex-col justify-center bg-zinc-50 py-20 sm:py-24 lg:py-28"
     >
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute bottom-0 left-1/2 -z-10 h-[50vh] w-[60vw] -translate-x-1/2 rounded-full bg-yellow-500/[0.04] blur-[120px]"
+        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(rgba(15,23,42,0.04)_1px,transparent_1px)] bg-[size:20px_20px]"
       />
 
-      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col items-center px-4 sm:px-6">
-        <header className="mb-12 shrink-0 text-center lg:mb-16">
-          <p className="text-xs font-semibold tracking-[0.32em] text-yellow-500 uppercase">
-            {header}
-          </p>
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+        <header className="mx-auto max-w-3xl shrink-0 text-center">
+          <h2 className="font-sans text-sm font-bold uppercase tracking-[0.35em] text-slate-900 sm:text-base md:tracking-[0.4em]">
+            {copy.header}
+          </h2>
+          {copy.description ? (
+            <p className="mt-4 text-base leading-relaxed text-slate-600">
+              {copy.description}
+            </p>
+          ) : null}
         </header>
 
-        <div className="relative flex w-full flex-col items-center justify-center min-h-[280px] lg:min-h-[320px]">
-          <Quote className="absolute -top-6 text-white/[0.03] size-32 md:size-48 lg:-top-10" />
+        <div className="relative mt-12 w-full sm:mt-14 lg:mt-16 group/slider">
+          {showArrows ? (
+            <>
+              <button
+                type="button"
+                onClick={() => scroll("left")}
+                className="absolute top-1/2 left-0 z-20 hidden h-16 w-16 -translate-y-1/2 items-center justify-center text-slate-900/25 transition-colors hover:text-slate-900/45 md:flex lg:left-2"
+                aria-label="Scroll media logos left"
+              >
+                <ChevronLeft className="size-14 stroke-[1.25]" aria-hidden />
+              </button>
+              <button
+                type="button"
+                onClick={() => scroll("right")}
+                className="absolute top-1/2 right-0 z-20 hidden h-16 w-16 -translate-y-1/2 items-center justify-center text-slate-900/25 transition-colors hover:text-slate-900/45 md:flex lg:right-2"
+                aria-label="Scroll media logos right"
+              >
+                <ChevronRight className="size-14 stroke-[1.25]" aria-hidden />
+              </button>
+            </>
+          ) : null}
 
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={safeActive}
-              initial={{ opacity: 0, y: 15, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -15, scale: 0.98 }}
-              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-              className="relative z-10 flex flex-col items-center text-center"
-            >
-              <blockquote className="max-w-4xl text-xl font-light leading-relaxed text-white sm:text-2xl md:text-3xl lg:text-4xl lg:leading-snug">
-                <span className="text-yellow-500/80 mr-1">&ldquo;</span>
-                {current.quote}
-                <span className="text-yellow-500/80 ml-1">&rdquo;</span>
-              </blockquote>
-
-              <div className="mt-8 md:mt-10">
-                <p className="text-lg font-bold text-white">{current.author}</p>
-                <p className="text-sm font-medium text-yellow-500/90 mt-1">
-                  {current.role}
-                </p>
-              </div>
-            </motion.div>
-          </AnimatePresence>
-        </div>
-
-        <div className="mt-16 flex items-center justify-center gap-4 sm:gap-6 w-full">
-          <button
-            type="button"
-            onClick={() => paginate(-1)}
-            className="flex size-10 items-center justify-center rounded-full border border-white/10 text-gray-400 transition-colors hover:bg-white/5 hover:text-white md:hidden"
+          <div
+            ref={scrollRef}
+            className={cn(
+              "flex w-full items-center gap-10 overflow-x-auto pb-4 hide-scrollbar scroll-smooth sm:gap-12 md:gap-14 lg:gap-16",
+              showArrows ? "px-12 md:px-16 lg:px-20" : "justify-center px-2",
+            )}
           >
-            <ChevronLeft size={18} />
-          </button>
-
-          <div className="flex items-center gap-4 sm:gap-6 overflow-x-auto hide-scrollbar px-2 py-4">
-            {items.map((item, index) => {
-              const isActive = index === safeActive;
-              return (
-                <div key={`${item.author}-${index}`} className="relative">
-                  {isActive && (
-                    <motion.div
-                      layoutId="testimonial-active-ring"
-                      className="absolute -inset-2 rounded-full border-2 border-yellow-500"
-                      transition={{
-                        type: "spring",
-                        stiffness: 300,
-                        damping: 30,
-                      }}
-                    />
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => setActive(index)}
-                    className={cn(
-                      "relative block size-14 sm:size-16 shrink-0 overflow-hidden rounded-full border border-white/10 transition-all duration-300",
-                      isActive
-                        ? "scale-100 opacity-100 grayscale-0 shadow-[0_0_20px_rgba(234,179,8,0.3)]"
-                        : "scale-90 opacity-40 grayscale hover:scale-95 hover:opacity-80 hover:grayscale-0",
-                    )}
-                  >
-                    <Image
-                      src={item.image}
-                      alt={item.author}
-                      fill
-                      className="object-cover"
-                      sizes="64px"
-                    />
-                  </button>
-                </div>
-              );
-            })}
+            {logos.map((logo) => (
+              <MediaLogoCard key={logo.id} logo={logo} />
+            ))}
           </div>
-
-          <button
-            type="button"
-            onClick={() => paginate(1)}
-            className="flex size-10 items-center justify-center rounded-full border border-white/10 text-gray-400 transition-colors hover:bg-white/5 hover:text-white md:hidden"
-          >
-            <ChevronRight size={18} />
-          </button>
         </div>
       </div>
     </section>

@@ -2,6 +2,13 @@ import type { SettingsSubfolder } from "@/lib/supabase-storage";
 
 const MAX_BYTES = 5 * 1024 * 1024;
 
+export function dataUrlToUploadFileName(dataUrl: string, baseName = "cropped"): string {
+  const mime = dataUrl.match(/:(.*?);/)?.[1] ?? "image/jpeg";
+  const ext =
+    mime === "image/png" ? "png" : mime === "image/webp" ? "webp" : mime === "image/gif" ? "gif" : "jpg";
+  return `${baseName}.${ext}`;
+}
+
 export function dataUrlToFile(dataUrl: string, fileName = "image.jpg"): File {
   const [header, base64] = dataUrl.split(",");
   const mime = header?.match(/:(.*?);/)?.[1] ?? "image/jpeg";
