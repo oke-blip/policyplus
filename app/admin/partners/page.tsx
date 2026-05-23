@@ -62,7 +62,7 @@ export default function PartnersPage() {
   const [partnersDescription, setPartnersDescription] = useState("");
   const [partnersDescriptionId, setPartnersDescriptionId] = useState("");
   const [mediaCoverage, setMediaCoverage] = useState<MediaCoverageRecord[]>([]);
-  const [mediaCoverageHeader, setMediaCoverageHeader] = useState("MEDIA COVERAGE");
+  const [mediaCoverageHeader, setMediaCoverageHeader] = useState("AS COVERED BY");
   const [mediaCoverageHeaderId, setMediaCoverageHeaderId] = useState("");
   const [mediaCoverageDescription, setMediaCoverageDescription] = useState("");
   const [mediaCoverageDescriptionId, setMediaCoverageDescriptionId] = useState("");
@@ -127,7 +127,7 @@ export default function PartnersPage() {
           partners_header_id: partnersHeaderId.trim(),
           partners_description: partnersDescription.trim(),
           partners_description_id: partnersDescriptionId.trim(),
-          media_coverage_header: mediaCoverageHeader.trim() || "MEDIA COVERAGE",
+          media_coverage_header: mediaCoverageHeader.trim() || "AS COVERED BY",
           media_coverage_header_id: mediaCoverageHeaderId.trim(),
           media_coverage_description: mediaCoverageDescription.trim(),
           media_coverage_description_id: mediaCoverageDescriptionId.trim(),
@@ -247,28 +247,40 @@ export default function PartnersPage() {
   return (
     <motion.div variants={containerVariants} initial="hidden" animate="show" className="space-y-10 pb-20">
       
-      {/* HEADER */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <motion.div variants={itemVariants} className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Social Proof</h1>
-          <p className="mt-1 text-gray-500 dark:text-slate-400">Manage partner logos and media coverage logos.</p>
+          <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Social Proof</h1>
+          <p className="mt-1.5 text-slate-500 dark:text-slate-400">Manage partner logos and media coverage logos.</p>
         </div>
 
-        <div className="flex items-center gap-4">
+        <motion.div className="flex items-center gap-4">
           <AnimatePresence>
             {message.text && (
-              <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold border ${message.type === 'success' ? 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400' : 'bg-rose-50 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/20 text-rose-600 dark:text-rose-400'}`}>
-                {message.type === 'success' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold ${
+                  message.type === "success"
+                    ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400"
+                    : "bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400"
+                }`}
+              >
+                {message.type === "success" ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
                 {message.text}
               </motion.div>
             )}
           </AnimatePresence>
-          <button onClick={handleSave} disabled={saving} className="flex items-center gap-2 px-6 py-2.5 bg-gray-900 text-white hover:bg-gray-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200 font-bold rounded-xl shadow-lg transition-all active:scale-95 disabled:opacity-50">
-            {saving ? <Loader className="animate-spin" size={18} /> : <Save size={18} />}
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="flex items-center gap-2 px-6 py-3 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-200 text-white dark:text-slate-900 font-bold rounded-xl shadow-lg transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0"
+          >
+            {saving ? <Loader className="animate-spin" size={20} /> : <Save size={20} />}
             Save Changes
           </button>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       {/* TABS */}
       <div className="flex items-center gap-2 p-1 bg-gray-100 border border-gray-200 dark:bg-white/5 dark:border-white/10 rounded-2xl w-fit">

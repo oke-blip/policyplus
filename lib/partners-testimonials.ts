@@ -50,7 +50,12 @@ export type TestimonialIdRecord = {
 
 const IMAGE_URL_RE = /^https?:\/\//i;
 const DEFAULT_PARTNERS_HEADER = "OUR PARTNERS";
-const DEFAULT_MEDIA_COVERAGE_HEADER = "MEDIA COVERAGE";
+const DEFAULT_MEDIA_COVERAGE_HEADER = "AS COVERED BY";
+
+/** Public logo rows: only https (or http) URLs — excludes relative paths and data URLs. */
+export function isValidLogoImageUrl(image: string | undefined): boolean {
+  return Boolean(sanitizePartnerImage(image));
+}
 
 /** Stable numeric id for logo rows (JSON may store number or numeric string). */
 export function normalizeRecordId(id: unknown, index: number): number {
@@ -172,9 +177,9 @@ export function loadLogoItemsFromSettings(
     image: p.image,
   }));
 
-  const mediaFromTestimonials = parseTestimonials(data.testimonials).map(
-    testimonialToMediaCoverage,
-  );
+  const mediaFromTestimonials = parseTestimonials(data.testimonials)
+    .map(testimonialToMediaCoverage)
+    .filter((m) => isValidLogoImageUrl(m.image));
 
   return [
     ...partners,
@@ -253,7 +258,9 @@ export function parseMediaCoverage(value: unknown): MediaCoverageRecord[] {
     }));
   if (fromUnified.length > 0) return fromUnified;
 
-  return parseTestimonials(value).map(testimonialToMediaCoverage);
+  return parseTestimonials(value)
+    .map(testimonialToMediaCoverage)
+    .filter((m) => isValidLogoImageUrl(m.image));
 }
 
 export function preparePartnersForSave(partners: PartnerRecord[]): PartnerRecord[] {
@@ -383,7 +390,7 @@ export function parseMediaCoverageHeaderId(
 ): string {
   const primary = data.media_coverage_header_id;
   if (typeof primary === "string" && primary.trim()) return primary.trim();
-  return parseTestimonialsHeaderId(data.testimonials_header_id);
+  return "";
 }
 
 export function parseMediaCoverageDescription(value: unknown): string {
@@ -426,7 +433,7 @@ export function parsePartnersHeader(value: unknown): string {
 export function parseMediaCoverageHeader(data: Record<string, unknown>): string {
   const primary = data.media_coverage_header;
   if (typeof primary === "string" && primary.trim()) return primary.trim();
-  return parseTestimonialsHeader(data.testimonials_header);
+  return "";
 }
 
 export function parseTestimonialsHeader(value: unknown): string {
@@ -450,14 +457,14 @@ export function getMediaCoverageDisplayLogos(
   );
 
   return mediaCoverage
-    .filter((item) => item.image?.trim())
+    .filter((item) => isValidLogoImageUrl(item.image))
     .map((item) => ({
       id: item.id,
       name:
         locale === "id" && item.name_id?.trim()
           ? item.name_id.trim()
           : item.name.trim(),
-      image: item.image!.trim(),
+      image: sanitizePartnerImage(item.image),
     }));
 }
 

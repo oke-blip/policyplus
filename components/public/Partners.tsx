@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { pickLocalized } from "@/lib/content-locale";
 import {
+  isValidLogoImageUrl,
   loadLogoItemsFromSettings,
   splitLogoItemsByType,
 } from "@/lib/partners-testimonials";
@@ -97,27 +98,18 @@ export function Partners({ data }: { data?: Record<string, unknown> }) {
   const descriptionId =
     typeof data?.partners_description_id === "string" ? data.partners_description_id : "";
   const sectionDescription = pickLocalized(locale, descriptionEn, descriptionId).trim();
-  const { partners: partnerRows, mediaCoverage } = splitLogoItemsByType(
+  const { partners: partnerRows } = splitLogoItemsByType(
     loadLogoItemsFromSettings(data ?? {}),
   );
   const items: PartnerItem[] =
     partnerRows.length > 0
       ? partnerRows
-          .filter((p) => (p.image ?? "").trim())
+          .filter((p) => isValidLogoImageUrl(p.image))
           .map((p) => ({
             name: p.name,
             image: p.image ?? "",
           }))
       : t<PartnerItem[]>("partners.items");
-
-  const mediaItems: PartnerItem[] = mediaCoverage
-    .filter((m) => (m.image ?? "").trim())
-    .map((m) => {
-      const nameEn = m.name.trim();
-      const nameId = m.name_id?.trim() ?? "";
-      const name = pickLocalized(locale, nameEn, nameId) || nameEn || nameId;
-      return { name, image: m.image ?? "" };
-    });
 
   return (
     <section className="relative isolate flex min-h-svh w-full snap-start flex-col bg-black pt-28 pb-12 lg:pt-32 lg:pb-16">
@@ -139,12 +131,6 @@ export function Partners({ data }: { data?: Record<string, unknown> }) {
       <div className="relative z-10 mx-auto mt-10 flex w-full min-h-0 max-w-[100vw] flex-1 flex-col justify-center gap-2 lg:mt-12 lg:gap-4">
         <PartnerMarqueeRow partners={items} durationSec={46} />
         <PartnerMarqueeRow partners={items} rtl durationSec={52} />
-        {mediaItems.length > 0 ? (
-          <>
-            <PartnerMarqueeRow partners={mediaItems} durationSec={48} />
-            <PartnerMarqueeRow partners={mediaItems} rtl durationSec={54} />
-          </>
-        ) : null}
       </div>
     </section>
   );
