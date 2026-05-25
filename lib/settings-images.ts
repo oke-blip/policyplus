@@ -49,31 +49,29 @@ export function sanitizeHeroBannersForSave(
 ): HeroBannerRecord[] {
   if (!Array.isArray(value)) return [];
 
-  return value
-    .map((item, index) => {
+  return value.flatMap<HeroBannerRecord>((item, index) => {
       if (typeof item === "string") {
         const image = sanitizeOptionalImageForSave(
           item,
           `Hero banner ${index + 1}`,
         );
-        if (!image) return null;
-        return { image, src: image, alt: `Hero banner ${index + 1}` };
+        if (!image) return [];
+        return [{ image, src: image, alt: `Hero banner ${index + 1}` }];
       }
-      if (!item || typeof item !== "object") return null;
+      if (!item || typeof item !== "object") return [];
       const record = item as HeroBannerRecord;
       const raw = record.image ?? record.src ?? "";
       const image = sanitizeOptionalImageForSave(
         raw,
         `Hero banner ${index + 1}`,
       );
-      if (!image) return null;
-      return {
+      if (!image) return [];
+      return [{
         image,
         src: image,
         alt: record.alt ? String(record.alt) : `Hero banner ${index + 1}`,
-      };
-    })
-    .filter((b): b is HeroBannerRecord => b !== null);
+      }];
+    });
 }
 
 export function sanitizeExpertiseItemsForSave(

@@ -2,7 +2,18 @@ import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
-const secretKey = process.env.JWT_SECRET || "policy-plus-secret-key-123456";
+const DEV_FALLBACK_SECRET = "policy-plus-secret-key-123456";
+
+function getJwtSecret(): string {
+  const secret = process.env.JWT_SECRET?.trim();
+  if (secret) return secret;
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("Missing JWT_SECRET in production");
+  }
+  return DEV_FALLBACK_SECRET;
+}
+
+const secretKey = getJwtSecret();
 const key = new TextEncoder().encode(secretKey);
 
 export async function encrypt(payload: any) {
