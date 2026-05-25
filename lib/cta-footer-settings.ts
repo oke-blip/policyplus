@@ -1,3 +1,4 @@
+import { pickLocalized, type ContentLocale } from "@/lib/content-locale";
 import { parseExpertiseItems } from "@/lib/settings-utils";
 
 /** Scalar keys from Global + CTA admin tabs used by `CTAFooterSection`. */
@@ -57,9 +58,29 @@ export function parseSocialLinks(raw: unknown): SocialLinkRecord[] {
   return raw.filter((item): item is SocialLinkRecord => typeof item === "object" && item !== null);
 }
 
-export function expertiseFooterLabels(raw: Record<string, unknown>): string[] {
+export function pickCtaFooterString(
+  raw: Record<string, unknown>,
+  key: string,
+  fallback: string,
+  locale: ContentLocale,
+): string {
+  const en = typeof raw[key] === "string" ? (raw[key] as string) : undefined;
+  const id =
+    typeof raw[`${key}_id`] === "string" ? (raw[`${key}_id`] as string) : undefined;
+  const picked = pickLocalized(locale, en, id);
+  return picked.trim() || fallback;
+}
+
+export function expertiseFooterLabels(
+  raw: Record<string, unknown>,
+  locale: ContentLocale,
+): string[] {
   const items = parseExpertiseItems(raw.expertise_items);
   return items
-    .map((item) => item.title.trim() || item.tag.trim())
+    .map((item) => {
+      const title = pickLocalized(locale, item.title, item.title_id);
+      const tag = pickLocalized(locale, item.tag, item.tag_id);
+      return title.trim() || tag.trim();
+    })
     .filter((label) => label.length > 0);
 }

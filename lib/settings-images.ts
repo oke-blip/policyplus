@@ -345,9 +345,6 @@ export const SETTINGS_TAB_KEYS: Record<SettingsAdminTab, readonly string[]> = {
     "about_mission_eyebrow",
     "about_mission_title",
     "about_mission_description",
-    "about_team_eyebrow",
-    "about_team_title",
-    "about_team_subtitle",
     "about_values_heading",
     "about_value_items",
   ]),
@@ -364,6 +361,7 @@ export const SETTINGS_TAB_KEYS: Record<SettingsAdminTab, readonly string[]> = {
     "knowledge_center_title",
     "knowledge_center_subtitle",
     "latest_insights_title",
+    "latest_insights_subtitle",
   ]),
 };
 

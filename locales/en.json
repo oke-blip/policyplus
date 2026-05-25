@@ -48,6 +48,8 @@
     "teamKeyboardHint": "Tip: use arrow keys to explore the roster.",
     "teamTouchHint": "Tap a teammate to focus, or use the arrows on the portrait.",
     "teamEmpty": "Team profiles will appear here once they are published in the admin.",
+    "teamAdvisorHeading": "Advisor",
+    "teamInternalHeading": "Internal Team",
     "footerEyebrow": "Final Call To Action",
     "footerTitle": "Ready to drive meaningful social impact?",
     "footerCta": "Get In Touch",
@@ -82,6 +84,12 @@
   "expertise": {
     "header": "OUR EXPERTISE",
     "description": "We combine forward-looking insight, global perspective, and collaborative dialogue to turn complex policy challenges into meaningful solutions.",
+    "page": {
+      "eyebrow": "Capabilities",
+      "title": "Policy expertise built for complex systems",
+      "description": "From evidence synthesis to stakeholder convening—explore how Policy+ supports governments, partners, and coalitions across the policy cycle.",
+      "countLabel": "{count} practice areas"
+    },
     "items": [
       {
         "tag": "Research & Analysis",
@@ -165,6 +173,14 @@
   "knowledge": {
     "header": "KNOWLEDGE CENTER",
     "description": "Explore our initiatives advancing knowledge, dialogue, and evidence-based policymaking.",
+    "page": {
+      "eyebrow": "Library",
+      "title": "Knowledge Center",
+      "description": "Reports, toolkits, and field-ready evidence curated for practitioners shaping policy on the ground.",
+      "searchPlaceholder": "Search resources…",
+      "filterAll": "All topics",
+      "countLabel": "{count} resources"
+    },
     "detail": {
       "back": "Back to Library",
       "readNext": "Read Next Analysis",
@@ -256,6 +272,16 @@
     "header": "Upcoming Events",
     "detailButton": "Learn more",
     "viewAll": "View All Events",
+    "page": {
+      "eyebrow": "Convenings",
+      "title": "Events & dialogues",
+      "description": "Workshops, roundtables, and hybrid convenings where evidence meets decision-makers—browse what's ahead and revisit recent sessions.",
+      "filterAll": "All formats",
+      "tabUpcoming": "Upcoming",
+      "tabPast": "Past",
+      "countLabel": "{count} events",
+      "joinCta": "Join event"
+    },
     "items": [
       {
         "title": "Policy Dialogue: Climate & Cities",
@@ -287,6 +313,13 @@
     "header": "Latest Insights",
     "readMore": "Read More",
     "readAll": "Read All Insights",
+    "page": {
+      "eyebrow": "Publications",
+      "title": "Insights & analysis",
+      "description": "Long-form analysis, research notes, and policy perspectives from the Policy+ team and collaborators.",
+      "searchPlaceholder": "Search articles…",
+      "countLabel": "{count} articles"
+    },
     "detail": {
       "back": "Back to Insights",
       "notFoundTitle": "Article Not Found",

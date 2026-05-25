@@ -105,6 +105,7 @@ type SettingsFormState = {
   knowledge_center_title: string;
   knowledge_center_subtitle: string;
   latest_insights_title: string;
+  latest_insights_subtitle: string;
   about_hero_image: string;
   about_hero_subtitle: string;
   about_hero_title: string;
@@ -187,10 +188,14 @@ const defaultSettings: SettingsFormState = {
   knowledge_center_subtitle:
     "Explore our initiatives advancing knowledge, dialogue, and evidence-based policymaking.",
   latest_insights_title: "Latest Insights",
+  latest_insights_subtitle:
+    "Long-form analysis, research notes, and policy perspectives from the Policy+ team and collaborators.",
   knowledge_center_title_id: "PUSAT PENGETAHUAN",
   knowledge_center_subtitle_id:
     "Jelajahi inisiatif kami yang memajukan pengetahuan, dialog, dan kebijakan berbasis bukti.",
   latest_insights_title_id: "Wawasan Terbaru",
+  latest_insights_subtitle_id:
+    "Analisis mendalam, catatan riset, dan perspektif kebijakan dari tim Policy+ dan kolaborator.",
   about_hero_image: "",
   about_hero_subtitle: "WHO WE ARE",
   about_hero_title: "Fostering Evidence-Based Policy in Indonesia",
@@ -1472,48 +1477,6 @@ export default function SettingsPage() {
 
             <section className="space-y-6">
               <motion.div className="border-b border-slate-200 dark:border-slate-800 pb-4">
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white">Meet The Team</h2>
-                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                  Section header above the team carousel (eyebrow, title, and description).
-                </p>
-              </motion.div>
-
-              <motion.div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                <motion.div className="space-y-2">
-                  <label className="text-sm font-bold text-yellow-600">Team Eyebrow</label>
-                  <input
-                    type="text"
-                    value={getLocaleString("about_team_eyebrow")}
-                    onChange={(e) => setLocaleString("about_team_eyebrow", e.target.value)}
-                    className={`${inputClass} font-bold text-yellow-600`}
-                    placeholder="OUR TEAM"
-                  />
-                </motion.div>
-                <motion.div className="space-y-2 md:col-span-2">
-                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Team Title</label>
-                  <input
-                    type="text"
-                    value={getLocaleString("about_team_title")}
-                    onChange={(e) => setLocaleString("about_team_title", e.target.value)}
-                    className={`${inputClass} font-bold text-lg`}
-                    placeholder="Meet The Team"
-                  />
-                </motion.div>
-                <motion.div className="space-y-2 md:col-span-2">
-                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Team Description</label>
-                  <textarea
-                    rows={3}
-                    value={getLocaleString("about_team_subtitle")}
-                    onChange={(e) => setLocaleString("about_team_subtitle", e.target.value)}
-                    className={`${inputClass} resize-none`}
-                    placeholder="Strategists, researchers, and operators…"
-                  />
-                </motion.div>
-              </motion.div>
-            </section>
-
-            <section className="space-y-6">
-              <motion.div className="border-b border-slate-200 dark:border-slate-800 pb-4">
                 <h2 className="text-lg font-bold text-slate-900 dark:text-white">What We Value</h2>
                 <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                   Section heading and dynamic value cards shown in a grid on the About page.
@@ -1770,18 +1733,34 @@ export default function SettingsPage() {
               <motion.div className="border-b border-slate-200 dark:border-slate-800 pb-4">
                 <h2 className="text-lg font-bold text-slate-900 dark:text-white">Latest Insights</h2>
                 <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                  Section title on the homepage Latest Insights block.
+                  Section title and subtitle on the homepage Latest Insights block and the Insights listing page.
                 </p>
               </motion.div>
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Section title</label>
-                <input
-                  type="text"
-                  value={getLocaleString("latest_insights_title")}
-                  onChange={(e) => setLocaleString("latest_insights_title", e.target.value)}
-                  className={`${inputClass} font-bold text-lg`}
-                  placeholder={langTab === "en" ? "Latest Insights" : "Wawasan Terbaru"}
-                />
+              <div className="grid grid-cols-1 gap-6">
+                <motion.div className="space-y-2">
+                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Section title</label>
+                  <input
+                    type="text"
+                    value={getLocaleString("latest_insights_title")}
+                    onChange={(e) => setLocaleString("latest_insights_title", e.target.value)}
+                    className={`${inputClass} font-bold text-lg`}
+                    placeholder={langTab === "en" ? "Latest Insights" : "Wawasan Terbaru"}
+                  />
+                </motion.div>
+                <motion.div className="space-y-2">
+                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Section subtitle</label>
+                  <textarea
+                    rows={3}
+                    value={getLocaleString("latest_insights_subtitle")}
+                    onChange={(e) => setLocaleString("latest_insights_subtitle", e.target.value)}
+                    className={inputClass}
+                    placeholder={
+                      langTab === "en"
+                        ? "Long-form analysis, research notes, and policy perspectives from the Policy+ team and collaborators."
+                        : "Analisis mendalam, catatan riset, dan perspektif kebijakan dari tim Policy+ dan kolaborator."
+                    }
+                  />
+                </motion.div>
               </div>
             </section>
           </motion.div>

@@ -48,6 +48,8 @@
     "teamKeyboardHint": "Tips: gunakan tombol panah untuk menjelajahi daftar.",
     "teamTouchHint": "Ketuk nama anggota untuk memfokuskan, atau gunakan panah pada potret.",
     "teamEmpty": "Profil tim akan ditampilkan di sini setelah dipublikasikan melalui admin.",
+    "teamAdvisorHeading": "Advisor",
+    "teamInternalHeading": "Tim Internal",
     "footerEyebrow": "Ajakan Bertindak",
     "footerTitle": "Siap mendorong dampak sosial yang bermakna?",
     "footerCta": "Hubungi Kami",
@@ -82,6 +84,12 @@
   "expertise": {
     "header": "KEAHLIAN KAMI",
     "description": "Kami memadukan wawasan yang berorientasi ke depan, perspektif global, dan dialog kolaboratif untuk mengubah tantangan kebijakan yang kompleks menjadi solusi yang bermakna.",
+    "page": {
+      "eyebrow": "Kapabilitas",
+      "title": "Keahlian kebijakan untuk sistem yang kompleks",
+      "description": "Dari sintesis bukti hingga perhimpunan pemangku kepentingan—jelajahi bagaimana Policy+ mendukung pemerintah, mitra, dan koalisi di siklus kebijakan.",
+      "countLabel": "{count} area praktik"
+    },
     "items": [
       {
         "tag": "Riset & Analisis",
@@ -165,6 +173,14 @@
   "knowledge": {
     "header": "PUSAT PENGETAHUAN",
     "description": "Jelajahi inisiatif kami yang memajukan pengetahuan, dialog, dan kebijakan berbasis bukti.",
+    "page": {
+      "eyebrow": "Perpustakaan",
+      "title": "Pusat Pengetahuan",
+      "description": "Laporan, toolkit, dan bukti siap lapangan yang dikurasi untuk praktisi yang membentuk kebijakan di lapangan.",
+      "searchPlaceholder": "Cari sumber daya…",
+      "filterAll": "Semua topik",
+      "countLabel": "{count} sumber daya"
+    },
     "detail": {
       "back": "Kembali ke Perpustakaan",
       "readNext": "Baca Analisis Berikutnya",
@@ -256,6 +272,16 @@
     "header": "Acara Mendatang",
     "detailButton": "Selengkapnya",
     "viewAll": "Lihat Semua Acara",
+    "page": {
+      "eyebrow": "Pertemuan",
+      "title": "Acara & dialog",
+      "description": "Lokakarya, diskusi meja bundar, dan pertemuan hibrida tempat bukti bertemu pengambil keputusan—telusuri jadwal mendatang dan sesi terdahulu.",
+      "filterAll": "Semua format",
+      "tabUpcoming": "Mendatang",
+      "tabPast": "Lalu",
+      "countLabel": "{count} acara",
+      "joinCta": "Ikuti acara"
+    },
     "items": [
       {
         "title": "Dialog Kebijakan: Iklim & Kota",
@@ -287,6 +313,13 @@
     "header": "Wawasan Terbaru",
     "readMore": "Baca Selengkapnya",
     "readAll": "Baca Semua Wawasan",
+    "page": {
+      "eyebrow": "Publikasi",
+      "title": "Wawasan & analisis",
+      "description": "Analisis mendalam, catatan riset, dan perspektif kebijakan dari tim Policy+ dan kolaborator.",
+      "searchPlaceholder": "Cari artikel…",
+      "countLabel": "{count} artikel"
+    },
     "detail": {
       "back": "Kembali ke Wawasan",
       "notFoundTitle": "Artikel Tidak Ditemukan",

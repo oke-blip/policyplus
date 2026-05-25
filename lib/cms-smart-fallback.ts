@@ -44,6 +44,7 @@ export const SMART_FALLBACK_PUBLICATIONS_FIELD_PAIRS: SmartFallbackFieldPair[] =
   ["knowledge_center_title", "knowledge_center_title_id"],
   ["knowledge_center_subtitle", "knowledge_center_subtitle_id"],
   ["latest_insights_title", "latest_insights_title_id"],
+  ["latest_insights_subtitle", "latest_insights_subtitle_id"],
 ];
 
 export const SMART_FALLBACK_CAREERS_HERO_PAIRS: SmartFallbackFieldPair[] = [
@@ -62,6 +63,7 @@ export const SMART_FALLBACK_TEAM_MEMBER_FIELD_PAIRS: SmartFallbackFieldPair[] = 
   ["name", "name_id"],
   ["role", "role_id"],
   ["focus", "focus_id"],
+  ["bio", "bio_id"],
 ];
 
 export const SMART_FALLBACK_EXPERTISE_ITEM_PAIRS: SmartFallbackFieldPair[] = [

@@ -4,12 +4,18 @@ export const PUBLICATIONS_SECTION_SETTING_KEYS = [
   "knowledge_center_title",
   "knowledge_center_subtitle",
   "latest_insights_title",
+  "latest_insights_subtitle",
 ] as const;
 
 export type PublicationsSectionSettingKey =
   (typeof PUBLICATIONS_SECTION_SETTING_KEYS)[number];
 
 export type KnowledgeCenterHeaderFallbacks = {
+  title: string;
+  subtitle: string;
+};
+
+export type LatestInsightsHeaderFallbacks = {
   title: string;
   subtitle: string;
 };
@@ -53,10 +59,32 @@ export function resolveKnowledgeCenterHeader(
   };
 }
 
+export function resolveLatestInsightsHeader(
+  raw: Record<string, unknown> | undefined,
+  locale: ContentLocale,
+  fallbacks: LatestInsightsHeaderFallbacks,
+): LatestInsightsHeaderFallbacks {
+  const settings = raw ?? {};
+  return {
+    title: pickPublicationsField(
+      settings,
+      "latest_insights_title",
+      locale,
+      fallbacks.title,
+    ),
+    subtitle: pickPublicationsField(
+      settings,
+      "latest_insights_subtitle",
+      locale,
+      fallbacks.subtitle,
+    ),
+  };
+}
+
 export function resolveLatestInsightsTitle(
   raw: Record<string, unknown> | undefined,
   locale: ContentLocale,
   fallback: string,
 ): string {
-  return pickPublicationsField(raw ?? {}, "latest_insights_title", locale, fallback);
+  return resolveLatestInsightsHeader(raw, locale, { title: fallback, subtitle: "" }).title;
 }

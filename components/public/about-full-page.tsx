@@ -65,13 +65,33 @@ function toAboutMembers(
   records: TeamMemberRecord[],
   locale: "en" | "id",
 ): AboutTeamMember[] {
-  return records.map(({ id, name, name_id, role, role_id, focus, focus_id, image }) => ({
-    id,
-    name: pickLocalized(locale, name, name_id),
-    role: pickLocalized(locale, role, role_id),
-    focus: pickLocalized(locale, focus, focus_id),
-    ...(image?.trim() ? { image: image.trim() } : {}),
-  }));
+  return records.map(
+    ({
+      id,
+      name,
+      name_id,
+      role,
+      role_id,
+      focus,
+      focus_id,
+      bio,
+      bio_id,
+      image,
+      category,
+      isLeadership,
+    }) => ({
+      id,
+      name: pickLocalized(locale, name, name_id),
+      role: pickLocalized(locale, role, role_id),
+      focus: pickLocalized(locale, focus, focus_id),
+      ...(image?.trim() ? { image: image.trim() } : {}),
+      category: category ?? "internal",
+      ...(isLeadership ? { isLeadership: true } : {}),
+      ...(isLeadership
+        ? { bio: pickLocalized(locale, bio ?? "", bio_id) }
+        : {}),
+    }),
+  );
 }
 
 function localizeValueItems(
@@ -230,11 +250,11 @@ export function AboutFullPage({
   const teamEmptyMessage = String(t("aboutPage.teamEmpty"));
 
   return (
-    <main className="hide-scrollbar relative h-svh w-full snap-y snap-proximity overflow-x-hidden overflow-y-auto overscroll-y-contain bg-black font-sans">
+    <main className="hide-scrollbar relative h-svh w-full snap-y snap-proximity overflow-x-hidden overflow-y-auto overscroll-y-contain bg-gray-50 font-sans dark:bg-black">
       {/* Section 1 — Who we are */}
       <section
         id="about-hero"
-        className="relative flex w-full min-h-svh snap-start flex-col justify-start overflow-x-hidden bg-black pt-[100px] pb-16 text-white lg:justify-center lg:pb-0 lg:pt-0"
+        className="relative flex w-full min-h-svh snap-start flex-col justify-start overflow-x-hidden bg-gray-50 pt-[100px] pb-16 text-gray-900 dark:bg-black dark:text-white lg:justify-center lg:pb-0 lg:pt-0"
         aria-labelledby="about-hero-heading"
       >
         <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8">
@@ -242,16 +262,16 @@ export function AboutFullPage({
           <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-12">
             {/* Left: Text Content */}
             <div className="order-1 flex flex-col items-start justify-start text-left lg:justify-center">
-              <span className="text-yellow-500 text-sm font-bold uppercase tracking-widest mb-4">
+              <span className="mb-4 text-sm font-bold tracking-widest text-yellow-600 uppercase dark:text-yellow-500">
                 {heroSubtitle}
               </span>
               <h1
                 id="about-hero-heading"
-                className="mb-6 max-w-xl text-3xl font-bold leading-tight text-white sm:text-4xl lg:text-5xl"
+                className="mb-6 max-w-xl text-3xl font-bold leading-tight text-gray-900 sm:text-4xl lg:text-5xl dark:text-white"
               >
                 {heroTitle}
               </h1>
-              <p className="mb-8 max-w-lg text-base text-gray-400">{heroDescription}</p>
+              <p className="mb-8 max-w-lg text-base text-gray-600 dark:text-gray-400">{heroDescription}</p>
               {heroCtaText ? (
                 heroCtaLink ? (
                   <Link
@@ -298,7 +318,7 @@ export function AboutFullPage({
       {/* Section 2 — Mission (single scroll: no nested overflow) */}
       <section
         id="our-mission"
-        className="relative isolate min-h-svh w-full shrink-0 snap-start bg-black"
+        className="relative isolate min-h-svh w-full shrink-0 snap-start bg-gray-50 dark:bg-black"
         aria-labelledby="our-mission-quote"
       >
         <div
@@ -313,13 +333,13 @@ export function AboutFullPage({
               className="pointer-events-none absolute -left-2 top-1/2 z-0 h-40 w-40 -translate-y-1/2 text-yellow-500/[0.07] sm:h-52 sm:w-52 lg:left-4 lg:h-64 lg:w-64"
               strokeWidth={1}
             />
-            <div className="relative z-10 rounded-3xl border border-white/[0.08] bg-white/[0.03] px-6 py-10 shadow-[0_0_80px_rgba(234,179,8,0.06)] backdrop-blur-md sm:px-10 sm:py-12 lg:px-14 lg:py-14">
-              <p className="text-xs font-semibold tracking-[0.28em] text-yellow-500 uppercase">
+            <div className="relative z-10 rounded-3xl border border-gray-200/90 bg-white/90 px-6 py-10 shadow-[0_0_80px_rgba(234,179,8,0.08)] backdrop-blur-md sm:px-10 sm:py-12 dark:border-white/[0.08] dark:bg-white/[0.03] dark:shadow-[0_0_80px_rgba(234,179,8,0.06)] lg:px-14 lg:py-14">
+              <p className="text-xs font-semibold tracking-[0.28em] text-yellow-600 uppercase dark:text-yellow-500">
                 {missionEyebrow}
               </p>
               <blockquote
                 id="our-mission-quote"
-                className="mt-6 mb-8 text-3xl font-bold leading-snug text-white sm:text-4xl lg:text-5xl"
+                className="mt-6 mb-8 text-3xl font-bold leading-snug text-gray-900 sm:text-4xl lg:text-5xl dark:text-white"
               >
                 {missionQuote}
               </blockquote>
@@ -334,13 +354,13 @@ export function AboutFullPage({
       {/* Section 3 — What we value */}
       <section
         id="what-we-value"
-        className="relative min-h-svh w-full shrink-0 snap-start bg-black"
+        className="relative min-h-svh w-full shrink-0 snap-start bg-gray-50 dark:bg-black"
         aria-labelledby="what-we-value-heading"
       >
         <div className="relative z-10 mx-auto max-w-6xl px-4 pb-20 pt-28 sm:px-6 lg:pb-28">
           <h2
             id="what-we-value-heading"
-            className="mb-12 text-center text-3xl font-bold text-white lg:text-5xl"
+            className="mb-12 text-center text-3xl font-bold text-gray-900 lg:text-5xl dark:text-white"
           >
             {valuesHeading}
           </h2>
@@ -358,7 +378,7 @@ export function AboutFullPage({
               return (
                 <div
                   key={cardKey}
-                  className="flex flex-col items-start gap-4 rounded-2xl border border-white/5 bg-[#111] p-8 transition-transform hover:-translate-y-1"
+                  className="flex flex-col items-start gap-4 rounded-2xl border border-gray-200 bg-white p-8 shadow-sm transition-transform hover:-translate-y-1 dark:border-white/5 dark:bg-[#111] dark:shadow-none"
                 >
                   {image ? (
                     <div className="relative size-9 shrink-0 overflow-hidden rounded-lg">
@@ -372,9 +392,9 @@ export function AboutFullPage({
                       />
                     </div>
                   ) : (
-                    <Icon className="size-9 shrink-0 text-yellow-500" strokeWidth={1.75} aria-hidden />
+                    <Icon className="size-9 shrink-0 text-yellow-600 dark:text-yellow-500" strokeWidth={1.75} aria-hidden />
                   )}
-                  <p className="text-left text-base font-medium leading-snug text-gray-100">{text}</p>
+                  <p className="text-left text-base font-medium leading-snug text-gray-800 dark:text-gray-100">{text}</p>
                 </div>
               );
             })}
@@ -396,15 +416,15 @@ export function AboutFullPage({
       ) : (
         <section
           id="meet-the-team"
-          className="relative min-h-[40vh] w-full shrink-0 snap-start bg-black"
+          className="relative min-h-[40vh] w-full shrink-0 snap-start bg-gray-50 dark:bg-black"
           aria-labelledby="about-team-empty-heading"
         >
           <div className="mx-auto max-w-3xl px-4 py-28 text-center sm:px-6 lg:py-32">
-            <p className="text-xs font-semibold tracking-[0.32em] text-yellow-500 uppercase">{teamEyebrow}</p>
-            <h2 id="about-team-empty-heading" className="mt-3 text-3xl font-bold text-white sm:text-4xl">
+            <p className="text-xs font-semibold tracking-[0.32em] text-yellow-600 uppercase dark:text-yellow-500">{teamEyebrow}</p>
+            <h2 id="about-team-empty-heading" className="mt-3 text-3xl font-bold text-gray-900 sm:text-4xl dark:text-white">
               {teamHeading}
             </h2>
-            <p className="mt-4 text-sm leading-relaxed text-gray-400 sm:text-base">{teamEmptyMessage}</p>
+            <p className="mt-4 text-sm leading-relaxed text-gray-600 sm:text-base dark:text-gray-400">{teamEmptyMessage}</p>
           </div>
         </section>
       )}
